@@ -1,0 +1,12 @@
+﻿@model TaxDeclarationWeb.Models.Country
+@{
+    ViewData["Title"] = "Детали страны";
+}
+<h2>@ViewData["Title"]</h2>
+
+<div>
+    <h4>@Model.Name</h4>
+    <p><strong>Код:</strong> @Model.Code</p>
+</div>
+
+<a asp-action="Index" class="btn btn-secondary">Назад</a>

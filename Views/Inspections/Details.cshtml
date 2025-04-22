@@ -1,0 +1,13 @@
+﻿@model TaxDeclarationWeb.Models.Inspection
+@{
+    ViewData["Title"] = "Детали инспекции";
+}
+<h2>@ViewData["Title"]</h2>
+
+<div>
+    <h4>@Model.Name</h4>
+    <p><strong>Код:</strong> @Model.Code</p>
+    <p><strong>Адрес:</strong> @Model.Address</p>
+</div>
+
+<a asp-action="Index" class="btn btn-secondary">Назад</a>

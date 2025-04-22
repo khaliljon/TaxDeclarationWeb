@@ -1,0 +1,31 @@
+﻿@model IEnumerable<TaxDeclarationWeb.Models.Country>
+
+<h2>Список стран</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Добавить страну</a>
+</p>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Код</th>
+        <th>Наименование</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Code</td>
+            <td>@item.Name</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Code">Редактировать</a> |
+                <a asp-action="Details" asp-route-id="@item.Code">Детали</a> |
+                <a asp-action="Delete" asp-route-id="@item.Code">Удалить</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

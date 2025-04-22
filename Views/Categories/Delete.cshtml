@@ -1,0 +1,17 @@
+﻿@model TaxDeclarationWeb.Models.Category
+@{
+    ViewData["Title"] = "Удалить категорию";
+}
+<h2>@ViewData["Title"]</h2>
+
+<h3>Вы уверены, что хотите удалить?</h3>
+<div>
+    <h4>@Model.Name</h4>
+    <p><strong>Код:</strong> @Model.Code</p>
+</div>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Code" />
+    <input type="submit" value="Удалить" class="btn btn-danger" /> |
+    <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+</form>

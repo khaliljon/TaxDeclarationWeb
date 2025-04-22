@@ -1,0 +1,18 @@
+﻿@model TaxDeclarationWeb.Models.Inspector
+@{
+    ViewData["Title"] = "Удалить инспектора";
+}
+<h2>@ViewData["Title"]</h2>
+
+<h3>Вы уверены, что хотите удалить?</h3>
+<div>
+    <h4>@Model.FullName</h4>
+    <p><strong>Инспекция:</strong> @Model.Inspection?.Name</p>
+    <p><strong>Телефон:</strong> @Model.Phone</p>
+</div>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Code" />
+    <input type="submit" value="Удалить" class="btn btn-danger" /> |
+    <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+</form>

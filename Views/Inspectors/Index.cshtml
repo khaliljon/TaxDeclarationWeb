@@ -1,0 +1,36 @@
+﻿@model IEnumerable<TaxDeclarationWeb.Models.Inspector>
+@{
+    ViewData["Title"] = "Инспекторы";
+}
+<h2>@ViewData["Title"]</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Добавить инспектора</a>
+</p>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Код</th>
+        <th>ФИО</th>
+        <th>Инспекция</th>
+        <th>Телефон</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model) {
+        <tr>
+            <td>@item.Code</td>
+            <td>@item.FullName</td>
+            <td>@item.Inspection?.Name</td>
+            <td>@item.Phone</td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Code">Редактировать</a> |
+                <a asp-action="Details" asp-route-id="@item.Code">Детали</a> |
+                <a asp-action="Delete" asp-route-id="@item.Code">Удалить</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

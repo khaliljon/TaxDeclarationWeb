@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+namespace TaxDeclarationWeb.Models;
+
 [Table("Категории_плательщиков")]
 public class Category
 {
