@@ -1,0 +1,56 @@
+﻿@model IEnumerable<TaxDeclarationWeb.Models.Taxpayer>
+
+@{
+    ViewData["Title"] = "Плательщики по категории и дате декларации";
+    var categories = ViewBag.Categories as List<TaxDeclarationWeb.Models.Category>;
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form method="get" asp-action="TaxpayersByCategoryAndDate">
+    <div class="form-group">
+        <label>Категория:</label>
+        <select name="categoryCode" class="form-control" required>
+            <option value="">Выберите...</option>
+            @foreach (var c in categories)
+            {
+                <option value="@c.Code" selected="@(ViewBag.CategoryCode == c.Code)">
+                    @c.Name
+                </option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label>День подачи декларации:</label>
+        <input type="number" name="day" class="form-control" min="1" max="31" value="@ViewBag.Day" required />
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Показать</button>
+</form>
+
+@if (Model.Any())
+{
+    <hr />
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ИИН</th>
+            <th>ФИО</th>
+            <th>Категория</th>
+            <th>Инспекция</th>
+            <th>Телефон</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var t in Model)
+        {
+            <tr>
+                <td>@t.IIN</td>
+                <td>@t.FullName</td>
+                <td>@ViewBag.CategoryCode</td>
+                <td>@t.Inspection?.Name</td>
+                <td>@t.Phone</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

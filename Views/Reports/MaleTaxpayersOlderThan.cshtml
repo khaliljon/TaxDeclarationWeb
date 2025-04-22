@@ -1,0 +1,43 @@
+﻿@model IEnumerable<TaxDeclarationWeb.Models.Taxpayer>
+
+@{
+    ViewData["Title"] = "Мужчины старше заданного возраста";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form method="get" asp-action="MaleTaxpayersOlderThan">
+    <div class="form-group">
+        <label>Возраст:</label>
+        <input type="number" name="age" class="form-control" min="1" value="@ViewBag.Age" required />
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Найти</button>
+</form>
+
+@if (Model.Any())
+{
+    <hr />
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ИИН</th>
+            <th>ФИО</th>
+            <th>Инспекция</th>
+            <th>Дата рождения</th>
+            <th>Телефон</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var t in Model)
+        {
+            <tr>
+                <td>@t.IIN</td>
+                <td>@t.FullName</td>
+                <td>@t.Inspection?.Name</td>
+                <td>@t.BirthDate.ToShortDateString()</td>
+                <td>@t.Phone</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

@@ -1,0 +1,32 @@
+﻿@model List<TaxDeclarationWeb.Models.Country>
+@{
+    ViewData["Title"] = "Добавить 3 страны";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-info">@ViewBag.Message</div>
+}
+
+<form asp-action="InsertCountries" method="post">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Код страны</th>
+            <th>Наименование</th>
+        </tr>
+        </thead>
+        <tbody>
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            <tr>
+                <td><input asp-for="@Model[i].Code" class="form-control" name="countries[@i].Code" /></td>
+                <td><input asp-for="@Model[i].Name" class="form-control" name="countries[@i].Name" /></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-success">Добавить</button>
+</form>

@@ -1,0 +1,50 @@
+﻿@model IEnumerable<TaxDeclarationWeb.Models.Taxpayer>
+
+@{
+    ViewData["Title"] = "Нерезиденты, обязанные подать декларацию";
+    var inspections = ViewBag.Inspections as List<TaxDeclarationWeb.Models.Inspection>;
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form method="get" asp-action="NerezidentsByInspection">
+    <div class="form-group">
+        <label for="inspectionCode">Инспекция:</label>
+        <select name="inspectionCode" class="form-control" required>
+            <option value="">Выберите инспекцию</option>
+            @foreach (var insp in inspections)
+            {
+                <option value="@insp.Code">@insp.Name</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Показать</button>
+</form>
+
+@if (Model.Any())
+{
+    <hr />
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ИИН</th>
+            <th>ФИО</th>
+            <th>Инспекция</th>
+            <th>Резидентство</th>
+            <th>Обязана подавать</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var t in Model)
+        {
+            <tr>
+                <td>@t.IIN</td>
+                <td>@t.FullName</td>
+                <td>@t.Inspection?.Name</td>
+                <td>Нерезидент</td>
+                <td>Да</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

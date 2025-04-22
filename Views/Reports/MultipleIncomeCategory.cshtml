@@ -1,0 +1,38 @@
+﻿@model IEnumerable<TaxDeclarationWeb.Models.Taxpayer>
+
+@{
+    ViewData["Title"] = "Плательщики с несколькими источниками дохода";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (!Model.Any())
+{
+    <p>Нет налогоплательщиков в этой категории.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ИИН</th>
+            <th>ФИО</th>
+            <th>Инспекция</th>
+            <th>Адрес</th>
+            <th>Телефон</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var t in Model)
+        {
+            <tr>
+                <td>@t.IIN</td>
+                <td>@t.FullName</td>
+                <td>@t.Inspection?.Name</td>
+                <td>@t.Address</td>
+                <td>@t.Phone</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

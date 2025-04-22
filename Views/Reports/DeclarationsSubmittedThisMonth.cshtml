@@ -1,0 +1,42 @@
+﻿@model IEnumerable<TaxDeclarationWeb.Models.Declaration>
+
+@{
+    ViewData["Title"] = "Декларации за текущий месяц";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (!Model.Any())
+{
+    <p>Нет поданных деклараций в этом месяце.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Дата подачи</th>
+            <th>Год</th>
+            <th>Инспекция</th>
+            <th>Инспектор</th>
+            <th>ИИН</th>
+            <th>ФИО</th>
+            <th>Доход</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var d in Model)
+        {
+            <tr>
+                <td>@d.SubmittedAt.ToShortDateString()</td>
+                <td>@d.Year</td>
+                <td>@d.Inspection?.Name</td>
+                <td>@d.Inspector?.FullName</td>
+                <td>@d.TaxpayerIIN</td>
+                <td>@d.Taxpayer?.FullName</td>
+                <td>@d.Income</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

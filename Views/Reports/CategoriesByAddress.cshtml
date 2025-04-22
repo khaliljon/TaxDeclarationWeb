@@ -1,0 +1,36 @@
+﻿@model IEnumerable<TaxDeclarationWeb.Models.Category>
+@{
+    ViewData["Title"] = "Категории по адресу";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form method="get" asp-action="CategoriesByAddress">
+    <div class="form-group">
+        <label>Адрес:</label>
+        <input type="text" name="address" value="@ViewBag.Address" class="form-control" placeholder="Например: г. Астана" />
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Найти</button>
+</form>
+
+@if (Model.Any())
+{
+    <hr />
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Код</th>
+            <th>Наименование</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var cat in Model)
+        {
+            <tr>
+                <td>@cat.Code</td>
+                <td>@cat.Name</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

@@ -28,11 +28,8 @@ public class Taxpayer
     [Column("категория")]
     public string CategoryCode { get; set; }
 
-    [ForeignKey("CategoryCode")]
-    public Category Category { get; set; }
-
     [Column("признак_обязательности_декларации")]
-    public bool DeclarationRequired { get; set; }
+    public bool IsDeclarationRequired { get; set; }
 
     [Column("дата_рождения")]
     public DateTime BirthDate { get; set; }
@@ -43,9 +40,6 @@ public class Taxpayer
     [Column("национальность")]
     public string NationalityCode { get; set; }
 
-    [ForeignKey("NationalityCode")]
-    public Nationality Nationality { get; set; }
-
     [Column("место_работы")]
     public string Workplace { get; set; }
 
@@ -55,6 +49,8 @@ public class Taxpayer
     [Column("страна")]
     public string CountryCode { get; set; }
 
-    [ForeignKey("CountryCode")]
+    // Навигационные свойства (если нужно)
+    public Category Category { get; set; }
     public Country Country { get; set; }
+    public Nationality Nationality { get; set; }
 }

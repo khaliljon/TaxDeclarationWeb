@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "Количество налогоплательщиков по дате подачи декларации";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form method="get" asp-action="CountTaxpayersByDeclarationDay">
+    <div class="form-group">
+        <label>День подачи декларации:</label>
+        <input type="number" name="day" class="form-control" min="1" max="31" value="@ViewBag.Day" required />
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Показать</button>
+</form>
+
+@if (ViewBag.Result != null)
+{
+    <hr />
+    <p>Количество налогоплательщиков, подавших декларацию <strong>@ViewBag.Day</strong> числа: <strong>@ViewBag.Result</strong></p>
+}

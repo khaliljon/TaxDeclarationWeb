@@ -1,0 +1,32 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Декларации по инспекциям в текущем году";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (!Model.Any())
+{
+    <p>Нет данных о поданных декларациях в текущем году.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Инспекция</th>
+            <th>Количество деклараций</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.InspectionName</td>
+                <td>@item.Count</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

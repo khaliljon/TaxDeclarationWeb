@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using TaxDeclarationWeb.Models;
+
+namespace TaxDeclarationWeb.Models;
 
 [Table("Декларации")]
 public class Declaration
