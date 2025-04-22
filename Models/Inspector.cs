@@ -1,20 +1,22 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TaxDeclarationWeb.Models
+[Table("Инспекторы")]
+public class Inspector
 {
-    public class Inspector
-    {
-        [Key]
-        public int Id { get; set; }
+    [Key]
+    [Column("инспектор")]
+    public string Code { get; set; }
 
-        public string FullName { get; set; }
+    [Column("ФИО")]
+    public string FullName { get; set; }
 
-        [ForeignKey("Inspection")]
-        public int InspectionId { get; set; }
+    [Column("код_инспекции")]
+    public string InspectionCode { get; set; }
 
-        public string Phone { get; set; }
+    [ForeignKey("InspectionCode")]
+    public Inspection Inspection { get; set; }
 
-        public Inspection Inspection { get; set; }
-    }
+    [Column("телефон")]
+    public string Phone { get; set; }
 }

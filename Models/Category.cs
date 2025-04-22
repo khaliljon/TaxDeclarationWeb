@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TaxDeclarationWeb.Models
+[Table("Категории_плательщиков")]
+public class Category
 {
-    public class Category
-    {
-        [Key]
-        public int Id { get; set; }
+    [Key]
+    [Column("категория")]
+    public string Code { get; set; }
 
-        public string Name { get; set; }
-    }
+    [Column("наименование")]
+    public string Name { get; set; }
 }

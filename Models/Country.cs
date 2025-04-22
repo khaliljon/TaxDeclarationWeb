@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TaxDeclarationWeb.Models
+[Table("Страны")]
+public class Country
 {
-    public class Country
-    {
-        [Key]
-        public int Id { get; set; }
+    [Key]
+    [Column("страна")]
+    public string Code { get; set; }
 
-        public string Name { get; set; }
-    }
+    [Column("наименование")]
+    public string Name { get; set; }
 }
