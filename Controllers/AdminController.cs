@@ -6,7 +6,7 @@ using TaxDeclarationWeb.Models;
 
 namespace TaxDeclarationWeb.Controllers;
 
-[Authorize(Roles = "Admin")]
+[Authorize(Policy = "RequireAdmin")]
 public class AdminController : Controller
 {
     public IActionResult Index() => View();

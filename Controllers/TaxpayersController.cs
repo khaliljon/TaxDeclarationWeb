@@ -7,7 +7,7 @@ using TaxDeclarationWeb.Models;
 
 namespace TaxDeclarationWeb.Controllers;
 
-[Authorize(Roles = "Inspector,ChiefInspector,Admin")]
+[Authorize(Policy = "RequireInspector")]
 [ApiController]
 [Route("taxpayers")]
 public class TaxpayersController : Controller
@@ -23,33 +23,36 @@ public class TaxpayersController : Controller
 
     // GET /taxpayers
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> GetAll()
     {
         var user = await _userManager.GetUserAsync(User);
         var roles = await _userManager.GetRolesAsync(user);
 
-        IQueryable<Taxpayer> query = _context.Taxpayers
+        var query = _context.Taxpayers
             .Include(t => t.Inspection)
             .Include(t => t.Category)
             .Include(t => t.Country)
-            .Include(t => t.Nationality);
+            .Include(t => t.Nationality)
+            .AsQueryable();
 
         if (roles.Contains("Inspector") && user.InspectorId != null)
         {
-            var inspector = await _context.Inspectors.FirstOrDefaultAsync(i => i.Code == user.InspectorId);
+            var inspector = await _context.Inspectors
+                .FirstOrDefaultAsync(i => i.Code == user.InspectorId);
+
             if (inspector != null)
             {
                 query = query.Where(t => t.InspectionCode == inspector.InspectionCode);
             }
         }
 
-        var result = await query.ToListAsync();
-        return Ok(result);
+        var list = await query.ToListAsync();
+        return Ok(list);
     }
 
     // GET /taxpayers/{iin}
     [HttpGet("{iin}")]
-    public async Task<IActionResult> Details(string iin)
+    public async Task<IActionResult> GetByIin(string iin)
     {
         var taxpayer = await _context.Taxpayers
             .Include(t => t.Inspection)
@@ -74,21 +77,21 @@ public class TaxpayersController : Controller
         _context.Taxpayers.Add(taxpayer);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(Details), new { iin = taxpayer.IIN }, taxpayer);
+        return CreatedAtAction(nameof(GetByIin), new { iin = taxpayer.IIN }, taxpayer);
     }
 
     // PUT /taxpayers/{iin}
     [HttpPut("{iin}")]
-    public async Task<IActionResult> Edit(string iin, [FromBody] Taxpayer updated)
+    public async Task<IActionResult> Update(string iin, [FromBody] Taxpayer taxpayer)
     {
-        if (iin != updated.IIN)
+        if (iin != taxpayer.IIN)
             return BadRequest("IIN mismatch");
 
         var existing = await _context.Taxpayers.FindAsync(iin);
         if (existing == null)
             return NotFound();
 
-        _context.Entry(existing).CurrentValues.SetValues(updated);
+        _context.Entry(existing).CurrentValues.SetValues(taxpayer);
         await _context.SaveChangesAsync();
 
         return NoContent();

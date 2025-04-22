@@ -7,7 +7,7 @@ public class ApplicationUser : IdentityUser
 {
     public string? InspectorId { get; set; }
 
-    [ForeignKey("InspectorId")]
+    [NotMapped] // ВАЖНО: отключает внешнюю связь, но оставляет поле
     public Inspector? Inspector { get; set; }
 
     public string Role { get; set; } = "Taxpayer";

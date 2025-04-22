@@ -7,7 +7,7 @@ using TaxDeclarationWeb.Models;
 
 namespace TaxDeclarationWeb.Controllers;
 
-[Authorize(Roles = "Inspector,ChiefInspector,Admin")]
+[Authorize(Policy = "RequireInspector")]
 [ApiController]
 [Route("declarations")]
 public class DeclarationsController : Controller

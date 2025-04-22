@@ -35,9 +35,7 @@ namespace TaxDeclarationWeb.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Категории_плательщиков");
-
-                    b.ToView("Категории_плательщиков", (string)null);
+                    b.ToTable("Категории_плательщиков", (string)null);
                 });
 
             modelBuilder.Entity("Country", b =>
@@ -53,9 +51,7 @@ namespace TaxDeclarationWeb.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Страны");
-
-                    b.ToView("Страны", (string)null);
+                    b.ToTable("Страны", (string)null);
                 });
 
             modelBuilder.Entity("Declaration", b =>
@@ -68,10 +64,12 @@ namespace TaxDeclarationWeb.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Expenses")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("сумма_расхода");
 
                     b.Property<decimal>("Income")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("сумма_дохода");
 
@@ -86,10 +84,12 @@ namespace TaxDeclarationWeb.Migrations
                         .HasColumnName("инспектор");
 
                     b.Property<decimal>("NonTaxableExpenses")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("необлагаемые_расходы");
 
                     b.Property<decimal>("PaidTaxes")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("сумма_уплаченных_налогов");
 
@@ -114,9 +114,7 @@ namespace TaxDeclarationWeb.Migrations
 
                     b.HasIndex("TaxpayerIIN");
 
-                    b.ToTable("Декларации");
-
-                    b.ToView("Декларации", (string)null);
+                    b.ToTable("Декларации", (string)null);
                 });
 
             modelBuilder.Entity("Inspection", b =>
@@ -137,9 +135,7 @@ namespace TaxDeclarationWeb.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Налоговые_инспекции");
-
-                    b.ToView("Налоговые_инспекции", (string)null);
+                    b.ToTable("Налоговые_инспекции", (string)null);
                 });
 
             modelBuilder.Entity("Inspector", b =>
@@ -167,9 +163,7 @@ namespace TaxDeclarationWeb.Migrations
 
                     b.HasIndex("InspectionCode");
 
-                    b.ToTable("Инспекторы");
-
-                    b.ToView("Инспекторы", (string)null);
+                    b.ToTable("Инспекторы", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -324,8 +318,7 @@ namespace TaxDeclarationWeb.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("IIN")
-                        .IsRequired()
+                    b.Property<string>("InspectorId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -350,6 +343,10 @@ namespace TaxDeclarationWeb.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -387,12 +384,10 @@ namespace TaxDeclarationWeb.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Национальности");
-
-                    b.ToView("Национальности", (string)null);
+                    b.ToTable("Национальности", (string)null);
                 });
 
-            modelBuilder.Entity("Taxpayer", b =>
+            modelBuilder.Entity("TaxDeclarationWeb.Models.Taxpayer", b =>
                 {
                     b.Property<string>("IIN")
                         .HasColumnType("nvarchar(450)")
@@ -465,9 +460,7 @@ namespace TaxDeclarationWeb.Migrations
 
                     b.HasIndex("NationalityCode");
 
-                    b.ToTable("Налогоплательщики");
-
-                    b.ToView("Налогоплательщики", (string)null);
+                    b.ToTable("Налогоплательщики", (string)null);
                 });
 
             modelBuilder.Entity("Declaration", b =>
@@ -484,7 +477,7 @@ namespace TaxDeclarationWeb.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Taxpayer", "Taxpayer")
+                    b.HasOne("TaxDeclarationWeb.Models.Taxpayer", "Taxpayer")
                         .WithMany()
                         .HasForeignKey("TaxpayerIIN")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -559,7 +552,7 @@ namespace TaxDeclarationWeb.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Taxpayer", b =>
+            modelBuilder.Entity("TaxDeclarationWeb.Models.Taxpayer", b =>
                 {
                     b.HasOne("Category", "Category")
                         .WithMany()

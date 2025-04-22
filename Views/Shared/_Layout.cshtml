@@ -53,7 +53,8 @@
                         </a>
                     </li>
                 }
-                else if (roles.Contains("ChiefInspector"))
+
+                if (roles.Contains("ChiefInspector"))
                 {
                     <li>
                         <a asp-controller="ChiefInspector" asp-action="Index"
@@ -62,7 +63,8 @@
                         </a>
                     </li>
                 }
-                else if (roles.Contains("Inspector"))
+
+                if (roles.Contains("Inspector"))
                 {
                     <li>
                         <a asp-controller="Inspector" asp-action="Index"
@@ -71,10 +73,11 @@
                         </a>
                     </li>
                 }
-                else if (roles.Contains("Taxpayer"))
+
+                if (roles.Contains("Taxpayer"))
                 {
                     <li>
-                        <a asp-controller="Taxpayers" asp-action="Index"
+                        <a asp-controller="Taxpayer" asp-action="Index"
                            class="@(currentController == "Taxpayer" ? "active" : "")">
                             Налогоплательщик
                         </a>

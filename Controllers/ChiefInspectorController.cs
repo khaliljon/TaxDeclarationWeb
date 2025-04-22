@@ -6,7 +6,7 @@ using TaxDeclarationWeb.Models;
 
 namespace TaxDeclarationWeb.Controllers;
 
-[Authorize(Roles = "ChiefInspector")]
+[Authorize(Policy = "RequireChiefInspector")]
 public class ChiefInspectorController : Controller
 {
     public IActionResult Index() => View();
