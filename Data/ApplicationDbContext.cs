@@ -9,6 +9,7 @@ namespace TaxDeclarationWeb.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {}
 
+        // ✅ Используемые таблицы (существуют в базе вручную)
         public DbSet<Taxpayer> Taxpayers { get; set; }
         public DbSet<Declaration> Declarations { get; set; }
         public DbSet<Inspector> Inspectors { get; set; }
@@ -21,23 +22,20 @@ namespace TaxDeclarationWeb.Data
         {
             base.OnModelCreating(builder);
 
-            // Привязка к таблицам с русскими именами
-            builder.Entity<Taxpayer>().ToTable("Налогоплательщики");
-            builder.Entity<Declaration>().ToTable("Декларации");
-            builder.Entity<Inspector>().ToTable("Инспекторы");
-            builder.Entity<Inspection>().ToTable("Налоговые_инспекции");
-            builder.Entity<Category>().ToTable("Категории_плательщиков");
-            builder.Entity<Country>().ToTable("Страны");
-            builder.Entity<Nationality>().ToTable("Национальности");
+            // ❗ Подключаем существующие таблицы — НО без включения в миграции
+            builder.Entity<Taxpayer>().ToTable("Налогоплательщики", t => t.ExcludeFromMigrations());
+            builder.Entity<Declaration>().ToTable("Декларации", t => t.ExcludeFromMigrations());
+            builder.Entity<Inspector>().ToTable("Инспекторы", t => t.ExcludeFromMigrations());
+            builder.Entity<Inspection>().ToTable("Налоговые_инспекции", t => t.ExcludeFromMigrations());
+            builder.Entity<Category>().ToTable("Категории_плательщиков", t => t.ExcludeFromMigrations());
+            builder.Entity<Country>().ToTable("Страны", t => t.ExcludeFromMigrations());
+            builder.Entity<Nationality>().ToTable("Национальности", t => t.ExcludeFromMigrations());
 
-            // Decimal поля с точностью
+            // ✅ Только decimal поля на всякий случай
             builder.Entity<Declaration>().Property(d => d.Income).HasPrecision(18, 2);
             builder.Entity<Declaration>().Property(d => d.Expenses).HasPrecision(18, 2);
             builder.Entity<Declaration>().Property(d => d.NonTaxableExpenses).HasPrecision(18, 2);
             builder.Entity<Declaration>().Property(d => d.PaidTaxes).HasPrecision(18, 2);
-
-            // ВНИМАНИЕ: внешняя связь InspectorId → инспектор отключена
-            // В ApplicationUser используется [NotMapped] для свойства Inspector
         }
     }
 }

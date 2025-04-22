@@ -7,7 +7,7 @@ public class ApplicationUser : IdentityUser
 {
     public string? InspectorId { get; set; }
 
-    [NotMapped] // ВАЖНО: отключает внешнюю связь, но оставляет поле
+    [NotMapped]
     public Inspector? Inspector { get; set; }
 
     public string Role { get; set; } = "Taxpayer";

@@ -35,7 +35,10 @@ namespace TaxDeclarationWeb.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Категории_плательщиков", (string)null);
+                    b.ToTable("Категории_плательщиков", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
                 });
 
             modelBuilder.Entity("Country", b =>
@@ -51,7 +54,10 @@ namespace TaxDeclarationWeb.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Страны", (string)null);
+                    b.ToTable("Страны", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
                 });
 
             modelBuilder.Entity("Declaration", b =>
@@ -114,7 +120,10 @@ namespace TaxDeclarationWeb.Migrations
 
                     b.HasIndex("TaxpayerIIN");
 
-                    b.ToTable("Декларации", (string)null);
+                    b.ToTable("Декларации", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
                 });
 
             modelBuilder.Entity("Inspection", b =>
@@ -135,7 +144,10 @@ namespace TaxDeclarationWeb.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Налоговые_инспекции", (string)null);
+                    b.ToTable("Налоговые_инспекции", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
                 });
 
             modelBuilder.Entity("Inspector", b =>
@@ -163,7 +175,10 @@ namespace TaxDeclarationWeb.Migrations
 
                     b.HasIndex("InspectionCode");
 
-                    b.ToTable("Инспекторы", (string)null);
+                    b.ToTable("Инспекторы", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -384,7 +399,10 @@ namespace TaxDeclarationWeb.Migrations
 
                     b.HasKey("Code");
 
-                    b.ToTable("Национальности", (string)null);
+                    b.ToTable("Национальности", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
                 });
 
             modelBuilder.Entity("TaxDeclarationWeb.Models.Taxpayer", b =>
@@ -460,7 +478,10 @@ namespace TaxDeclarationWeb.Migrations
 
                     b.HasIndex("NationalityCode");
 
-                    b.ToTable("Налогоплательщики", (string)null);
+                    b.ToTable("Налогоплательщики", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
                 });
 
             modelBuilder.Entity("Declaration", b =>

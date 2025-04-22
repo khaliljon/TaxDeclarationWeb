@@ -22,27 +22,63 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// MVC
+// Авторизация по ролям
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireTaxpayer", policy =>
+        policy.RequireRole("Taxpayer"));
+
+    options.AddPolicy("RequireInspector", policy =>
+        policy.RequireRole("Inspector", "ChiefInspector", "Admin"));
+
+    options.AddPolicy("RequireChiefInspector", policy =>
+        policy.RequireRole("ChiefInspector", "Admin"));
+
+    options.AddPolicy("RequireAdmin", policy =>
+        policy.RequireRole("Admin"));
+});
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Роли и миграция базы данных
+// ❗️ Временно можно ОТКЛЮЧИТЬ миграции, если они вызывают ошибку
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<ApplicationDbContext>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
-    context.Database.Migrate();
+    // Если база уже создана — эту строку можно закомментировать
+    // var context = services.GetRequiredService<ApplicationDbContext>();
+    // context.Database.Migrate();
 
+    // Создание ролей
     string[] roles = { "Taxpayer", "Inspector", "ChiefInspector", "Admin" };
     foreach (var role in roles)
     {
         if (!await roleManager.RoleExistsAsync(role))
         {
             await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+
+    // Создание администратора (при первом запуске)
+    var adminEmail = "admin@tax.local";
+    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+    if (adminUser == null)
+    {
+        var user = new ApplicationUser
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            Role = "Admin"
+        };
+
+        var result = await userManager.CreateAsync(user, "Admin123!");
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(user, "Admin");
         }
     }
 }
