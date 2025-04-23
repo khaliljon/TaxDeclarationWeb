@@ -1,0 +1,87 @@
+﻿@model TaxDeclarationWeb.Models.Taxpayer
+
+@{
+    ViewData["Title"] = "Редактировать налогоплательщика";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="IIN" />
+
+    <div class="form-group">
+        <label asp-for="FullName"></label>
+        <input asp-for="FullName" class="form-control" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Address"></label>
+        <input asp-for="Address" class="form-control" />
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Phone"></label>
+        <input asp-for="Phone" class="form-control" />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="InspectionCode">Инспекция</label>
+        <select asp-for="InspectionCode" class="form-control" asp-items="ViewBag.Inspections"></select>
+        <span asp-validation-for="InspectionCode" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CategoryCode">Категория</label>
+        <select asp-for="CategoryCode" class="form-control" asp-items="ViewBag.Categories"></select>
+        <span asp-validation-for="CategoryCode" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="IsDeclarationRequired">Обязательна декларация?</label>
+        <input asp-for="IsDeclarationRequired" type="checkbox" class="form-check-input" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="BirthDate">Дата рождения</label>
+        <input asp-for="BirthDate" type="date" class="form-control" />
+        <span asp-validation-for="BirthDate" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Gender">Пол</label>
+        <select asp-for="Gender" class="form-control">
+            <option value="М">М</option>
+            <option value="Ж">Ж</option>
+        </select>
+        <span asp-validation-for="Gender" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="NationalityCode">Национальность</label>
+        <select asp-for="NationalityCode" class="form-control" asp-items="ViewBag.Nationalities"></select>
+        <span asp-validation-for="NationalityCode" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Workplace">Место работы</label>
+        <input asp-for="Workplace" class="form-control" />
+        <span asp-validation-for="Workplace" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="IsResident">Резидент</label>
+        <input asp-for="IsResident" type="checkbox" class="form-check-input" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CountryCode">Страна</label>
+        <select asp-for="CountryCode" class="form-control" asp-items="ViewBag.Countries"></select>
+        <span asp-validation-for="CountryCode" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+    <a asp-action="Index" class="btn btn-secondary">Назад к списку</a>
+</form>

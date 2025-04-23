@@ -42,16 +42,11 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// ❗️ Временно можно ОТКЛЮЧИТЬ миграции, если они вызывают ошибку
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-
-    // Если база уже создана — эту строку можно закомментировать
-    // var context = services.GetRequiredService<ApplicationDbContext>();
-    // context.Database.Migrate();
 
     // Создание ролей
     string[] roles = { "Taxpayer", "Inspector", "ChiefInspector", "Admin" };
@@ -63,7 +58,7 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    // Создание администратора (при первом запуске)
+    // Создание администратора
     var adminEmail = "admin@tax.local";
     var adminUser = await userManager.FindByEmailAsync(adminEmail);
     if (adminUser == null)
@@ -81,6 +76,34 @@ using (var scope = app.Services.CreateScope())
             await userManager.AddToRoleAsync(user, "Admin");
         }
     }
+
+    // Тестовые пользователи
+    var testUsers = new List<(string Email, string Password, string Role)>
+    {
+        ("inspector@tax.local", "Inspector123!", "Inspector"),
+        ("chief@tax.local", "Chief123!", "ChiefInspector"),
+        ("payer@tax.local", "Payer123!", "Taxpayer")
+    };
+
+    foreach (var (email, password, role) in testUsers)
+    {
+        var existing = await userManager.FindByEmailAsync(email);
+        if (existing == null)
+        {
+            var user = new ApplicationUser
+            {
+                UserName = email,
+                Email = email,
+                Role = role
+            };
+
+            var result = await userManager.CreateAsync(user, password);
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, role);
+            }
+        }
+    }
 }
 
 // Middleware
@@ -92,7 +115,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 
 app.UseAuthentication();

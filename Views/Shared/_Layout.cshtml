@@ -5,6 +5,28 @@
 @{
     string currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     string currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    string userEmail = "";
+    string userRole = "";
+
+    if (SignInManager.IsSignedIn(User))
+    {
+        try
+        {
+            var userObj = await UserManager.GetUserAsync(User);
+            if (userObj != null)
+            {
+                userEmail = userObj.Email;
+                var roles = await UserManager.GetRolesAsync(userObj);
+                userRole = roles.FirstOrDefault() ?? "";
+            }
+        }
+        catch
+        {
+            userEmail = "Ошибка подключения к БД";
+            userRole = "н/д";
+        }
+    }
 }
 
 <!DOCTYPE html>
@@ -18,6 +40,7 @@
             list-style: none;
             display: flex;
             gap: 20px;
+            align-items: center;
         }
 
         nav a {
@@ -27,6 +50,13 @@
         .active {
             font-weight: bold;
             color: darkred;
+        }
+
+        .user-info {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
     </style>
 </head>
@@ -41,60 +71,49 @@
 
             @if (SignInManager.IsSignedIn(User))
             {
-                var user = await UserManager.GetUserAsync(User);
-                var roles = await UserManager.GetRolesAsync(user);
-
-                if (roles.Contains("Admin"))
+                if (User.IsInRole("Admin"))
                 {
                     <li>
                         <a asp-controller="Admin" asp-action="Index"
-                           class="@(currentController == "Admin" ? "active" : "")">
-                            Админ-панель
-                        </a>
+                           class="@(currentController == "Admin" ? "active" : "")">Админ-панель</a>
                     </li>
                 }
-
-                if (roles.Contains("ChiefInspector"))
+                if (User.IsInRole("ChiefInspector"))
                 {
                     <li>
                         <a asp-controller="ChiefInspector" asp-action="Index"
-                           class="@(currentController == "ChiefInspector" ? "active" : "")">
-                            Главный инспектор
-                        </a>
+                           class="@(currentController == "ChiefInspector" ? "active" : "")">Главный инспектор</a>
                     </li>
                 }
-
-                if (roles.Contains("Inspector"))
+                if (User.IsInRole("Inspector"))
                 {
                     <li>
-                        <a asp-controller="Inspector" asp-action="Index"
-                           class="@(currentController == "Inspector" ? "active" : "")">
-                            Инспектор
-                        </a>
+                        <a asp-controller="Inspectors" asp-action="Index"
+                           class="@(currentController == "Inspectors" ? "active" : "")">Инспектор</a>
                     </li>
                 }
-
-                if (roles.Contains("Taxpayer"))
+                if (User.IsInRole("Taxpayer"))
                 {
                     <li>
-                        <a asp-controller="Taxpayer" asp-action="Index"
-                           class="@(currentController == "Taxpayer" ? "active" : "")">
-                            Налогоплательщик
-                        </a>
+                        <a asp-controller="Taxpayers" asp-action="Index"
+                           class="@(currentController == "Taxpayers" ? "active" : "")">Налогоплательщик</a>
                     </li>
                 }
 
-                <li>
-                    <a asp-controller="Account" asp-action="Logout">Выйти (@user.Email)</a>
-                </li>
+                <div class="user-info">
+                    <span>👤 @userEmail</span>
+                    @if (!string.IsNullOrEmpty(userRole))
+                    {
+                        <small style="color: gray">(@userRole)</small>
+                    }
+                    <a asp-controller="Account" asp-action="Logout">Выйти</a>
+                </div>
             }
             else
             {
                 <li>
                     <a asp-controller="Account" asp-action="Login"
-                       class="@(currentController == "Account" && currentAction == "Login" ? "active" : "")">
-                        Вход
-                    </a>
+                       class="@(currentController == "Account" && currentAction == "Login" ? "active" : "")">Вход</a>
                 </li>
             }
         </ul>

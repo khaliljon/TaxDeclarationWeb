@@ -12,4 +12,6 @@ public class Nationality
 
     [Column("наименование")]
     public string Name { get; set; }
+
+    public List<Taxpayer> Taxpayers { get; set; }
 }

@@ -7,7 +7,7 @@ using TaxDeclarationWeb.Models;
 
 namespace TaxDeclarationWeb.Controllers;
 
-[Authorize(Policy = "RequireInspector")]
+[Authorize(Roles = "Taxpayer")]
 [ApiController]
 [Route("taxpayers")]
 public class TaxpayersController : Controller
@@ -21,6 +21,11 @@ public class TaxpayersController : Controller
         _userManager = userManager;
     }
 
+    public IActionResult Index()
+    {
+        return View();
+    }
+    
     // GET /taxpayers
     [HttpGet]
     public async Task<IActionResult> GetAll()

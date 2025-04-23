@@ -15,4 +15,8 @@ public class Inspection
 
     [Column("адрес")]
     public string Address { get; set; }
+
+    public List<Inspector> Inspectors { get; set; }
+    public List<Taxpayer> Taxpayers { get; set; }
+    public List<Declaration> Declarations { get; set; }
 }

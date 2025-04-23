@@ -21,4 +21,6 @@ public class Inspector
 
     [Column("телефон")]
     public string Phone { get; set; }
+
+    public List<Declaration> Declarations { get; set; }
 }

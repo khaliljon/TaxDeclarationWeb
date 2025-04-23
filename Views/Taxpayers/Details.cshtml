@@ -1,0 +1,43 @@
+﻿@model TaxDeclarationWeb.Models.Taxpayer
+
+@{
+    ViewData["Title"] = "Информация о налогоплательщике";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-3">ИИН</dt>
+        <dd class="col-sm-9">@Model.IIN</dd>
+        <dt class="col-sm-3">ФИО</dt>
+        <dd class="col-sm-9">@Model.FullName</dd>
+        <dt class="col-sm-3">Адрес</dt>
+        <dd class="col-sm-9">@Model.Address</dd>
+        <dt class="col-sm-3">Телефон</dt>
+        <dd class="col-sm-9">@Model.Phone</dd>
+        <dt class="col-sm-3">Инспекция</dt>
+        <dd class="col-sm-9">@Model.Inspection?.Name</dd>
+        <dt class="col-sm-3">Категория</dt>
+        <dd class="col-sm-9">@Model.Category?.Name</dd>
+        <dt class="col-sm-3">Обязательна декларация</dt>
+        <dd class="col-sm-9">@((Model.IsDeclarationRequired) ? "Да" : "Нет")</dd>
+        <dt class="col-sm-3">Дата рождения</dt>
+        <dd class="col-sm-9">@Model.BirthDate.ToShortDateString()</dd>
+        <dt class="col-sm-3">Пол</dt>
+        <dd class="col-sm-9">@Model.Gender</dd>
+        <dt class="col-sm-3">Национальность</dt>
+        <dd class="col-sm-9">@Model.Nationality?.Name</dd>
+        <dt class="col-sm-3">Место работы</dt>
+        <dd class="col-sm-9">@Model.Workplace</dd>
+        <dt class="col-sm-3">Резидент</dt>
+        <dd class="col-sm-9">@((Model.IsResident) ? "Да" : "Нет")</dd>
+        <dt class="col-sm-3">Страна</dt>
+        <dd class="col-sm-9">@Model.Country?.Name</dd>
+    </dl>
+</div>
+
+<p>
+    <a asp-action="Edit" asp-route-id="@Model.IIN" class="btn btn-primary">Редактировать</a>
+    <a asp-action="Index" class="btn btn-secondary">Назад к списку</a>
+</p>

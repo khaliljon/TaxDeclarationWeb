@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TaxDeclarationWeb.Models; // <-- ОБЯЗАТЕЛЕН!
+namespace TaxDeclarationWeb.Models;
 
 [Table("Страны")]
 public class Country
@@ -12,4 +12,6 @@ public class Country
 
     [Column("наименование")]
     public string Name { get; set; }
+
+    public List<Taxpayer> Taxpayers { get; set; }
 }

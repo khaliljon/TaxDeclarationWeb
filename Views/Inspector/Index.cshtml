@@ -1,0 +1,11 @@
+﻿@{
+    ViewData["Title"] = "Панель инспектора";
+}
+<h2>@ViewData["Title"]</h2>
+
+<p>Добро пожаловать, инспектор!</p>
+
+<ul>
+    <li><a asp-controller="Reports" asp-action="DeclarationsSubmittedThisMonth">📄 Отчёт: Декларации за месяц</a></li>
+    <li><a asp-controller="Taxpayers" asp-action="Index">📋 Все налогоплательщики</a></li>
+</ul>

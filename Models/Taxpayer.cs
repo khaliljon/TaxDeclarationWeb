@@ -19,14 +19,17 @@ public class Taxpayer
     [Column("телефон")]
     public string Phone { get; set; }
 
-    [Column("инспекция")]
+    [Column("код_инспекции")]
     public string InspectionCode { get; set; }
 
     [ForeignKey("InspectionCode")]
     public Inspection Inspection { get; set; }
 
-    [Column("категория")]
+    [Column("код_категории")]
     public string CategoryCode { get; set; }
+
+    [ForeignKey("CategoryCode")]
+    public Category Category { get; set; }
 
     [Column("признак_обязательности_декларации")]
     public bool IsDeclarationRequired { get; set; }
@@ -37,8 +40,11 @@ public class Taxpayer
     [Column("пол")]
     public string Gender { get; set; }
 
-    [Column("национальность")]
+    [Column("код_национальности")]
     public string NationalityCode { get; set; }
+
+    [ForeignKey("NationalityCode")]
+    public Nationality Nationality { get; set; }
 
     [Column("место_работы")]
     public string Workplace { get; set; }
@@ -46,11 +52,9 @@ public class Taxpayer
     [Column("признак_резидентства")]
     public bool IsResident { get; set; }
 
-    [Column("страна")]
+    [Column("код_страны")]
     public string CountryCode { get; set; }
 
-    // Навигационные свойства (если нужно)
-    public Category Category { get; set; }
+    [ForeignKey("CountryCode")]
     public Country Country { get; set; }
-    public Nationality Nationality { get; set; }
 }

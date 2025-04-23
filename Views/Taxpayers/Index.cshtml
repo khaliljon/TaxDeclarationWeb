@@ -1,11 +1,42 @@
-﻿@{
-    ViewData["Title"] = "Панель налогоплательщика";
+﻿@model IEnumerable<TaxDeclarationWeb.Models.Taxpayer>
+@{
+    ViewData["Title"] = "Налогоплательщики";
 }
 
-<h2>Панель налогоплательщика</h2>
+<h2>@ViewData["Title"]</h2>
 
-<p>Добро пожаловать, <strong>Налогоплательщик</strong>!</p>
+<p>
+    <a asp-action="Create" class="btn btn-primary">Добавить налогоплательщика</a>
+</p>
 
-<ul>
-    <li><a asp-controller="Taxpayers" asp-action="Logout">Выйти</a></li>
-</ul>
+<table class="table">
+    <thead>
+    <tr>
+        <th>ИИН</th>
+        <th>ФИО</th>
+        <th>Инспекция</th>
+        <th>Категория</th>
+        <th>Страна</th>
+        <th>Нац-ть</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.IIN</td>
+            <td>@item.FullName</td>
+            <td>@item.Inspection?.Name</td>
+            <td>@item.Category?.Name</td>
+            <td>@item.Country?.Name</td>
+            <td>@item.Nationality?.Name</td>
+            <td>
+                <a asp-action="Edit" asp-route-iin="@item.IIN">Редактировать</a> |
+                <a asp-action="Details" asp-route-iin="@item.IIN">Детали</a> |
+                <a asp-action="Delete" asp-route-iin="@item.IIN">Удалить</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
