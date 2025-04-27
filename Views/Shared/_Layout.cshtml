@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@inherits Microsoft.AspNetCore.Mvc.Razor.RazorPage<dynamic>
+@using Microsoft.AspNetCore.Identity
 @inject SignInManager<TaxDeclarationWeb.Models.ApplicationUser> SignInManager
 @inject UserManager<TaxDeclarationWeb.Models.ApplicationUser> UserManager
 
@@ -28,7 +29,6 @@
         }
     }
 }
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -42,16 +42,13 @@
             gap: 20px;
             align-items: center;
         }
-
         nav a {
             text-decoration: none;
         }
-
         .active {
             font-weight: bold;
             color: darkred;
         }
-
         .user-info {
             margin-left: auto;
             display: flex;
@@ -95,18 +92,19 @@
                 if (User.IsInRole("Taxpayer"))
                 {
                     <li>
-                        <a asp-controller="Taxpayers" asp-action="Index"
-                           class="@(currentController == "Taxpayers" ? "active" : "")">Налогоплательщик</a>
+                        <a asp-controller="Taxpayer" asp-action="Index"
+                           class="@(currentController == "Taxpayer" ? "active" : "")">Налогоплательщик</a>
                     </li>
                 }
-
                 <div class="user-info">
                     <span>👤 @userEmail</span>
                     @if (!string.IsNullOrEmpty(userRole))
                     {
                         <small style="color: gray">(@userRole)</small>
                     }
-                    <a asp-controller="Account" asp-action="Logout">Выйти</a>
+                    <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-link" style="padding: 0; margin-left: 10px;">Выйти</button>
+                    </form>
                 </div>
             }
             else

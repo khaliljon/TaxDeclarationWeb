@@ -4,18 +4,21 @@ using TaxDeclarationWeb.Data;
 using TaxDeclarationWeb.Models;
 using DotNetEnv;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.FileProviders; // Для статических файлов
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Загрузка .env
+// --- Загрузка .env ---
 Env.Load();
 var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+Console.WriteLine("== CONNECTION_STRING ==");
+Console.WriteLine(connectionString);
 
-// Подключение к базе
+// --- Подключение к базе ---
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// Identity + роли
+// --- Identity + роли ---
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.User.RequireUniqueEmail = true;
@@ -23,7 +26,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// Авторизация по ролям (корректное разграничение!)
+// --- Авторизация по ролям (корректное разграничение!) ---
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireTaxpayer", policy =>
@@ -39,7 +42,7 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("Admin"));
 });
 
-// --- ВАЖНО: добавлено IgnoreCycles ---
+// --- Добавлено IgnoreCycles для Json ---
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
@@ -49,6 +52,20 @@ builder.Services.AddControllersWithViews()
 
 var app = builder.Build();
 
+// --- Делаем папку Backups статической (для скачивания .bak) ---
+var backupDir = Path.Combine(Directory.GetCurrentDirectory(), "Backups");
+if (!Directory.Exists(backupDir))
+    Directory.CreateDirectory(backupDir);
+
+app.UseStaticFiles(); // wwwroot (по умолчанию)
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(backupDir),
+    RequestPath = "/Backups"
+});
+
+// --- Создание ролей и тестовых пользователей ---
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -60,9 +77,7 @@ using (var scope = app.Services.CreateScope())
     foreach (var role in roles)
     {
         if (!await roleManager.RoleExistsAsync(role))
-        {
             await roleManager.CreateAsync(new IdentityRole(role));
-        }
     }
 
     // Создание администратора
@@ -75,12 +90,9 @@ using (var scope = app.Services.CreateScope())
             UserName = adminEmail,
             Email = adminEmail
         };
-
         var result = await userManager.CreateAsync(user, "Admin123!");
         if (result.Succeeded)
-        {
             await userManager.AddToRoleAsync(user, "Admin");
-        }
     }
 
     // Тестовые пользователи
@@ -90,7 +102,6 @@ using (var scope = app.Services.CreateScope())
         ("chief@tax.local", "Chief123!", "ChiefInspector"),
         ("payer@tax.local", "Payer123!", "Taxpayer")
     };
-
     foreach (var (email, password, role) in testUsers)
     {
         var existing = await userManager.FindByEmailAsync(email);
@@ -101,17 +112,14 @@ using (var scope = app.Services.CreateScope())
                 UserName = email,
                 Email = email
             };
-
             var result = await userManager.CreateAsync(user, password);
             if (result.Succeeded)
-            {
                 await userManager.AddToRoleAsync(user, role);
-            }
         }
     }
 }
 
-// Middleware
+// --- Middleware ---
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -119,9 +127,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
 

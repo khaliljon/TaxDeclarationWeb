@@ -10,6 +10,7 @@ using TaxDeclarationWeb.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using System.IO;
 
 namespace TaxDeclarationWeb.Controllers
 {
@@ -19,18 +20,15 @@ namespace TaxDeclarationWeb.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
-        private readonly IConfiguration _configuration;
 
         public AdminController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            ApplicationDbContext context,
-            IConfiguration configuration)
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _context = context;
-            _configuration = configuration;
         }
 
         // Главная панель администратора
@@ -151,88 +149,77 @@ namespace TaxDeclarationWeb.Controllers
             return View(logs);
         }
 
-        // --- РЕЗЕРВНОЕ КОПИРОВАНИЕ ---
-        [HttpGet]
-        public IActionResult Backup()
-        {
-            ViewBag.Result = TempData["Result"];
-            return View();
-        }
-
+        // Создание резервной копии
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Backup(string backupPath)
+        public IActionResult CreateBackup()
         {
-            if (string.IsNullOrWhiteSpace(backupPath))
-                backupPath = @"C:\Users\khaly\OneDrive\Desktop\TaxDeclaration.bak";
+            string backupDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Backups");
+            if (!Directory.Exists(backupDirectory))
+                Directory.CreateDirectory(backupDirectory);
 
-            string dbName = "TaxDeclaration";
-            string sql = $"BACKUP DATABASE [{dbName}] TO DISK = N'{backupPath}' WITH FORMAT, INIT";
+            string backupFile = $"TaxDeclaration_Backup_{DateTime.Now:yyyyMMdd_HHmmss}.bak";
+            string fullPath = Path.Combine(backupDirectory, backupFile);
+
+            string sql = $@"BACKUP DATABASE [TaxDeclaration] TO DISK = N'{fullPath}' WITH INIT, FORMAT";
+
+            // Всегда только из .env
+            string connString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+            Console.WriteLine($"[BACKUP] connString: {connString}");
 
             try
             {
-                using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")
-                    ?? Environment.GetEnvironmentVariable("CONNECTION_STRING")))
+                using (var connection = new SqlConnection(connString))
                 {
-                    await conn.OpenAsync();
-                    using (var cmd = new SqlCommand(sql, conn))
+                    connection.Open();
+                    using (var command = new SqlCommand(sql, connection))
                     {
-                        await cmd.ExecuteNonQueryAsync();
+                        command.ExecuteNonQuery();
                     }
                 }
-                await LogAudit("Backup", $"Бэкап БД {dbName} в {backupPath}");
-                TempData["Result"] = "Резервное копирование завершено успешно!";
+                TempData["Message"] = "Резервная копия успешно создана.";
             }
             catch (Exception ex)
             {
-                TempData["Result"] = "Ошибка: " + ex.Message;
+                TempData["Message"] = $"Ошибка при создании резервной копии: {ex.Message}";
             }
-            return RedirectToAction("Backup");
+
+            return RedirectToAction("Backups");
         }
 
-        // --- ВОССТАНОВЛЕНИЕ ---
-        [HttpGet]
-        public IActionResult Restore()
+        // Просмотр списка резервных копий
+        public IActionResult Backups()
         {
-            ViewBag.Result = TempData["Result"];
-            return View();
+            string backupDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Backups");
+            var files = Directory.Exists(backupDirectory)
+                ? Directory.GetFiles(backupDirectory)
+                    .Select(f => new FileInfo(f))
+                    .OrderByDescending(f => f.CreationTime)
+                    .ToList()
+                : new List<FileInfo>();
+
+            ViewBag.Message = TempData["Message"];
+            return View(files); // files — List<FileInfo>
         }
 
+        // Удаление резервной копии
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Restore(string backupPath)
+        public IActionResult DeleteBackup(string fileName)
         {
-            if (string.IsNullOrWhiteSpace(backupPath))
-                backupPath = @"C:\Users\khaly\OneDrive\Desktop\TaxDeclaration.bak";
+            string backupDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Backups");
+            var path = Path.Combine(backupDirectory, fileName);
 
-            string dbName = "TaxDeclaration";
-            string sql = $@"
-                ALTER DATABASE [{dbName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-                RESTORE DATABASE [{dbName}] FROM DISK = N'{backupPath}' WITH REPLACE;
-                ALTER DATABASE [{dbName}] SET MULTI_USER;
-            ";
+            if (System.IO.File.Exists(path))
+            {
+                System.IO.File.Delete(path);
+                TempData["Message"] = "Резервная копия успешно удалена.";
+            }
+            else
+            {
+                TempData["Message"] = "Ошибка: файл не найден.";
+            }
 
-            try
-            {
-                using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")
-                    ?? Environment.GetEnvironmentVariable("CONNECTION_STRING")))
-                {
-                    await conn.OpenAsync();
-                    using (var cmd = new SqlCommand(sql, conn))
-                    {
-                        await cmd.ExecuteNonQueryAsync();
-                    }
-                }
-                await LogAudit("Restore", $"Восстановление БД {dbName} из {backupPath}");
-                TempData["Result"] = "Восстановление завершено успешно!";
-            }
-            catch (Exception ex)
-            {
-                TempData["Result"] = "Ошибка: " + ex.Message;
-            }
-            return RedirectToAction("Restore");
+            return RedirectToAction("Backups");
         }
-
 
         // --- Логирование аудита ---
         private async Task LogAudit(string action, string details)

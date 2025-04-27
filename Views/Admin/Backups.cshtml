@@ -1,0 +1,53 @@
+﻿@model List<System.IO.FileInfo>
+@{
+    ViewData["Title"] = "Резервные копии";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center mb-4">📁 Резервные копии базы данных</h2>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <form asp-controller="Admin" asp-action="CreateBackup" method="post">
+        <button type="submit" class="btn btn-success">
+            ➕ Создать новую резервную копию
+        </button>
+    </form>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-info mb-0">@TempData["Message"]</div>
+    }
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-warning">Нет доступных резервных копий.</div>
+}
+else
+{
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="table-dark">
+        <tr>
+            <th>Имя файла</th>
+            <th>Дата создания</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var file in Model)
+        {
+            <tr>
+                <td>@file.Name</td>
+                <td>@file.CreationTime.ToString("g")</td>
+                <td>
+                    <form asp-controller="Admin" asp-action="DeleteBackup" method="post" style="display:inline;">
+                        <input type="hidden" name="fileName" value="@file.Name" />
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Удалить копию?')">Удалить</button>
+                    </form>
+                    <a href="@($"/Backups/{file.Name}")" download class="btn btn-secondary btn-sm ms-2">Скачать</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
