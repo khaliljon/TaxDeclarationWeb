@@ -1,115 +1,156 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using TaxDeclarationWeb.Data;
 using TaxDeclarationWeb.Models;
 
-namespace TaxDeclarationWeb.Controllers;
-
-[Authorize(Policy = "RequireChiefInspector")]
-public class CategoryController : Controller
+namespace TaxDeclarationWeb.Controllers
 {
-    private readonly ApplicationDbContext _context;
-
-    public CategoryController(ApplicationDbContext context)
+    [Authorize(Policy = "RequireChiefInspector")]
+    public class CategoryController : Controller
     {
-        _context = context;
-    }
+        private readonly ApplicationDbContext _context;
 
-    // GET: Categories
-    public async Task<IActionResult> Index()
-    {
-        return View(await _context.Categories.ToListAsync());
-    }
-
-    // GET: Categories/Details/5
-    public async Task<IActionResult> Details(int id) // int!
-    {
-        var category = await _context.Categories.FirstOrDefaultAsync(c => c.Code == id);
-        if (category == null)
-            return NotFound();
-
-        return View(category);
-    }
-
-    // GET: Categories/Create
-    public IActionResult Create()
-    {
-        return View();
-    }
-
-    // POST: Categories/Create
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Code,Name")] Category category)
-    {
-        if (!ModelState.IsValid)
-            return View(category);
-
-        _context.Add(category);
-        await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
-    }
-
-    // GET: Categories/Edit/5
-    public async Task<IActionResult> Edit(int id) // int!
-    {
-        var category = await _context.Categories.FindAsync(id);
-        if (category == null)
-            return NotFound();
-
-        return View(category);
-    }
-
-    // POST: Categories/Edit/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Code,Name")] Category category) // int!
-    {
-        if (id != category.Code)
-            return NotFound();
-
-        if (!ModelState.IsValid)
-            return View(category);
-
-        try
+        public CategoryController(ApplicationDbContext context)
         {
-            _context.Update(category);
-            await _context.SaveChangesAsync();
+            _context = context;
         }
-        catch (DbUpdateConcurrencyException)
+
+        // GET: Categories
+        public async Task<IActionResult> Index()
         {
-            if (!_context.Categories.Any(c => c.Code == id))
+            return View(await _context.Categories.ToListAsync());
+        }
+
+        // GET: Categories/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Code == id);
+            if (category == null)
                 return NotFound();
-            else
-                throw;
+
+            return View(category);
         }
 
-        return RedirectToAction(nameof(Index));
-    }
-
-    // GET: Categories/Delete/5
-    public async Task<IActionResult> Delete(int id) // int!
-    {
-        var category = await _context.Categories.FirstOrDefaultAsync(c => c.Code == id);
-        if (category == null)
-            return NotFound();
-
-        return View(category);
-    }
-
-    // POST: Categories/Delete/5
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id) // int!
-    {
-        var category = await _context.Categories.FindAsync(id);
-        if (category != null)
+        // GET: Categories/Create
+        public IActionResult Create()
         {
-            _context.Categories.Remove(category);
+            return View();
+        }
+
+        // POST: Categories/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Code,Name")] Category category)
+        {
+            if (!ModelState.IsValid)
+                return View(category);
+
+            _context.Add(category);
+            await _context.SaveChangesAsync();
+
+            await LogTransaction(
+                "Insert",
+                "Category",
+                category.Code.ToString(),
+                $"Создана категория плательщика: {category.Name} (код: {category.Code})"
+            );
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Categories/Edit/5
+        public async Task<IActionResult> Edit(int id)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
+                return NotFound();
+
+            return View(category);
+        }
+
+        // POST: Categories/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Code,Name")] Category category)
+        {
+            if (id != category.Code)
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return View(category);
+
+            try
+            {
+                _context.Update(category);
+                await _context.SaveChangesAsync();
+
+                await LogTransaction(
+                    "Update",
+                    "Category",
+                    category.Code.ToString(),
+                    $"Изменена категория плательщика: {category.Name} (код: {category.Code})"
+                );
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Categories.Any(c => c.Code == id))
+                    return NotFound();
+                else
+                    throw;
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Categories/Delete/5
+        public async Task<IActionResult> Delete(int id)
+        {
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Code == id);
+            if (category == null)
+                return NotFound();
+
+            return View(category);
+        }
+
+        // POST: Categories/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category != null)
+            {
+                _context.Categories.Remove(category);
+                await _context.SaveChangesAsync();
+
+                await LogTransaction(
+                    "Delete",
+                    "Category",
+                    category.Code.ToString(),
+                    $"Удалена категория плательщика: {category.Name} (код: {category.Code})"
+                );
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // --- Приватный метод для логирования транзакций ---
+        private async Task LogTransaction(string operation, string entity, string entityId, string details)
+        {
+            var log = new TransactionLog
+            {
+                UserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
+                UserEmail = User.Identity?.Name,
+                Operation = operation,
+                Entity = entity,
+                EntityId = entityId,
+                Details = details,
+                Timestamp = DateTime.UtcNow
+            };
+            _context.TransactionLogs.Add(log);
             await _context.SaveChangesAsync();
         }
-
-        return RedirectToAction(nameof(Index));
     }
 }

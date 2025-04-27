@@ -18,6 +18,10 @@ namespace TaxDeclarationWeb.Data
         public DbSet<Country> Countries { get; set; }
         public DbSet<Nationality> Nationalities { get; set; }
 
+        // ✅ Новая таблица для аудита событий
+        public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<TransactionLog> TransactionLogs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -36,6 +40,8 @@ namespace TaxDeclarationWeb.Data
             builder.Entity<Declaration>().Property(d => d.Expenses).HasPrecision(18, 2);
             builder.Entity<Declaration>().Property(d => d.NonTaxableExpenses).HasPrecision(18, 2);
             builder.Entity<Declaration>().Property(d => d.PaidTaxes).HasPrecision(18, 2);
+
+            // --- Опционально: можно добавить настройки для AuditLog (например, индекс по дате)
         }
     }
 }

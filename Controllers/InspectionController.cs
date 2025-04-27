@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using TaxDeclarationWeb.Data;
 using TaxDeclarationWeb.Models;
 
@@ -42,6 +43,14 @@ namespace TaxDeclarationWeb.Controllers
 
             _context.Add(inspection);
             await _context.SaveChangesAsync();
+
+            await LogTransaction(
+                "Insert",
+                "Inspection",
+                inspection.Code.ToString(),
+                $"Добавлена налоговая инспекция: {inspection.Name} (код: {inspection.Code})"
+            );
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -64,6 +73,13 @@ namespace TaxDeclarationWeb.Controllers
                 {
                     _context.Update(inspection);
                     await _context.SaveChangesAsync();
+
+                    await LogTransaction(
+                        "Update",
+                        "Inspection",
+                        inspection.Code.ToString(),
+                        $"Изменена налоговая инспекция: {inspection.Name} (код: {inspection.Code})"
+                    );
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -96,8 +112,32 @@ namespace TaxDeclarationWeb.Controllers
             {
                 _context.Inspections.Remove(inspection);
                 await _context.SaveChangesAsync();
+
+                await LogTransaction(
+                    "Delete",
+                    "Inspection",
+                    inspection.Code.ToString(),
+                    $"Удалена налоговая инспекция: {inspection.Name} (код: {inspection.Code})"
+                );
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        // --- Приватный метод для логирования транзакций ---
+        private async Task LogTransaction(string operation, string entity, string entityId, string details)
+        {
+            var log = new TransactionLog
+            {
+                UserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
+                UserEmail = User.Identity?.Name,
+                Operation = operation,
+                Entity = entity,
+                EntityId = entityId,
+                Details = details,
+                Timestamp = DateTime.UtcNow
+            };
+            _context.TransactionLogs.Add(log);
+            await _context.SaveChangesAsync();
         }
     }
 }

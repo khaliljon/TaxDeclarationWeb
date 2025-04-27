@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using TaxDeclarationWeb.Data;
 using TaxDeclarationWeb.Models;
 
@@ -69,6 +70,15 @@ namespace TaxDeclarationWeb.Controllers
 
             _context.Add(declaration);
             await _context.SaveChangesAsync();
+
+            // --- Логируем транзакцию ---
+            await LogTransaction(
+                "Insert",
+                "Declaration",
+                declaration.Id.ToString(),
+                $"Создана декларация для ИИН {declaration.TaxpayerIIN}, инспекция {declaration.InspectionId}"
+            );
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -105,6 +115,14 @@ namespace TaxDeclarationWeb.Controllers
             {
                 _context.Update(declaration);
                 await _context.SaveChangesAsync();
+
+                // --- Логируем транзакцию ---
+                await LogTransaction(
+                    "Update",
+                    "Declaration",
+                    declaration.Id.ToString(),
+                    $"Изменена декларация для ИИН {declaration.TaxpayerIIN}, инспекция {declaration.InspectionId}"
+                );
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -143,8 +161,33 @@ namespace TaxDeclarationWeb.Controllers
             {
                 _context.Declarations.Remove(declaration);
                 await _context.SaveChangesAsync();
+
+                // --- Логируем транзакцию ---
+                await LogTransaction(
+                    "Delete",
+                    "Declaration",
+                    declaration.Id.ToString(),
+                    $"Удалена декларация для ИИН {declaration.TaxpayerIIN}, инспекция {declaration.InspectionId}"
+                );
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        // Приватный метод для логирования транзакций
+        private async Task LogTransaction(string operation, string entity, string entityId, string details)
+        {
+            var log = new TransactionLog
+            {
+                UserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
+                UserEmail = User.Identity?.Name,
+                Operation = operation,
+                Entity = entity,
+                EntityId = entityId,
+                Details = details,
+                Timestamp = DateTime.UtcNow
+            };
+            _context.TransactionLogs.Add(log);
+            await _context.SaveChangesAsync();
         }
     }
 }

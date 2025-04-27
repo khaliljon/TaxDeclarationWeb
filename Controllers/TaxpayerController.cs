@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using TaxDeclarationWeb.Data;
 using TaxDeclarationWeb.Models;
 
@@ -44,8 +45,7 @@ namespace TaxDeclarationWeb.Controllers
 
             if (roles.Contains("Taxpayer"))
             {
-                // Предполагаем, что UserName это ИИН, иначе дорабатывай под user.IIN
-                taxpayers = taxpayers.Where(t => t.IIN == user.UserName);
+                taxpayers = taxpayers.Where(t => t.IIN == user.UserName); // Или user.IIN если поле есть
             }
             else if (roles.Contains("Inspector"))
             {
@@ -99,6 +99,14 @@ namespace TaxDeclarationWeb.Controllers
 
             _context.Add(taxpayer);
             await _context.SaveChangesAsync();
+
+            await LogTransaction(
+                "Insert",
+                "Taxpayer",
+                taxpayer.IIN,
+                $"Добавлен налогоплательщик: {taxpayer.FullName}, ИИН: {taxpayer.IIN}"
+            );
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -135,6 +143,13 @@ namespace TaxDeclarationWeb.Controllers
             {
                 _context.Update(taxpayer);
                 await _context.SaveChangesAsync();
+
+                await LogTransaction(
+                    "Update",
+                    "Taxpayer",
+                    taxpayer.IIN,
+                    $"Изменён налогоплательщик: {taxpayer.FullName}, ИИН: {taxpayer.IIN}"
+                );
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -179,6 +194,13 @@ namespace TaxDeclarationWeb.Controllers
             {
                 _context.Taxpayers.Remove(taxpayer);
                 await _context.SaveChangesAsync();
+
+                await LogTransaction(
+                    "Delete",
+                    "Taxpayer",
+                    taxpayer.IIN,
+                    $"Удалён налогоплательщик: {taxpayer.FullName}, ИИН: {taxpayer.IIN}"
+                );
             }
 
             return RedirectToAction(nameof(Index));
@@ -195,7 +217,7 @@ namespace TaxDeclarationWeb.Controllers
                 return true;
 
             if (roles.Contains("Taxpayer"))
-                return taxpayer.IIN == user.UserName; // Или user.IIN, если реализуешь отдельное поле
+                return taxpayer.IIN == user.UserName;
 
             if (roles.Contains("Inspector"))
             {
@@ -211,6 +233,23 @@ namespace TaxDeclarationWeb.Controllers
             ViewData["CategoryCode"] = new SelectList(_context.Categories, "Code", "Name", taxpayer?.CategoryCode);
             ViewData["CountryCode"] = new SelectList(_context.Countries, "Code", "Name", taxpayer?.CountryCode);
             ViewData["NationalityCode"] = new SelectList(_context.Nationalities, "Code", "Name", taxpayer?.NationalityCode);
+        }
+
+        // --- Логирование транзакций ---
+        private async Task LogTransaction(string operation, string entity, string entityId, string details)
+        {
+            var log = new TransactionLog
+            {
+                UserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
+                UserEmail = User.Identity?.Name,
+                Operation = operation,
+                Entity = entity,
+                EntityId = entityId,
+                Details = details,
+                Timestamp = DateTime.UtcNow
+            };
+            _context.TransactionLogs.Add(log);
+            await _context.SaveChangesAsync();
         }
     }
 }

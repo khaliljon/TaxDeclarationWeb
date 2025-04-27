@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using TaxDeclarationWeb.Data;
 using TaxDeclarationWeb.Models;
 
 namespace TaxDeclarationWeb.Controllers
@@ -11,11 +13,16 @@ namespace TaxDeclarationWeb.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ApplicationDbContext _context;
 
-        public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public AdminController(
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _context = context;
         }
 
         // Главное меню администратора
@@ -88,6 +95,20 @@ namespace TaxDeclarationWeb.Controllers
                 ModelState.AddModelError("", "Ошибка при удалении старых ролей.");
             }
 
+            // Аудит — логируем смену ролей
+            await LogAudit(
+                "Изменение ролей",
+                $"Пользователю {user.Email} установлены роли: {string.Join(", ", selectedRoles)}"
+            );
+
+            // Журнал транзакций — логируем смену ролей
+            await LogTransaction(
+                "Update",
+                "User",
+                user.Id,
+                $"Изменены роли пользователя {user.Email}. Текущие роли: {string.Join(", ", selectedRoles)}"
+            );
+
             return RedirectToAction(nameof(ManageUsers));
         }
 
@@ -125,13 +146,77 @@ namespace TaxDeclarationWeb.Controllers
                 return View(user);
             }
 
+            // Аудит — логируем удаление пользователя
+            await LogAudit(
+                "Удаление пользователя",
+                $"Удалён пользователь {user.Email} (Id: {user.Id})"
+            );
+
+            // Журнал транзакций — логируем удаление пользователя
+            await LogTransaction(
+                "Delete",
+                "User",
+                user.Id,
+                $"Удалён пользователь {user.Email}"
+            );
+
             return RedirectToAction(nameof(ManageUsers));
+        }
+
+        // --- Просмотр аудита ---
+        public async Task<IActionResult> Audit()
+        {
+            var logs = await _context.AuditLogs
+                .OrderByDescending(l => l.Timestamp)
+                .Take(200)
+                .ToListAsync();
+            return View(logs);
+        }
+
+        // --- Просмотр журнала транзакций ---
+        public async Task<IActionResult> TransactionLog()
+        {
+            var logs = await _context.TransactionLogs
+                .OrderByDescending(l => l.Timestamp)
+                .Take(200)
+                .ToListAsync();
+            return View(logs);
+        }
+
+        // --- Приватный метод для записи в журнал аудита ---
+        private async Task LogAudit(string action, string details)
+        {
+            var log = new AuditLog
+            {
+                UserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
+                UserEmail = User.Identity?.Name,
+                Action = action,
+                Details = details,
+                Timestamp = DateTime.UtcNow
+            };
+            _context.AuditLogs.Add(log);
+            await _context.SaveChangesAsync();
+        }
+
+        // --- Приватный метод для записи в журнал транзакций ---
+        private async Task LogTransaction(string operation, string entity, string entityId, string details)
+        {
+            var log = new TransactionLog
+            {
+                UserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
+                UserEmail = User.Identity?.Name,
+                Operation = operation,
+                Entity = entity,
+                EntityId = entityId,
+                Details = details,
+                Timestamp = DateTime.UtcNow
+            };
+            _context.TransactionLogs.Add(log);
+            await _context.SaveChangesAsync();
         }
 
         // --- Заглушки для остальных функций ---
         public IActionResult Backup() => View();
         public IActionResult Restore() => View();
-        public IActionResult Audit() => View();
-        public IActionResult TransactionLog() => View();
     }
 }
