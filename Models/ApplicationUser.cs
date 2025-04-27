@@ -5,10 +5,10 @@ namespace TaxDeclarationWeb.Models;
 
 public class ApplicationUser : IdentityUser
 {
+    public string? IIN { get; set; }   // <--- Вот это ключевое для связи с Taxpayer!
+
     public int? InspectorId { get; set; }
 
-    [NotMapped]
+    [ForeignKey("InspectorId")]
     public Inspector? Inspector { get; set; }
-
-    public string Role { get; set; } = "Taxpayer";
 }

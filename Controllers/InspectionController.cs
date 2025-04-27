@@ -6,39 +6,33 @@ using TaxDeclarationWeb.Models;
 
 namespace TaxDeclarationWeb.Controllers
 {
-    [Authorize(Policy = "RequireChiefInspector")]
-    public class InspectionsController : Controller
+    [Authorize(Roles = "ChiefInspector,Admin")]
+    public class InspectionController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public InspectionsController(ApplicationDbContext context)
+        public InspectionController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Inspections
         public async Task<IActionResult> Index()
         {
-            var inspections = await _context.Inspections.ToListAsync();
-            return View(inspections);
+            return View(await _context.Inspections.ToListAsync());
         }
 
-        // GET: Inspections/Details/5
         public async Task<IActionResult> Details(int id)
         {
             var inspection = await _context.Inspections.FirstOrDefaultAsync(i => i.Code == id);
             if (inspection == null) return NotFound();
-
             return View(inspection);
         }
 
-        // GET: Inspections/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Inspections/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Code,Name,Address")] Inspection inspection)
@@ -51,16 +45,13 @@ namespace TaxDeclarationWeb.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Inspections/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var inspection = await _context.Inspections.FindAsync(id);
             if (inspection == null) return NotFound();
-
             return View(inspection);
         }
 
-        // POST: Inspections/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Address")] Inspection inspection)
@@ -88,7 +79,6 @@ namespace TaxDeclarationWeb.Controllers
             return View(inspection);
         }
 
-        // GET: Inspections/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
             var inspection = await _context.Inspections.FirstOrDefaultAsync(i => i.Code == id);
@@ -97,7 +87,6 @@ namespace TaxDeclarationWeb.Controllers
             return View(inspection);
         }
 
-        // POST: Inspections/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -108,7 +97,6 @@ namespace TaxDeclarationWeb.Controllers
                 _context.Inspections.Remove(inspection);
                 await _context.SaveChangesAsync();
             }
-
             return RedirectToAction(nameof(Index));
         }
     }

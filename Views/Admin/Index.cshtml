@@ -2,10 +2,45 @@
     ViewData["Title"] = "Панель администратора";
 }
 
-<h2>Панель администратора</h2>
-
-<p>Добро пожаловать, <strong>Администратор</strong>!</p>
-
-<ul>
-    <li><a asp-controller="Admin" asp-action="Logout">Выйти</a></li>
-</ul>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Панель администратора</h3>
+                </div>
+                <div class="card-body">
+                    <p>Добро пожаловать, Администратор!</p>
+                    <ul>
+                        <li>
+                            <a asp-action="ManageUsers" class="link-primary fw-bold">Управление пользователями</a>
+                        </li>
+                        <li>
+                            <a asp-action="Backup" class="link-primary fw-bold">Резервное копирование</a>
+                        </li>
+                        <li>
+                            <a asp-action="Restore" class="link-primary fw-bold">Восстановление базы</a>
+                        </li>
+                        <li>
+                            <a asp-action="Audit" class="link-primary fw-bold">Аудит</a>
+                        </li>
+                        <li>
+                            <a asp-action="TransactionLog" class="link-primary fw-bold">Журнал транзакций</a>
+                        </li>
+                    </ul>
+                    <hr />
+                    <div class="d-flex gap-2 mb-2">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">На главную</a>
+                        <form asp-action="Logout" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-danger">Выйти</button>
+                        </form>
+                    </div>
+                    <p class="mt-3 text-muted"><small>
+                            Все операции с базой и пользователями выполняются через эту панель администратора.<br/>
+                            Для управления бизнес-данными используйте панель главного инспектора.
+                        </small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

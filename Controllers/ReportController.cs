@@ -16,7 +16,7 @@ public class ReportsController : Controller
         _context = context;
     }
 
-    // Отчёт 1
+    // 1. Список нерезидентов по инспекции с обязательной подачей декларации
     [HttpGet]
     public async Task<IActionResult> NerezidentsByInspection(int? inspectionCode)
     {
@@ -34,8 +34,7 @@ public class ReportsController : Controller
         return View(list);
     }
 
-
-    // Отчёт 2
+    // 2. Категории налогоплательщиков по адресу
     [HttpGet]
     public async Task<IActionResult> CategoriesByAddress(string? address)
     {
@@ -56,7 +55,7 @@ public class ReportsController : Controller
         return View(result);
     }
 
-    // Отчёт 3
+    // 3. Общее количество деклараций, поданных в каждую из инспекций в текущем году
     [HttpGet]
     public async Task<IActionResult> DeclarationsCountByInspection()
     {
@@ -79,7 +78,7 @@ public class ReportsController : Controller
         return View(grouped);
     }
 
-    // Отчёт 4
+    // 4. Список, подавших декларацию i-го числа в j-ой инспекции
     [HttpGet]
     public async Task<IActionResult> DeclarationsByDateAndInspection(int? inspectionCode, int? day)
     {
@@ -98,7 +97,7 @@ public class ReportsController : Controller
         return View(list);
     }
 
-    // Отчёт 5
+    // 5. Сумма расходов налогоплательщиков, которые должны облагаться налогом
     [HttpGet]
     public async Task<IActionResult> TaxableExpenses()
     {
@@ -110,7 +109,7 @@ public class ReportsController : Controller
         return View();
     }
 
-    // Отчёт 6
+    // 6. Список плательщиков, относящихся к категории с несколькими местами дохода
     [HttpGet]
     public async Task<IActionResult> MultipleIncomeCategory()
     {
@@ -123,7 +122,7 @@ public class ReportsController : Controller
         return View(taxpayers);
     }
 
-    // Отчёт 7
+    // 7. Декларации, поданные в текущем месяце
     [HttpGet]
     public async Task<IActionResult> DeclarationsSubmittedThisMonth()
     {
@@ -139,7 +138,7 @@ public class ReportsController : Controller
         return View(declarations);
     }
 
-    // Отчёт 8
+    // 8. Список мужчин-налогоплательщиков старше ... лет
     [HttpGet]
     public async Task<IActionResult> MaleTaxpayersOlderThan(int? age)
     {
@@ -157,7 +156,7 @@ public class ReportsController : Controller
         return View(list);
     }
 
-    // Отчёт 9
+    // 9. Налогоплательщики i-го года рождения
     [HttpGet]
     public async Task<IActionResult> TaxpayersBornInYear(int? year)
     {
@@ -173,7 +172,7 @@ public class ReportsController : Controller
         return View(list);
     }
 
-    // Отчёт 10
+    // 10. Налогоплательщики i-й категории, подавшие декларацию j-го числа
     [HttpGet]
     public async Task<IActionResult> TaxpayersByCategoryAndDate(int? categoryCode, int? day)
     {
@@ -193,7 +192,7 @@ public class ReportsController : Controller
         return View(list);
     }
 
-    // Отчёт 11: вставка 3 стран
+    // 11. Вставка 3 новых строк в таблицу стран
     [HttpGet]
     public IActionResult InsertCountries()
     {
@@ -221,8 +220,8 @@ public class ReportsController : Controller
 
         return View(new List<Country> { new(), new(), new() });
     }
-    
-    // Отчёт 12: количество налогоплательщиков по дню подачи декларации
+
+    // 12. Количество налогоплательщиков, подавших декларацию в указанный день месяца
     [HttpGet]
     public async Task<IActionResult> CountTaxpayersByDeclarationDay(int? day)
     {

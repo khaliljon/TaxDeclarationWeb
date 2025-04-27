@@ -2,11 +2,11 @@
     ViewData["Title"] = "Доступ запрещён";
 }
 
-<h2 class="text-danger">⛔ Доступ запрещён</h2>
-
-<p>У вас нет прав для просмотра этой страницы.</p>
-
-<p>
-    <a asp-controller="Account" asp-action="Login">Вернуться ко входу</a> или
-    <a href="/">Перейти на главную</a>
-</p>
+<div class="container mt-5">
+    <div class="alert alert-danger text-center">
+        <h3 class="mb-3">Доступ запрещён</h3>
+        <p>У вас нет прав для просмотра этой страницы или выполнения данного действия.</p>
+        <a class="btn btn-primary" asp-controller="Home" asp-action="Index">На главную</a>
+        <a class="btn btn-secondary" asp-controller="Account" asp-action="Login">Войти под другим пользователем</a>
+    </div>
+</div>

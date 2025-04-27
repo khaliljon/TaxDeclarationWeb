@@ -6,40 +6,34 @@ using TaxDeclarationWeb.Models;
 
 namespace TaxDeclarationWeb.Controllers
 {
-    [Authorize(Policy = "RequireChiefInspector")]
-    public class NationalitiesController : Controller
+    [Authorize(Roles = "ChiefInspector,Admin")]
+    public class NationalityController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public NationalitiesController(ApplicationDbContext context)
+        public NationalityController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Nationalities
         public async Task<IActionResult> Index()
         {
             return View(await _context.Nationalities.ToListAsync());
         }
 
-        // GET: Nationalities/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            var nationality = await _context.Nationalities
-                .FirstOrDefaultAsync(n => n.Code == id);
+            var nationality = await _context.Nationalities.FirstOrDefaultAsync(n => n.Code == id);
             if (nationality == null)
                 return NotFound();
-
             return View(nationality);
         }
 
-        // GET: Nationalities/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Nationalities/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Code,Name")] Nationality nationality)
@@ -52,17 +46,14 @@ namespace TaxDeclarationWeb.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Nationalities/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var nationality = await _context.Nationalities.FindAsync(id);
             if (nationality == null)
                 return NotFound();
-
             return View(nationality);
         }
 
-        // POST: Nationalities/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Code,Name")] Nationality nationality)
@@ -89,18 +80,14 @@ namespace TaxDeclarationWeb.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Nationalities/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
-            var nationality = await _context.Nationalities
-                .FirstOrDefaultAsync(n => n.Code == id);
+            var nationality = await _context.Nationalities.FirstOrDefaultAsync(n => n.Code == id);
             if (nationality == null)
                 return NotFound();
-
             return View(nationality);
         }
 
-        // POST: Nationalities/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -111,7 +98,6 @@ namespace TaxDeclarationWeb.Controllers
                 _context.Nationalities.Remove(nationality);
                 await _context.SaveChangesAsync();
             }
-
             return RedirectToAction(nameof(Index));
         }
     }

@@ -1,0 +1,20 @@
+﻿@model TaxDeclarationWeb.Models.ApplicationUser
+@{
+    ViewData["Title"] = "Удаление пользователя";
+    var userRoles = ViewBag.UserRoles as IList<string>;
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="alert alert-danger">
+    <h4>Вы уверены, что хотите удалить этого пользователя?</h4>
+    <p>
+        <strong>Email:</strong> @Model.Email<br/>
+        <strong>Роли:</strong> @string.Join(", ", userRoles)
+    </p>
+    <form asp-action="DeleteUser" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Удалить</button>
+        <a asp-action="ManageUsers" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>

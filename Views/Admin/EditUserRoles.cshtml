@@ -1,0 +1,32 @@
+﻿@model TaxDeclarationWeb.Models.ApplicationUser
+@{
+    ViewData["Title"] = "Изменение ролей пользователя";
+    var allRoles = ViewBag.AllRoles as List<string>;
+    var userRoles = ViewBag.UserRoles as IList<string>;
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="mb-3">
+    <strong>Email:</strong> @Model.Email
+</div>
+
+<form asp-action="EditUserRoles" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-3">
+        <label>Роли пользователя:</label>
+        @foreach (var role in allRoles)
+        {
+            <div class="form-check">
+                <input type="checkbox"
+                       class="form-check-input"
+                       name="selectedRoles"
+                       value="@role"
+                       @(userRoles.Contains(role) ? "checked" : "") />
+                <label class="form-check-label">@role</label>
+            </div>
+        }
+    </div>
+    <button type="submit" class="btn btn-success">Сохранить</button>
+    <a asp-action="ManageUsers" class="btn btn-secondary">Отмена</a>
+</form>

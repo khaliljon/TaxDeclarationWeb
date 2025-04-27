@@ -22,165 +22,6 @@ namespace TaxDeclarationWeb.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Category", b =>
-                {
-                    b.Property<string>("Code")
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("категория");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("наименование");
-
-                    b.HasKey("Code");
-
-                    b.ToTable("Категории_плательщиков", null, t =>
-                        {
-                            t.ExcludeFromMigrations();
-                        });
-                });
-
-            modelBuilder.Entity("Country", b =>
-                {
-                    b.Property<string>("Code")
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("страна");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("наименование");
-
-                    b.HasKey("Code");
-
-                    b.ToTable("Страны", null, t =>
-                        {
-                            t.ExcludeFromMigrations();
-                        });
-                });
-
-            modelBuilder.Entity("Declaration", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("декларация");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Expenses")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("сумма_расхода");
-
-                    b.Property<decimal>("Income")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("сумма_дохода");
-
-                    b.Property<string>("InspectionId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("инспекция");
-
-                    b.Property<string>("InspectorId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("инспектор");
-
-                    b.Property<decimal>("NonTaxableExpenses")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("необлагаемые_расходы");
-
-                    b.Property<decimal>("PaidTaxes")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("сумма_уплаченных_налогов");
-
-                    b.Property<DateTime>("SubmittedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("подача");
-
-                    b.Property<string>("TaxpayerIIN")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("ИИН");
-
-                    b.Property<int>("Year")
-                        .HasColumnType("int")
-                        .HasColumnName("год");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InspectionId");
-
-                    b.HasIndex("InspectorId");
-
-                    b.HasIndex("TaxpayerIIN");
-
-                    b.ToTable("Декларации", null, t =>
-                        {
-                            t.ExcludeFromMigrations();
-                        });
-                });
-
-            modelBuilder.Entity("Inspection", b =>
-                {
-                    b.Property<string>("Code")
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("инспекция");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("адрес");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("наименование");
-
-                    b.HasKey("Code");
-
-                    b.ToTable("Налоговые_инспекции", null, t =>
-                        {
-                            t.ExcludeFromMigrations();
-                        });
-                });
-
-            modelBuilder.Entity("Inspector", b =>
-                {
-                    b.Property<string>("Code")
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("инспектор");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("ФИО");
-
-                    b.Property<string>("InspectionCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("код_инспекции");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("телефон");
-
-                    b.HasKey("Code");
-
-                    b.HasIndex("InspectionCode");
-
-                    b.ToTable("Инспекторы", null, t =>
-                        {
-                            t.ExcludeFromMigrations();
-                        });
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -333,8 +174,11 @@ namespace TaxDeclarationWeb.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("InspectorId")
+                    b.Property<string>("IIN")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("InspectorId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -359,10 +203,6 @@ namespace TaxDeclarationWeb.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -375,6 +215,8 @@ namespace TaxDeclarationWeb.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("InspectorId");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -386,11 +228,187 @@ namespace TaxDeclarationWeb.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("TaxDeclarationWeb.Models.Category", b =>
+                {
+                    b.Property<int>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("код_категории");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("наименование");
+
+                    b.HasKey("Code");
+
+                    b.ToTable("Категории_плательщиков", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
+
+            modelBuilder.Entity("TaxDeclarationWeb.Models.Country", b =>
+                {
+                    b.Property<int>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("код_страны");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("наименование");
+
+                    b.HasKey("Code");
+
+                    b.ToTable("Страны", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
+
+            modelBuilder.Entity("TaxDeclarationWeb.Models.Declaration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("код_декларации");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Expenses")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("сумма_расхода");
+
+                    b.Property<decimal>("Income")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("сумма_дохода");
+
+                    b.Property<int>("InspectionId")
+                        .HasColumnType("int")
+                        .HasColumnName("код_инспекции");
+
+                    b.Property<int>("InspectorId")
+                        .HasColumnType("int")
+                        .HasColumnName("код_инспектора");
+
+                    b.Property<decimal>("NonTaxableExpenses")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("необлагаемые_расходы");
+
+                    b.Property<decimal>("PaidTaxes")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("сумма_уплаченных_налогов");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("дата_подачи");
+
+                    b.Property<string>("TaxpayerIIN")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)")
+                        .HasColumnName("ИИН");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int")
+                        .HasColumnName("год");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InspectionId");
+
+                    b.HasIndex("InspectorId");
+
+                    b.HasIndex("TaxpayerIIN");
+
+                    b.ToTable("Декларации", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
+
+            modelBuilder.Entity("TaxDeclarationWeb.Models.Inspection", b =>
+                {
+                    b.Property<int>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("код_инспекции");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("адрес");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("наименование");
+
+                    b.HasKey("Code");
+
+                    b.ToTable("Налоговые_инспекции", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
+
+            modelBuilder.Entity("TaxDeclarationWeb.Models.Inspector", b =>
+                {
+                    b.Property<int>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("код_инспектора");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ФИО");
+
+                    b.Property<int>("InspectionCode")
+                        .HasColumnType("int")
+                        .HasColumnName("код_инспекции");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("телефон");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Code");
+
+                    b.HasIndex("InspectionCode");
+
+                    b.ToTable("Инспекторы", null, t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
+
             modelBuilder.Entity("TaxDeclarationWeb.Models.Nationality", b =>
                 {
-                    b.Property<string>("Code")
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("национальность");
+                    b.Property<int>("Code")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("код_национальности");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -420,19 +438,13 @@ namespace TaxDeclarationWeb.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("дата_рождения");
 
-                    b.Property<string>("CategoryCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("категория");
+                    b.Property<int>("CategoryCode")
+                        .HasColumnType("int")
+                        .HasColumnName("код_категории");
 
-                    b.Property<string>("CountryCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("страна");
-
-                    b.Property<bool>("DeclarationRequired")
-                        .HasColumnType("bit")
-                        .HasColumnName("признак_обязательности_декларации");
+                    b.Property<int>("CountryCode")
+                        .HasColumnType("int")
+                        .HasColumnName("код_страны");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -444,19 +456,21 @@ namespace TaxDeclarationWeb.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("пол");
 
-                    b.Property<string>("InspectionCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("инспекция");
+                    b.Property<int>("InspectionCode")
+                        .HasColumnType("int")
+                        .HasColumnName("код_инспекции");
+
+                    b.Property<bool>("IsDeclarationRequired")
+                        .HasColumnType("bit")
+                        .HasColumnName("признак_обязательности_декларации");
 
                     b.Property<bool>("IsResident")
                         .HasColumnType("bit")
                         .HasColumnName("признак_резидентства");
 
-                    b.Property<string>("NationalityCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("национальность");
+                    b.Property<int>("NationalityCode")
+                        .HasColumnType("int")
+                        .HasColumnName("код_национальности");
 
                     b.Property<string>("Phone")
                         .IsRequired()
@@ -482,44 +496,6 @@ namespace TaxDeclarationWeb.Migrations
                         {
                             t.ExcludeFromMigrations();
                         });
-                });
-
-            modelBuilder.Entity("Declaration", b =>
-                {
-                    b.HasOne("Inspection", "Inspection")
-                        .WithMany()
-                        .HasForeignKey("InspectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Inspector", "Inspector")
-                        .WithMany()
-                        .HasForeignKey("InspectorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TaxDeclarationWeb.Models.Taxpayer", "Taxpayer")
-                        .WithMany()
-                        .HasForeignKey("TaxpayerIIN")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Inspection");
-
-                    b.Navigation("Inspector");
-
-                    b.Navigation("Taxpayer");
-                });
-
-            modelBuilder.Entity("Inspector", b =>
-                {
-                    b.HasOne("Inspection", "Inspection")
-                        .WithMany()
-                        .HasForeignKey("InspectionCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Inspection");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -573,28 +549,75 @@ namespace TaxDeclarationWeb.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TaxDeclarationWeb.Models.ApplicationUser", b =>
+                {
+                    b.HasOne("TaxDeclarationWeb.Models.Inspector", "Inspector")
+                        .WithMany()
+                        .HasForeignKey("InspectorId");
+
+                    b.Navigation("Inspector");
+                });
+
+            modelBuilder.Entity("TaxDeclarationWeb.Models.Declaration", b =>
+                {
+                    b.HasOne("TaxDeclarationWeb.Models.Inspection", "Inspection")
+                        .WithMany("Declarations")
+                        .HasForeignKey("InspectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TaxDeclarationWeb.Models.Inspector", "Inspector")
+                        .WithMany("Declarations")
+                        .HasForeignKey("InspectorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TaxDeclarationWeb.Models.Taxpayer", "Taxpayer")
+                        .WithMany()
+                        .HasForeignKey("TaxpayerIIN")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Inspection");
+
+                    b.Navigation("Inspector");
+
+                    b.Navigation("Taxpayer");
+                });
+
+            modelBuilder.Entity("TaxDeclarationWeb.Models.Inspector", b =>
+                {
+                    b.HasOne("TaxDeclarationWeb.Models.Inspection", "Inspection")
+                        .WithMany("Inspectors")
+                        .HasForeignKey("InspectionCode")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Inspection");
+                });
+
             modelBuilder.Entity("TaxDeclarationWeb.Models.Taxpayer", b =>
                 {
-                    b.HasOne("Category", "Category")
-                        .WithMany()
+                    b.HasOne("TaxDeclarationWeb.Models.Category", "Category")
+                        .WithMany("Taxpayers")
                         .HasForeignKey("CategoryCode")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Country", "Country")
-                        .WithMany()
+                    b.HasOne("TaxDeclarationWeb.Models.Country", "Country")
+                        .WithMany("Taxpayers")
                         .HasForeignKey("CountryCode")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Inspection", "Inspection")
-                        .WithMany()
+                    b.HasOne("TaxDeclarationWeb.Models.Inspection", "Inspection")
+                        .WithMany("Taxpayers")
                         .HasForeignKey("InspectionCode")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TaxDeclarationWeb.Models.Nationality", "Nationality")
-                        .WithMany()
+                        .WithMany("Taxpayers")
                         .HasForeignKey("NationalityCode")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -606,6 +629,35 @@ namespace TaxDeclarationWeb.Migrations
                     b.Navigation("Inspection");
 
                     b.Navigation("Nationality");
+                });
+
+            modelBuilder.Entity("TaxDeclarationWeb.Models.Category", b =>
+                {
+                    b.Navigation("Taxpayers");
+                });
+
+            modelBuilder.Entity("TaxDeclarationWeb.Models.Country", b =>
+                {
+                    b.Navigation("Taxpayers");
+                });
+
+            modelBuilder.Entity("TaxDeclarationWeb.Models.Inspection", b =>
+                {
+                    b.Navigation("Declarations");
+
+                    b.Navigation("Inspectors");
+
+                    b.Navigation("Taxpayers");
+                });
+
+            modelBuilder.Entity("TaxDeclarationWeb.Models.Inspector", b =>
+                {
+                    b.Navigation("Declarations");
+                });
+
+            modelBuilder.Entity("TaxDeclarationWeb.Models.Nationality", b =>
+                {
+                    b.Navigation("Taxpayers");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,11 +1,30 @@
 ﻿@{
     ViewData["Title"] = "Панель инспектора";
 }
-<h2>@ViewData["Title"]</h2>
 
-<p>Добро пожаловать, инспектор!</p>
-
-<ul>
-    <li><a asp-controller="Reports" asp-action="DeclarationsSubmittedThisMonth">📄 Отчёт: Декларации за месяц</a></li>
-    <li><a asp-controller="Taxpayers" asp-action="Index">📋 Все налогоплательщики</a></li>
-</ul>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0">Панель инспектора</h3>
+                </div>
+                <div class="card-body">
+                    <p>Добро пожаловать, Инспектор!</p>
+                    <ul>
+                        <li>Ваша инспекция: <strong>@ViewBag.InspectionName</strong></li>
+                        <li>Налогоплательщиков: <strong>@ViewBag.TaxpayerCount</strong></li>
+                        <li>Деклараций: <strong>@ViewBag.DeclarationCount</strong></li>
+                    </ul>
+                    <hr />
+                    <div class="d-flex gap-2">
+                        <a asp-action="Taxpayers" class="btn btn-outline-info">Налогоплательщики</a>
+                        <a asp-action="Declarations" class="btn btn-outline-info">Декларации</a>
+                        <a asp-action="NonResidentMandatoryDeclarations" class="btn btn-outline-info">Обязательные декларации нерезидентов</a>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">На главную</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

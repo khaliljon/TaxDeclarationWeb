@@ -7,11 +7,11 @@ using TaxDeclarationWeb.Models;
 namespace TaxDeclarationWeb.Controllers;
 
 [Authorize(Policy = "RequireChiefInspector")]
-public class CategoriesController : Controller
+public class CategoryController : Controller
 {
     private readonly ApplicationDbContext _context;
 
-    public CategoriesController(ApplicationDbContext context)
+    public CategoryController(ApplicationDbContext context)
     {
         _context = context;
     }

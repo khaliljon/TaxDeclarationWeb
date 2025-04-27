@@ -7,7 +7,7 @@ using TaxDeclarationWeb.Models;
 
 namespace TaxDeclarationWeb.Controllers
 {
-    [Authorize(Policy = "RequireAdmin")]
+    [Authorize(Roles = "Admin,ChiefInspector")]
     public class InspectorsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -41,21 +41,20 @@ namespace TaxDeclarationWeb.Controllers
         // GET: Inspectors/Create
         public IActionResult Create()
         {
-            ViewData["InspectionCode"] = new SelectList(_context.Inspections, "Code", "Name");
+            ViewBag.InspectionCode = new SelectList(_context.Inspections, "Code", "Name");
             return View();
         }
 
         // POST: Inspectors/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,FullName,InspectionCode,Phone")] Inspector inspector)
+        public async Task<IActionResult> Create([Bind("FullName,InspectionCode,Phone")] Inspector inspector)
         {
             if (!ModelState.IsValid)
             {
-                ViewData["InspectionCode"] = new SelectList(_context.Inspections, "Code", "Name", inspector.InspectionCode);
+                ViewBag.InspectionCode = new SelectList(_context.Inspections, "Code", "Name", inspector.InspectionCode);
                 return View(inspector);
             }
-
             _context.Add(inspector);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -67,7 +66,7 @@ namespace TaxDeclarationWeb.Controllers
             var inspector = await _context.Inspectors.FindAsync(id);
             if (inspector == null) return NotFound();
 
-            ViewData["InspectionCode"] = new SelectList(_context.Inspections, "Code", "Name", inspector.InspectionCode);
+            ViewBag.InspectionCode = new SelectList(_context.Inspections, "Code", "Name", inspector.InspectionCode);
             return View(inspector);
         }
 
@@ -80,7 +79,7 @@ namespace TaxDeclarationWeb.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewData["InspectionCode"] = new SelectList(_context.Inspections, "Code", "Name", inspector.InspectionCode);
+                ViewBag.InspectionCode = new SelectList(_context.Inspections, "Code", "Name", inspector.InspectionCode);
                 return View(inspector);
             }
 
@@ -123,7 +122,6 @@ namespace TaxDeclarationWeb.Controllers
                 _context.Inspectors.Remove(inspector);
                 await _context.SaveChangesAsync();
             }
-
             return RedirectToAction(nameof(Index));
         }
     }

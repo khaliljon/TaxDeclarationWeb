@@ -1,146 +1,216 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TaxDeclarationWeb.Data;
 using TaxDeclarationWeb.Models;
 
-namespace TaxDeclarationWeb.Controllers;
-
-[Authorize(Policy = "RequireTaxpayer")]
-public class TaxpayerController : Controller
+namespace TaxDeclarationWeb.Controllers
 {
-    private readonly ApplicationDbContext _context;
-
-    public TaxpayerController(ApplicationDbContext context)
+    [Authorize(Roles = "Taxpayer,Inspector,ChiefInspector,Admin")]
+    public class TaxpayerController : Controller
     {
-        _context = context;
-    }
+        private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-    public async Task<IActionResult> Index()
-    {
-        var taxpayers = await _context.Taxpayers
-            .Include(t => t.Inspection)
-            .Include(t => t.Category)
-            .Include(t => t.Country)
-            .Include(t => t.Nationality)
-            .ToListAsync();
-
-        return View(taxpayers);
-    }
-
-    public async Task<IActionResult> Details(string id)
-    {
-        if (id == null) return NotFound();
-
-        var taxpayer = await _context.Taxpayers
-            .Include(t => t.Inspection)
-            .Include(t => t.Category)
-            .Include(t => t.Country)
-            .Include(t => t.Nationality)
-            .FirstOrDefaultAsync(t => t.IIN == id);
-
-        if (taxpayer == null) return NotFound();
-
-        return View(taxpayer);
-    }
-
-    public IActionResult Create()
-    {
-        ViewData["InspectionCode"] = new SelectList(_context.Inspections, "Code", "Name");
-        ViewData["CategoryCode"] = new SelectList(_context.Categories, "Code", "Name");
-        ViewData["CountryCode"] = new SelectList(_context.Countries, "Code", "Name");
-        ViewData["NationalityCode"] = new SelectList(_context.Nationalities, "Code", "Name");
-        return View();
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(Taxpayer taxpayer)
-    {
-        if (!ModelState.IsValid)
+        public TaxpayerController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
-            ViewData["InspectionCode"] = new SelectList(_context.Inspections, "Code", "Name", taxpayer.InspectionCode);
-            ViewData["CategoryCode"] = new SelectList(_context.Categories, "Code", "Name", taxpayer.CategoryCode);
-            ViewData["CountryCode"] = new SelectList(_context.Countries, "Code", "Name", taxpayer.CountryCode);
-            ViewData["NationalityCode"] = new SelectList(_context.Nationalities, "Code", "Name", taxpayer.NationalityCode);
+            _context = context;
+            _userManager = userManager;
+        }
+
+        private async Task<IList<string>> GetCurrentUserRoles()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            return user == null ? new List<string>() : await _userManager.GetRolesAsync(user);
+        }
+
+        private async Task<ApplicationUser> GetCurrentUserAsync()
+        {
+            return await _userManager.GetUserAsync(User);
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var roles = await GetCurrentUserRoles();
+            var user = await GetCurrentUserAsync();
+
+            IQueryable<Taxpayer> taxpayers = _context.Taxpayers
+                .Include(t => t.Inspection)
+                .Include(t => t.Category)
+                .Include(t => t.Country)
+                .Include(t => t.Nationality);
+
+            if (roles.Contains("Taxpayer"))
+            {
+                // Предполагаем, что UserName это ИИН, иначе дорабатывай под user.IIN
+                taxpayers = taxpayers.Where(t => t.IIN == user.UserName);
+            }
+            else if (roles.Contains("Inspector"))
+            {
+                var inspector = await _context.Inspectors.FirstOrDefaultAsync(i => i.UserId == user.Id);
+                if (inspector != null)
+                    taxpayers = taxpayers.Where(t => t.InspectionCode == inspector.InspectionCode);
+                else
+                    taxpayers = taxpayers.Where(t => false);
+            }
+            // ChiefInspector и Admin — видят всё
+
+            return View(await taxpayers.ToListAsync());
+        }
+
+        public async Task<IActionResult> Details(string id)
+        {
+            if (id == null) return NotFound();
+
+            var taxpayer = await _context.Taxpayers
+                .Include(t => t.Inspection)
+                .Include(t => t.Category)
+                .Include(t => t.Country)
+                .Include(t => t.Nationality)
+                .FirstOrDefaultAsync(t => t.IIN == id);
+
+            if (taxpayer == null) return NotFound();
+
+            if (!await CanAccess(taxpayer))
+                return Forbid();
+
             return View(taxpayer);
         }
 
-        _context.Add(taxpayer);
-        await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
-    }
-
-    public async Task<IActionResult> Edit(string id)
-    {
-        if (id == null) return NotFound();
-
-        var taxpayer = await _context.Taxpayers.FindAsync(id);
-        if (taxpayer == null) return NotFound();
-
-        ViewData["InspectionCode"] = new SelectList(_context.Inspections, "Code", "Name", taxpayer.InspectionCode);
-        ViewData["CategoryCode"] = new SelectList(_context.Categories, "Code", "Name", taxpayer.CategoryCode);
-        ViewData["CountryCode"] = new SelectList(_context.Countries, "Code", "Name", taxpayer.CountryCode);
-        ViewData["NationalityCode"] = new SelectList(_context.Nationalities, "Code", "Name", taxpayer.NationalityCode);
-
-        return View(taxpayer);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(string id, Taxpayer taxpayer)
-    {
-        if (id != taxpayer.IIN) return NotFound();
-
-        if (!ModelState.IsValid)
+        [Authorize(Roles = "Inspector,ChiefInspector,Admin")]
+        public IActionResult Create()
         {
+            SetViewData(null);
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Inspector,ChiefInspector,Admin")]
+        public async Task<IActionResult> Create(Taxpayer taxpayer)
+        {
+            if (!ModelState.IsValid)
+            {
+                SetViewData(taxpayer);
+                return View(taxpayer);
+            }
+
+            _context.Add(taxpayer);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (id == null) return NotFound();
+
+            var taxpayer = await _context.Taxpayers.FindAsync(id);
+            if (taxpayer == null) return NotFound();
+
+            if (!await CanAccess(taxpayer))
+                return Forbid();
+
+            SetViewData(taxpayer);
             return View(taxpayer);
         }
 
-        try
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string id, Taxpayer taxpayer)
         {
-            _context.Update(taxpayer);
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!_context.Taxpayers.Any(e => e.IIN == id))
-                return NotFound();
-            else
-                throw;
-        }
+            if (id != taxpayer.IIN) return NotFound();
 
-        return RedirectToAction(nameof(Index));
-    }
+            if (!await CanAccess(taxpayer))
+                return Forbid();
 
-    public async Task<IActionResult> Delete(string id)
-    {
-        if (id == null) return NotFound();
+            if (!ModelState.IsValid)
+            {
+                SetViewData(taxpayer);
+                return View(taxpayer);
+            }
 
-        var taxpayer = await _context.Taxpayers
-            .Include(t => t.Inspection)
-            .Include(t => t.Category)
-            .Include(t => t.Country)
-            .Include(t => t.Nationality)
-            .FirstOrDefaultAsync(t => t.IIN == id);
+            try
+            {
+                _context.Update(taxpayer);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Taxpayers.Any(e => e.IIN == id))
+                    return NotFound();
+                else
+                    throw;
+            }
 
-        if (taxpayer == null) return NotFound();
-
-        return View(taxpayer);
-    }
-
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(string id)
-    {
-        var taxpayer = await _context.Taxpayers.FindAsync(id);
-        if (taxpayer != null)
-        {
-            _context.Taxpayers.Remove(taxpayer);
-            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
-        return RedirectToAction(nameof(Index));
+        public async Task<IActionResult> Delete(string id)
+        {
+            if (id == null) return NotFound();
+
+            var taxpayer = await _context.Taxpayers
+                .Include(t => t.Inspection)
+                .Include(t => t.Category)
+                .Include(t => t.Country)
+                .Include(t => t.Nationality)
+                .FirstOrDefaultAsync(t => t.IIN == id);
+
+            if (taxpayer == null) return NotFound();
+
+            if (!await CanAccess(taxpayer))
+                return Forbid();
+
+            return View(taxpayer);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            var taxpayer = await _context.Taxpayers.FindAsync(id);
+
+            if (!await CanAccess(taxpayer))
+                return Forbid();
+
+            if (taxpayer != null)
+            {
+                _context.Taxpayers.Remove(taxpayer);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // --- Вспомогательные методы ---
+
+        private async Task<bool> CanAccess(Taxpayer taxpayer)
+        {
+            var roles = await GetCurrentUserRoles();
+            var user = await GetCurrentUserAsync();
+
+            if (roles.Contains("Admin") || roles.Contains("ChiefInspector"))
+                return true;
+
+            if (roles.Contains("Taxpayer"))
+                return taxpayer.IIN == user.UserName; // Или user.IIN, если реализуешь отдельное поле
+
+            if (roles.Contains("Inspector"))
+            {
+                var inspector = await _context.Inspectors.FirstOrDefaultAsync(i => i.UserId == user.Id);
+                return inspector != null && taxpayer.InspectionCode == inspector.InspectionCode;
+            }
+            return false;
+        }
+
+        private void SetViewData(Taxpayer taxpayer)
+        {
+            ViewData["InspectionCode"] = new SelectList(_context.Inspections, "Code", "Name", taxpayer?.InspectionCode);
+            ViewData["CategoryCode"] = new SelectList(_context.Categories, "Code", "Name", taxpayer?.CategoryCode);
+            ViewData["CountryCode"] = new SelectList(_context.Countries, "Code", "Name", taxpayer?.CountryCode);
+            ViewData["NationalityCode"] = new SelectList(_context.Nationalities, "Code", "Name", taxpayer?.NationalityCode);
+        }
     }
 }

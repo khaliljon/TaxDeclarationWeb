@@ -1,21 +1,21 @@
-﻿@model TaxDeclarationWeb.Models.Inspector
+﻿@model TaxDeclarationWeb.Models.Taxpayer
 @{
-    ViewData["Title"] = "Удаление инспектора";
+    ViewData["Title"] = "Удаление налогоплательщика";
 }
 
 <h2>@ViewData["Title"]</h2>
 <div class="alert alert-danger">
-    <h4>Вы уверены, что хотите удалить этого инспектора?</h4>
+    <h4>Вы уверены, что хотите удалить этого налогоплательщика?</h4>
     <dl class="row">
+        <dt class="col-sm-4">ИИН</dt>
+        <dd class="col-sm-8">@Model.IIN</dd>
         <dt class="col-sm-4">ФИО</dt>
         <dd class="col-sm-8">@Model.FullName</dd>
         <dt class="col-sm-4">Инспекция</dt>
         <dd class="col-sm-8">@Model.Inspection?.Name</dd>
-        <dt class="col-sm-4">Телефон</dt>
-        <dd class="col-sm-8">@Model.Phone</dd>
     </dl>
     <form asp-action="DeleteConfirmed" method="post">
-        <input type="hidden" asp-for="Code" />
+        <input type="hidden" asp-for="IIN" />
         <button type="submit" class="btn btn-danger">Удалить</button>
         <a asp-action="Index" class="btn btn-secondary">Отмена</a>
     </form>

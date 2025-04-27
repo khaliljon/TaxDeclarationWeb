@@ -2,10 +2,32 @@
     ViewData["Title"] = "Панель главного инспектора";
 }
 
-<h2>Панель главного инспектора</h2>
-
-<p>Добро пожаловать, <strong>Главный инспектор</strong>!</p>
-
-<ul>
-    <li><a asp-controller="ChiefInspector" asp-action="Logout">Выйти</a></li>
-</ul>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Панель главного инспектора</h3>
+                </div>
+                <div class="card-body">
+                    <p>Добро пожаловать, Главный инспектор!</p>
+                    <ul>
+                        <li>Просмотр и управление всеми налоговыми инспекциями</li>
+                        <li>Доступ к расширенным отчётам и аналитике</li>
+                        <li>Управление национальностями, странами, категориями</li>
+                        <li>Контроль инспекторов и их активности</li>
+                    </ul>
+                    <hr />
+                    <div class="d-flex gap-2">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">На главную</a>
+                        <a asp-controller="Reports" asp-action="DeclarationsCountByInspection" class="btn btn-outline-success">Отчёты</a>
+                        <a asp-controller="Inspections" asp-action="Index" class="btn btn-outline-success">Инспекции</a>
+                        <a asp-controller="Nationalities" asp-action="Index" class="btn btn-outline-success">Национальности</a>
+                        <a asp-controller="Countries" asp-action="Index" class="btn btn-outline-success">Страны</a>
+                    </div>
+                    <p class="mt-3 text-muted"><small>У вас есть доступ к расширенным функциям управления и аналитики по всей базе.</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

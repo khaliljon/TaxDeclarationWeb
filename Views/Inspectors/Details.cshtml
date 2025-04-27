@@ -1,14 +1,22 @@
 ﻿@model TaxDeclarationWeb.Models.Inspector
 @{
-    ViewData["Title"] = "Детали инспектора";
+    ViewData["Title"] = "Информация об инспекторе";
 }
+
 <h2>@ViewData["Title"]</h2>
-
-<div>
-    <h4>@Model.FullName</h4>
-    <p><strong>Код:</strong> @Model.Code</p>
-    <p><strong>Инспекция:</strong> @Model.Inspection?.Name</p>
-    <p><strong>Телефон:</strong> @Model.Phone</p>
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-4">Код инспектора</dt>
+            <dd class="col-sm-8">@Model.Code</dd>
+            <dt class="col-sm-4">ФИО</dt>
+            <dd class="col-sm-8">@Model.FullName</dd>
+            <dt class="col-sm-4">Инспекция</dt>
+            <dd class="col-sm-8">@Model.Inspection?.Name</dd>
+            <dt class="col-sm-4">Телефон</dt>
+            <dd class="col-sm-8">@Model.Phone</dd>
+        </dl>
+        <a asp-action="Edit" asp-route-id="@Model.Code" class="btn btn-primary">Редактировать</a>
+        <a asp-action="Index" class="btn btn-secondary">Назад к списку</a>
+    </div>
 </div>
-
-<a asp-action="Index" class="btn btn-secondary">Назад</a>

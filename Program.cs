@@ -39,14 +39,13 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("Admin"));
 });
 
-// ---------- ВАЖНО: вот здесь добавь IgnoreCycles! ----------
+// --- ВАЖНО: добавлено IgnoreCycles ---
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-        options.JsonSerializerOptions.WriteIndented = true; // красиво форматировать json (по желанию)
+        options.JsonSerializerOptions.WriteIndented = true;
     });
-// ------------------------------------------------------------
 
 var app = builder.Build();
 
@@ -74,8 +73,7 @@ using (var scope = app.Services.CreateScope())
         var user = new ApplicationUser
         {
             UserName = adminEmail,
-            Email = adminEmail,
-            Role = "Admin"
+            Email = adminEmail
         };
 
         var result = await userManager.CreateAsync(user, "Admin123!");
@@ -101,8 +99,7 @@ using (var scope = app.Services.CreateScope())
             var user = new ApplicationUser
             {
                 UserName = email,
-                Email = email,
-                Role = role
+                Email = email
             };
 
             var result = await userManager.CreateAsync(user, password);

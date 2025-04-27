@@ -9,6 +9,9 @@ public class Inspector
     [Key]
     [Column("код_инспектора")]
     public int Code { get; set; }
+    
+    [Column("user_id")]
+    public string UserId { get; set; }
 
     [Column("ФИО")]
     public string FullName { get; set; }

@@ -1,0 +1,43 @@
+﻿@model IEnumerable<TaxDeclarationWeb.Models.Declaration>
+@{
+    ViewData["Title"] = "Список деклараций";
+}
+
+<h2>@ViewData["Title"]</h2>
+<a asp-action="Create" class="btn btn-success mb-3">Добавить декларацию</a>
+
+<table class="table table-striped table-bordered">
+    <thead>
+    <tr>
+        <th>Год</th>
+        <th>ИИН налогоплательщика</th>
+        <th>Инспекция</th>
+        <th>Инспектор</th>
+        <th>Сумма дохода</th>
+        <th>Сумма расхода</th>
+        <th>Уплачено налогов</th>
+        <th>Дата подачи</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var d in Model)
+    {
+        <tr>
+            <td>@d.Year</td>
+            <td>@d.TaxpayerIIN</td>
+            <td>@d.Inspection?.Name</td>
+            <td>@d.Inspector?.FullName</td>
+            <td>@d.Income</td>
+            <td>@d.Expenses</td>
+            <td>@d.PaidTaxes</td>
+            <td>@d.SubmittedAt.ToShortDateString()</td>
+            <td>
+                <a asp-action="Details" asp-route-id="@d.Id" class="btn btn-sm btn-info">Детали</a>
+                <a asp-action="Edit" asp-route-id="@d.Id" class="btn btn-sm btn-primary">Редактировать</a>
+                <a asp-action="Delete" asp-route-id="@d.Id" class="btn btn-sm btn-danger">Удалить</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

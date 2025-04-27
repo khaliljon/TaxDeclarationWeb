@@ -1,0 +1,62 @@
+﻿@model TaxDeclarationWeb.Models.Declaration
+@{
+    ViewData["Title"] = "Добавить декларацию";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Create">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group mb-2">
+                <label asp-for="Year"></label>
+                <input asp-for="Year" class="form-control" />
+                <span asp-validation-for="Year" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-2">
+                <label asp-for="TaxpayerIIN">Налогоплательщик (ИИН)</label>
+                <select asp-for="TaxpayerIIN" asp-items="ViewBag.TaxpayerIIN" class="form-control"></select>
+                <span asp-validation-for="TaxpayerIIN" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-2">
+                <label asp-for="InspectionId">Инспекция</label>
+                <select asp-for="InspectionId" asp-items="ViewBag.InspectionId" class="form-control"></select>
+                <span asp-validation-for="InspectionId" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-2">
+                <label asp-for="InspectorId">Инспектор</label>
+                <select asp-for="InspectorId" asp-items="ViewBag.InspectorId" class="form-control"></select>
+                <span asp-validation-for="InspectorId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group mb-2">
+                <label asp-for="Income"></label>
+                <input asp-for="Income" class="form-control" />
+                <span asp-validation-for="Income" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-2">
+                <label asp-for="Expenses"></label>
+                <input asp-for="Expenses" class="form-control" />
+                <span asp-validation-for="Expenses" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-2">
+                <label asp-for="NonTaxableExpenses"></label>
+                <input asp-for="NonTaxableExpenses" class="form-control" />
+                <span asp-validation-for="NonTaxableExpenses" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-2">
+                <label asp-for="PaidTaxes"></label>
+                <input asp-for="PaidTaxes" class="form-control" />
+                <span asp-validation-for="PaidTaxes" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-2">
+                <label asp-for="SubmittedAt"></label>
+                <input asp-for="SubmittedAt" class="form-control" type="date" />
+                <span asp-validation-for="SubmittedAt" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success mt-3">Добавить</button>
+    <a asp-action="Index" class="btn btn-secondary mt-3">Отмена</a>
+</form>
