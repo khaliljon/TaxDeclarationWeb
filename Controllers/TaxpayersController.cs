@@ -1,15 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TaxDeclarationWeb.Data;
 using TaxDeclarationWeb.Models;
 
 namespace TaxDeclarationWeb.Controllers;
 
-[Authorize(Roles = "Taxpayer")]
-[ApiController]
-[Route("taxpayers")]
+[Authorize(Policy = "RequireTaxpayer")]
 public class TaxpayersController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -21,98 +20,138 @@ public class TaxpayersController : Controller
         _userManager = userManager;
     }
 
-    public IActionResult Index()
+    // GET: Taxpayers
+    public async Task<IActionResult> Index()
     {
-        return View();
-    }
-    
-    // GET /taxpayers
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
-    {
-        var user = await _userManager.GetUserAsync(User);
-        var roles = await _userManager.GetRolesAsync(user);
-
-        var query = _context.Taxpayers
+        var taxpayers = await _context.Taxpayers
             .Include(t => t.Inspection)
             .Include(t => t.Category)
-            .Include(t => t.Country)
             .Include(t => t.Nationality)
-            .AsQueryable();
-
-        if (roles.Contains("Inspector") && user.InspectorId != null)
-        {
-            var inspector = await _context.Inspectors
-                .FirstOrDefaultAsync(i => i.Code == user.InspectorId);
-
-            if (inspector != null)
-            {
-                query = query.Where(t => t.InspectionCode == inspector.InspectionCode);
-            }
-        }
-
-        var list = await query.ToListAsync();
-        return Ok(list);
+            .Include(t => t.Country)
+            .ToListAsync();
+        return View(taxpayers);
     }
 
-    // GET /taxpayers/{iin}
-    [HttpGet("{iin}")]
-    public async Task<IActionResult> GetByIin(string iin)
+    // GET: Taxpayers/Details/5
+    public async Task<IActionResult> Details(string id)
     {
+        if (id == null)
+            return NotFound();
+
         var taxpayer = await _context.Taxpayers
             .Include(t => t.Inspection)
             .Include(t => t.Category)
-            .Include(t => t.Country)
             .Include(t => t.Nationality)
-            .FirstOrDefaultAsync(t => t.IIN == iin);
+            .Include(t => t.Country)
+            .FirstOrDefaultAsync(t => t.IIN == id);
 
         if (taxpayer == null)
             return NotFound();
 
-        return Ok(taxpayer);
+        return View(taxpayer);
     }
 
-    // POST /taxpayers
+    // GET: Taxpayers/Create
+    public IActionResult Create()
+    {
+        ViewBag.Inspections = new SelectList(_context.Inspections, "Code", "Name");
+        ViewBag.Categories = new SelectList(_context.Categories, "Code", "Name");
+        ViewBag.Nationalities = new SelectList(_context.Nationalities, "Code", "Name");
+        ViewBag.Countries = new SelectList(_context.Countries, "Code", "Name");
+        return View();
+    }
+
+    // POST: Taxpayers/Create
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Taxpayer taxpayer)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create([Bind("IIN,FullName,Address,Phone,InspectionCode,CategoryCode,IsDeclarationRequired,BirthDate,Gender,NationalityCode,Workplace,IsResident,CountryCode")] Taxpayer taxpayer)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        _context.Taxpayers.Add(taxpayer);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetByIin), new { iin = taxpayer.IIN }, taxpayer);
+        if (ModelState.IsValid)
+        {
+            _context.Add(taxpayer);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        ViewBag.Inspections = new SelectList(_context.Inspections, "Code", "Name", taxpayer.InspectionCode);
+        ViewBag.Categories = new SelectList(_context.Categories, "Code", "Name", taxpayer.CategoryCode);
+        ViewBag.Nationalities = new SelectList(_context.Nationalities, "Code", "Name", taxpayer.NationalityCode);
+        ViewBag.Countries = new SelectList(_context.Countries, "Code", "Name", taxpayer.CountryCode);
+        return View(taxpayer);
     }
 
-    // PUT /taxpayers/{iin}
-    [HttpPut("{iin}")]
-    public async Task<IActionResult> Update(string iin, [FromBody] Taxpayer taxpayer)
+    // GET: Taxpayers/Edit/5
+    public async Task<IActionResult> Edit(string id)
     {
-        if (iin != taxpayer.IIN)
-            return BadRequest("IIN mismatch");
+        if (id == null) return NotFound();
 
-        var existing = await _context.Taxpayers.FindAsync(iin);
-        if (existing == null)
-            return NotFound();
+        var taxpayer = await _context.Taxpayers.FindAsync(id);
+        if (taxpayer == null) return NotFound();
 
-        _context.Entry(existing).CurrentValues.SetValues(taxpayer);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
+        ViewBag.Inspections = new SelectList(_context.Inspections, "Code", "Name", taxpayer.InspectionCode);
+        ViewBag.Categories = new SelectList(_context.Categories, "Code", "Name", taxpayer.CategoryCode);
+        ViewBag.Nationalities = new SelectList(_context.Nationalities, "Code", "Name", taxpayer.NationalityCode);
+        ViewBag.Countries = new SelectList(_context.Countries, "Code", "Name", taxpayer.CountryCode);
+        return View(taxpayer);
     }
 
-    // DELETE /taxpayers/{iin}
-    [HttpDelete("{iin}")]
-    public async Task<IActionResult> Delete(string iin)
+    // POST: Taxpayers/Edit/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(string id, [Bind("IIN,FullName,Address,Phone,InspectionCode,CategoryCode,IsDeclarationRequired,BirthDate,Gender,NationalityCode,Workplace,IsResident,CountryCode")] Taxpayer taxpayer)
     {
-        var taxpayer = await _context.Taxpayers.FindAsync(iin);
-        if (taxpayer == null)
-            return NotFound();
+        if (id != taxpayer.IIN) return NotFound();
 
-        _context.Taxpayers.Remove(taxpayer);
-        await _context.SaveChangesAsync();
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                _context.Update(taxpayer);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Taxpayers.Any(e => e.IIN == id))
+                    return NotFound();
+                else
+                    throw;
+            }
+        }
+        ViewBag.Inspections = new SelectList(_context.Inspections, "Code", "Name", taxpayer.InspectionCode);
+        ViewBag.Categories = new SelectList(_context.Categories, "Code", "Name", taxpayer.CategoryCode);
+        ViewBag.Nationalities = new SelectList(_context.Nationalities, "Code", "Name", taxpayer.NationalityCode);
+        ViewBag.Countries = new SelectList(_context.Countries, "Code", "Name", taxpayer.CountryCode);
+        return View(taxpayer);
+    }
 
-        return NoContent();
+    // GET: Taxpayers/Delete/5
+    public async Task<IActionResult> Delete(string id)
+    {
+        if (id == null) return NotFound();
+
+        var taxpayer = await _context.Taxpayers
+            .Include(t => t.Inspection)
+            .Include(t => t.Category)
+            .Include(t => t.Nationality)
+            .Include(t => t.Country)
+            .FirstOrDefaultAsync(t => t.IIN == id);
+
+        if (taxpayer == null) return NotFound();
+
+        return View(taxpayer);
+    }
+
+    // POST: Taxpayers/Delete/5
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(string id)
+    {
+        var taxpayer = await _context.Taxpayers.FindAsync(id);
+        if (taxpayer != null)
+        {
+            _context.Taxpayers.Remove(taxpayer);
+            await _context.SaveChangesAsync();
+        }
+        return RedirectToAction(nameof(Index));
     }
 }

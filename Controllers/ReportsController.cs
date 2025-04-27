@@ -18,21 +18,22 @@ public class ReportsController : Controller
 
     // Отчёт 1
     [HttpGet]
-    public async Task<IActionResult> NerezidentsByInspection(string? inspectionCode)
+    public async Task<IActionResult> NerezidentsByInspection(int? inspectionCode)
     {
         ViewBag.Inspections = await _context.Inspections.OrderBy(i => i.Name).ToListAsync();
-        if (string.IsNullOrEmpty(inspectionCode))
+        if (inspectionCode == null)
             return View(new List<Taxpayer>());
 
         var list = await _context.Taxpayers
             .Include(t => t.Inspection)
-            .Where(t => t.InspectionCode == inspectionCode &&
+            .Where(t => t.InspectionCode == inspectionCode.Value &&
                         !t.IsResident &&
                         t.IsDeclarationRequired)
             .ToListAsync();
 
         return View(list);
     }
+
 
     // Отчёт 2
     [HttpGet]
@@ -80,18 +81,18 @@ public class ReportsController : Controller
 
     // Отчёт 4
     [HttpGet]
-    public async Task<IActionResult> DeclarationsByDateAndInspection(string? inspectionCode, int? day)
+    public async Task<IActionResult> DeclarationsByDateAndInspection(int? inspectionCode, int? day)
     {
         ViewBag.Inspections = await _context.Inspections.ToListAsync();
 
-        if (string.IsNullOrEmpty(inspectionCode) || day is null)
+        if (inspectionCode == null || day == null)
             return View(new List<Declaration>());
 
         var list = await _context.Declarations
             .Include(d => d.Taxpayer)
             .Include(d => d.Inspection)
             .Include(d => d.Inspector)
-            .Where(d => d.InspectionId == inspectionCode && d.SubmittedAt.Day == day)
+            .Where(d => d.InspectionId == inspectionCode.Value && d.SubmittedAt.Day == day.Value)
             .ToListAsync();
 
         return View(list);
@@ -174,23 +175,24 @@ public class ReportsController : Controller
 
     // Отчёт 10
     [HttpGet]
-    public async Task<IActionResult> TaxpayersByCategoryAndDate(string? categoryCode, int? day)
+    public async Task<IActionResult> TaxpayersByCategoryAndDate(int? categoryCode, int? day)
     {
         ViewBag.Categories = await _context.Categories.ToListAsync();
 
-        if (string.IsNullOrEmpty(categoryCode) || day is null)
+        if (categoryCode == null || day == null)
             return View(new List<Taxpayer>());
 
         var list = await _context.Taxpayers
             .Include(t => t.Inspection)
-            .Where(t => t.CategoryCode == categoryCode &&
-                        _context.Declarations.Any(d => d.TaxpayerIIN == t.IIN && d.SubmittedAt.Day == day))
+            .Where(t => t.CategoryCode == categoryCode.Value &&
+                        _context.Declarations.Any(d => d.TaxpayerIIN == t.IIN && d.SubmittedAt.Day == day.Value))
             .ToListAsync();
 
         ViewBag.CategoryCode = categoryCode;
         ViewBag.Day = day;
         return View(list);
     }
+
     // Отчёт 11: вставка 3 стран
     [HttpGet]
     public IActionResult InsertCountries()
@@ -203,7 +205,7 @@ public class ReportsController : Controller
     public async Task<IActionResult> InsertCountries(List<Country> countries)
     {
         var validCountries = countries
-            .Where(c => !string.IsNullOrWhiteSpace(c.Code) && !string.IsNullOrWhiteSpace(c.Name))
+            .Where(c => c.Code > 0 && !string.IsNullOrWhiteSpace(c.Name))
             .ToList();
 
         if (validCountries.Any())
@@ -219,6 +221,7 @@ public class ReportsController : Controller
 
         return View(new List<Country> { new(), new(), new() });
     }
+    
     // Отчёт 12: количество налогоплательщиков по дню подачи декларации
     [HttpGet]
     public async Task<IActionResult> CountTaxpayersByDeclarationDay(int? day)

@@ -20,13 +20,13 @@ public class Taxpayer
     public string Phone { get; set; }
 
     [Column("код_инспекции")]
-    public string InspectionCode { get; set; }
+    public int InspectionCode { get; set; }   // Было string, должно быть int
 
     [ForeignKey("InspectionCode")]
     public Inspection Inspection { get; set; }
 
     [Column("код_категории")]
-    public string CategoryCode { get; set; }
+    public int CategoryCode { get; set; }    // Было string, должно быть int
 
     [ForeignKey("CategoryCode")]
     public Category Category { get; set; }
@@ -41,7 +41,7 @@ public class Taxpayer
     public string Gender { get; set; }
 
     [Column("код_национальности")]
-    public string NationalityCode { get; set; }
+    public int NationalityCode { get; set; } // Было string, должно быть int
 
     [ForeignKey("NationalityCode")]
     public Nationality Nationality { get; set; }
@@ -53,7 +53,7 @@ public class Taxpayer
     public bool IsResident { get; set; }
 
     [Column("код_страны")]
-    public string CountryCode { get; set; }
+    public int CountryCode { get; set; }     // Было string, должно быть int
 
     [ForeignKey("CountryCode")]
     public Country Country { get; set; }

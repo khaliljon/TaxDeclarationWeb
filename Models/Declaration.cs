@@ -7,22 +7,22 @@ namespace TaxDeclarationWeb.Models;
 public class Declaration
 {
     [Key]
-    [Column("декларация")]
+    [Column("код_декларации")]
     public int Id { get; set; }
 
-    [Column("инспекция")]
-    public string InspectionId { get; set; }
+    [Column("код_инспекции")]
+    public int InspectionId { get; set; }
 
     [ForeignKey("InspectionId")]
     public Inspection Inspection { get; set; }
 
-    [Column("инспектор")]
-    public string InspectorId { get; set; }
+    [Column("код_инспектора")]
+    public int InspectorId { get; set; }
 
     [ForeignKey("InspectorId")]
     public Inspector Inspector { get; set; }
 
-    [Column("подача")]
+    [Column("дата_подачи")]
     public DateTime SubmittedAt { get; set; }
 
     [Column("год")]

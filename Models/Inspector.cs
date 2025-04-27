@@ -7,14 +7,14 @@ namespace TaxDeclarationWeb.Models;
 public class Inspector
 {
     [Key]
-    [Column("инспектор")]
-    public string Code { get; set; }
+    [Column("код_инспектора")]
+    public int Code { get; set; }
 
     [Column("ФИО")]
     public string FullName { get; set; }
 
     [Column("код_инспекции")]
-    public string InspectionCode { get; set; }
+    public int InspectionCode { get; set; }
 
     [ForeignKey("InspectionCode")]
     public Inspection Inspection { get; set; }

@@ -33,6 +33,7 @@ public class DeclarationsController : Controller
             .Include(d => d.Inspection)
             .Include(d => d.Inspector);
 
+        // Если пользователь инспектор, фильтруем по его инспекции
         if (roles.Contains("Inspector") && user.InspectorId != null)
         {
             var inspector = await _context.Inspectors
@@ -40,6 +41,7 @@ public class DeclarationsController : Controller
 
             if (inspector != null)
             {
+                // Здесь оба должны быть int!
                 query = query.Where(d => d.InspectionId == inspector.InspectionCode);
             }
         }

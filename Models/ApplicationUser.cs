@@ -5,7 +5,7 @@ namespace TaxDeclarationWeb.Models;
 
 public class ApplicationUser : IdentityUser
 {
-    public string? InspectorId { get; set; }
+    public int? InspectorId { get; set; }
 
     [NotMapped]
     public Inspector? Inspector { get; set; }

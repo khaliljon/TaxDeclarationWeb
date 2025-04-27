@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using TaxDeclarationWeb.Data;
 using TaxDeclarationWeb.Models;
 using DotNetEnv;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,7 +39,14 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("Admin"));
 });
 
-builder.Services.AddControllersWithViews();
+// ---------- ВАЖНО: вот здесь добавь IgnoreCycles! ----------
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true; // красиво форматировать json (по желанию)
+    });
+// ------------------------------------------------------------
 
 var app = builder.Build();
 

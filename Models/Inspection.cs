@@ -7,8 +7,8 @@ namespace TaxDeclarationWeb.Models;
 public class Inspection
 {
     [Key]
-    [Column("инспекция")]
-    public string Code { get; set; }
+    [Column("код_инспекции")]
+    public int Code { get; set; }
 
     [Column("наименование")]
     public string Name { get; set; }

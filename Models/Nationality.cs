@@ -7,8 +7,8 @@ namespace TaxDeclarationWeb.Models;
 public class Nationality
 {
     [Key]
-    [Column("национальность")]
-    public string Code { get; set; }
+    [Column("код_национальности")]
+    public int Code { get; set; }
 
     [Column("наименование")]
     public string Name { get; set; }

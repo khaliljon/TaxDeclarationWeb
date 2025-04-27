@@ -23,11 +23,8 @@ public class CountriesController : Controller
     }
 
     // GET: Countries/Details/5
-    public async Task<IActionResult> Details(string id)
+    public async Task<IActionResult> Details(int id)
     {
-        if (id == null)
-            return NotFound();
-
         var country = await _context.Countries
             .FirstOrDefaultAsync(c => c.Code == id);
         if (country == null)
@@ -56,11 +53,8 @@ public class CountriesController : Controller
     }
 
     // GET: Countries/Edit/5
-    public async Task<IActionResult> Edit(string id)
+    public async Task<IActionResult> Edit(int id)
     {
-        if (id == null)
-            return NotFound();
-
         var country = await _context.Countries.FindAsync(id);
         if (country == null)
             return NotFound();
@@ -71,7 +65,7 @@ public class CountriesController : Controller
     // POST: Countries/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(string id, [Bind("Code,Name")] Country country)
+    public async Task<IActionResult> Edit(int id, [Bind("Code,Name")] Country country)
     {
         if (id != country.Code)
             return NotFound();
@@ -96,11 +90,8 @@ public class CountriesController : Controller
     }
 
     // GET: Countries/Delete/5
-    public async Task<IActionResult> Delete(string id)
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id == null)
-            return NotFound();
-
         var country = await _context.Countries
             .FirstOrDefaultAsync(c => c.Code == id);
         if (country == null)
@@ -112,7 +103,7 @@ public class CountriesController : Controller
     // POST: Countries/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(string id)
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var country = await _context.Countries.FindAsync(id);
         if (country != null)

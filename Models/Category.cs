@@ -7,8 +7,8 @@ namespace TaxDeclarationWeb.Models;
 public class Category
 {
     [Key]
-    [Column("категория")]
-    public string Code { get; set; }
+    [Column("код_категории")]
+    public int Code { get; set; }
 
     [Column("наименование")]
     public string Name { get; set; }

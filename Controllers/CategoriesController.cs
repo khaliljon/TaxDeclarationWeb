@@ -23,11 +23,8 @@ public class CategoriesController : Controller
     }
 
     // GET: Categories/Details/5
-    public async Task<IActionResult> Details(string id)
+    public async Task<IActionResult> Details(int id) // int!
     {
-        if (id == null)
-            return NotFound();
-
         var category = await _context.Categories.FirstOrDefaultAsync(c => c.Code == id);
         if (category == null)
             return NotFound();
@@ -55,11 +52,8 @@ public class CategoriesController : Controller
     }
 
     // GET: Categories/Edit/5
-    public async Task<IActionResult> Edit(string id)
+    public async Task<IActionResult> Edit(int id) // int!
     {
-        if (id == null)
-            return NotFound();
-
         var category = await _context.Categories.FindAsync(id);
         if (category == null)
             return NotFound();
@@ -70,7 +64,7 @@ public class CategoriesController : Controller
     // POST: Categories/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(string id, [Bind("Code,Name")] Category category)
+    public async Task<IActionResult> Edit(int id, [Bind("Code,Name")] Category category) // int!
     {
         if (id != category.Code)
             return NotFound();
@@ -95,11 +89,8 @@ public class CategoriesController : Controller
     }
 
     // GET: Categories/Delete/5
-    public async Task<IActionResult> Delete(string id)
+    public async Task<IActionResult> Delete(int id) // int!
     {
-        if (id == null)
-            return NotFound();
-
         var category = await _context.Categories.FirstOrDefaultAsync(c => c.Code == id);
         if (category == null)
             return NotFound();
@@ -110,7 +101,7 @@ public class CategoriesController : Controller
     // POST: Categories/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(string id)
+    public async Task<IActionResult> DeleteConfirmed(int id) // int!
     {
         var category = await _context.Categories.FindAsync(id);
         if (category != null)
