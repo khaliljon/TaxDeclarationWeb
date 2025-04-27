@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using TaxDeclarationWeb.Models;
 using Microsoft.AspNetCore.Authorization;
+using TaxDeclarationWeb.Data;
 
 namespace TaxDeclarationWeb.Controllers
 {
@@ -9,11 +10,13 @@ namespace TaxDeclarationWeb.Controllers
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+        public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _context = context;
         }
 
         [HttpGet]
@@ -44,7 +47,13 @@ namespace TaxDeclarationWeb.Controllers
             {
                 var roles = await _userManager.GetRolesAsync(user);
 
-                // Приоритет ролей: Admin > ChiefInspector > Inspector > Taxpayer
+                // Логирование входа администратора (или других ролей)
+                if (roles.Contains("Admin"))
+                    await LogAudit("Вход администратора", $"Вход выполнен: {user.Email}");
+                // else if (roles.Contains("ChiefInspector"))
+                //     await LogAudit("Вход главного инспектора", $"Вход выполнен: {user.Email}");
+
+                // Перенаправление по приоритету ролей
                 if (roles.Contains("Admin"))
                     return RedirectToAction("Index", "Admin");
                 if (roles.Contains("ChiefInspector"))
@@ -64,6 +73,16 @@ namespace TaxDeclarationWeb.Controllers
         [Authorize]
         public async Task<IActionResult> Logout()
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                if (roles.Contains("Admin"))
+                    await LogAudit("Выход администратора", $"Выход выполнен: {user.Email}");
+                // else if (roles.Contains("ChiefInspector"))
+                //     await LogAudit("Выход главного инспектора", $"Выход: {user.Email}");
+            }
+
             await _signInManager.SignOutAsync();
             return RedirectToAction("Login");
         }
@@ -81,6 +100,12 @@ namespace TaxDeclarationWeb.Controllers
 
             var roles = await _userManager.GetRolesAsync(user);
 
+            // Логирование попытки доступа к закрытой зоне для важных ролей
+            if (roles.Contains("Admin"))
+                await LogAudit("AccessDenied", $"Администратор {user.Email} попытался получить доступ к закрытой зоне: {Request.Path}");
+            else if (roles.Contains("ChiefInspector"))
+                await LogAudit("AccessDenied", $"Главный инспектор {user.Email} попытался получить доступ к закрытой зоне: {Request.Path}");
+
             if (roles.Contains("Admin"))
                 return RedirectToAction("Index", "Admin");
             if (roles.Contains("ChiefInspector"))
@@ -91,6 +116,21 @@ namespace TaxDeclarationWeb.Controllers
                 return RedirectToAction("Index", "Taxpayer");
 
             return RedirectToAction("Index", "Home");
+        }
+
+        // Метод для записи в аудит
+        private async Task LogAudit(string action, string details)
+        {
+            var log = new AuditLog
+            {
+                UserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
+                UserEmail = User.Identity?.Name ?? "Аноним",
+                Action = action,
+                Details = details,
+                Timestamp = DateTime.UtcNow
+            };
+            _context.AuditLogs.Add(log);
+            await _context.SaveChangesAsync();
         }
 
         // Если потребуется, добавь регистрацию только для администратора:

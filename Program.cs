@@ -23,7 +23,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// Авторизация по ролям
+// Авторизация по ролям (корректное разграничение!)
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireTaxpayer", policy =>
@@ -33,7 +33,7 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("Inspector", "ChiefInspector", "Admin"));
 
     options.AddPolicy("RequireChiefInspector", policy =>
-        policy.RequireRole("ChiefInspector", "Admin"));
+        policy.RequireRole("ChiefInspector")); // Только главный инспектор!
 
     options.AddPolicy("RequireAdmin", policy =>
         policy.RequireRole("Admin"));
