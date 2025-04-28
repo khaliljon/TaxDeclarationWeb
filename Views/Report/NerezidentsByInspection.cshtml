@@ -1,50 +1,52 @@
-﻿@model IEnumerable<TaxDeclarationWeb.Models.Taxpayer>
-
-@{
-    ViewData["Title"] = "Нерезиденты, обязанные подать декларацию";
-    var inspections = ViewBag.Inspections as List<TaxDeclarationWeb.Models.Inspection>;
+﻿@{
+    ViewData["Title"] = "Нерезиденты по инспекции с обязательной декларацией";
+    var nerezidents = ViewBag.NerezidentsByInspection as IEnumerable<dynamic>;
 }
 
-<h2>@ViewData["Title"]</h2>
+<h3>@ViewData["Title"]</h3>
 
-<form method="get" asp-action="NerezidentsByInspection">
-    <div class="form-group">
-        <label for="inspectionCode">Инспекция:</label>
-        <select name="inspectionCode" class="form-control" required>
-            <option value="">Выберите инспекцию</option>
-            @foreach (var insp in inspections)
-            {
-                <option value="@insp.Code">@insp.Name</option>
-            }
-        </select>
+<form method="get" asp-action="NerezidentsByInspection" class="row g-2 mb-3">
+    <div class="col-auto">
+        <label for="inspectionId" class="col-form-label">Код инспекции:</label>
     </div>
-    <button type="submit" class="btn btn-primary">Показать</button>
+    <div class="col-auto">
+        <input type="number" name="inspectionId" id="inspectionId"
+               class="form-control" required min="1" value="@(ViewBag.InspectionId ?? "")" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary">Показать</button>
+    </div>
 </form>
 
-@if (Model.Any())
+@if (nerezidents != null && nerezidents.Any())
 {
-    <hr />
-    <table class="table">
-        <thead>
-        <tr>
-            <th>ИИН</th>
-            <th>ФИО</th>
-            <th>Инспекция</th>
-            <th>Резидентство</th>
-            <th>Обязана подавать</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var t in Model)
-        {
+    <div class="table-responsive">
+        <table class="table table-dark table-bordered table-hover mt-2">
+            <thead>
             <tr>
-                <td>@t.IIN</td>
-                <td>@t.FullName</td>
-                <td>@t.Inspection?.Name</td>
-                <td>Нерезидент</td>
-                <td>Да</td>
+                <th>ИИН</th>
+                <th>ФИО</th>
+                <th>Адрес</th>
+                <th>Телефон</th>
             </tr>
-        }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            @foreach (var taxpayer in nerezidents)
+            {
+                <tr>
+                    <td>@taxpayer.IIN</td>
+                    <td>@taxpayer.FullName</td>
+                    <td>@taxpayer.Address</td>
+                    <td>@taxpayer.Phone</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+else if (ViewBag.InspectionId != null)
+{
+    <div class="alert alert-warning mt-2">
+        Нет налогоплательщиков-нерезидентов с обязательной декларацией для выбранной инспекции.
+    </div>
 }

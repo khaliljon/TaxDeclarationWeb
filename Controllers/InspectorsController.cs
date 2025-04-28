@@ -8,7 +8,7 @@ using TaxDeclarationWeb.Models;
 
 namespace TaxDeclarationWeb.Controllers
 {
-    [Authorize(Roles = "Admin,ChiefInspector")]
+    [Authorize(Roles = "ChiefInspector")]
     public class InspectorsController : Controller
     {
         private readonly ApplicationDbContext _context;

@@ -1,32 +1,27 @@
-﻿@model List<TaxDeclarationWeb.Models.Country>
-@{
-    ViewData["Title"] = "Добавить 3 страны";
+﻿@{
+    ViewData["Title"] = "Вставить страны";
+    var message = ViewBag.InsertCountriesResult as string;
 }
 
-<h2>@ViewData["Title"]</h2>
+<h3>@ViewData["Title"]</h3>
 
-@if (ViewBag.Message != null)
-{
-    <div class="alert alert-info">@ViewBag.Message</div>
-}
-
-<form asp-action="InsertCountries" method="post">
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Код страны</th>
-            <th>Наименование</th>
-        </tr>
-        </thead>
-        <tbody>
-        @for (int i = 0; i < Model.Count; i++)
-        {
-            <tr>
-                <td><input asp-for="@Model[i].Code" class="form-control" name="countries[@i].Code" /></td>
-                <td><input asp-for="@Model[i].Name" class="form-control" name="countries[@i].Name" /></td>
-            </tr>
-        }
-        </tbody>
-    </table>
-    <button type="submit" class="btn btn-success">Добавить</button>
+<form method="post" asp-action="InsertCountries" class="row g-2 mb-3">
+    <div class="col-auto">
+        <label for="startValue" class="col-form-label">Начальный код страны:</label>
+        <input type="number" name="startValue" id="startValue" min="1" class="form-control" required />
+    </div>
+    <div class="col-auto">
+        <label for="names" class="col-form-label">Список стран через запятую:</label>
+        <input type="text" name="names" id="names" class="form-control" placeholder="Казахстан, Россия, Беларусь" required />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-success">Вставить</button>
+    </div>
 </form>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert @(message.StartsWith("Ошибка") ? "alert-danger" : "alert-success") mt-2">
+        @message
+    </div>
+}

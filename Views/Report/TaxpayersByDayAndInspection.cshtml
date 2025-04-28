@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "Налогоплательщики по дате и инспекции";
+    var taxpayers = ViewBag.TaxpayersByDayAndInspection as IEnumerable<dynamic>;
+}
+
+<h3>@ViewData["Title"]</h3>
+
+<form method="get" asp-action="TaxpayersByDayAndInspection" class="row g-2 mb-3">
+    <div class="col-auto">
+        <label for="day" class="col-form-label">День:</label>
+        <input type="number" name="day" id="day" min="1" max="31"
+               value="@(ViewBag.Day ?? "")" class="form-control" required />
+    </div>
+    <div class="col-auto">
+        <label for="inspectionId" class="col-form-label">Код инспекции:</label>
+        <input type="number" name="inspectionId" id="inspectionId"
+               value="@(ViewBag.InspectionId ?? "")" class="form-control" required />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary">Показать</button>
+    </div>
+</form>
+
+@if (taxpayers != null && taxpayers.Any())
+{
+    <div class="table-responsive">
+        <table class="table table-dark table-bordered table-hover mt-2">
+            <thead>
+            <tr>
+                <th>ИИН</th>
+                <th>ФИО</th>
+                <th>Адрес</th>
+                <th>Телефон</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var taxpayer in taxpayers)
+            {
+                <tr>
+                    <td>@taxpayer.IIN</td>
+                    <td>@taxpayer.FullName</td>
+                    <td>@taxpayer.Address</td>
+                    <td>@taxpayer.Phone</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+else if (ViewBag.Day != null && ViewBag.InspectionId != null)
+{
+    <div class="alert alert-warning mt-2">
+        Нет налогоплательщиков, подавших декларацию в этот день в данной инспекции.
+    </div>
+}

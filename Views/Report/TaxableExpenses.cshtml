@@ -1,9 +1,24 @@
 ﻿@{
-    ViewData["Title"] = "Налогооблагаемые расходы";
+    ViewData["Title"] = "Сумма расходов, подлежащих налогообложению";
+    var sum = ViewBag.TaxableExpenses;
 }
 
-<h2>@ViewData["Title"]</h2>
+<h3>@ViewData["Title"]</h3>
 
-<p>Суммарные расходы, подлежащие налогообложению:</p>
+<form method="get" asp-action="TaxableExpenses" class="mb-3">
+    <button type="submit" class="btn btn-outline-primary">Рассчитать сумму</button>
+</form>
 
-<h3>@ViewBag.Total.ToString("C")</h3>
+@if (sum != null)
+{
+    <div class="alert alert-dark mt-2">
+        <strong>Сумма расходов, которые должны облагаться налогом:</strong>
+        @string.Format("{0:N2}", sum) тг
+    </div>
+}
+else
+{
+    <div class="alert alert-info mt-2">
+        Данные отсутствуют.
+    </div>
+}

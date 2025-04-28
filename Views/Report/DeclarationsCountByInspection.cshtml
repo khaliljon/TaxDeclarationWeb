@@ -1,32 +1,35 @@
-﻿@model IEnumerable<dynamic>
-
-@{
-    ViewData["Title"] = "Декларации по инспекциям в текущем году";
+﻿@{
+    ViewData["Title"] = "Количество деклараций по инспекциям за текущий год";
+    var declarations = ViewBag.DeclarationsCountByInspection as IEnumerable<dynamic>;
 }
 
-<h2>@ViewData["Title"]</h2>
+<h3>@ViewData["Title"]</h3>
 
-@if (!Model.Any())
+@if (declarations != null && declarations.Any())
 {
-    <p>Нет данных о поданных декларациях в текущем году.</p>
+    <div class="table-responsive">
+        <table class="table table-dark table-bordered table-striped mt-3">
+            <thead>
+            <tr>
+                <th>Наименование инспекции</th>
+                <th>Количество деклараций</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var row in declarations)
+            {
+                <tr>
+                    <td>@row.InspectionName</td>
+                    <td>@row.DeclarationCount</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
 }
 else
 {
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Инспекция</th>
-            <th>Количество деклараций</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.InspectionName</td>
-                <td>@item.Count</td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    <div class="alert alert-info mt-2">
+        Нет данных по декларациям за текущий год.
+    </div>
 }

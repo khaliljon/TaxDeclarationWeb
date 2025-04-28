@@ -1,19 +1,32 @@
 ﻿@{
     ViewData["Title"] = "Количество налогоплательщиков по дате подачи декларации";
+    var result = ViewBag.CountTaxpayersResult as int?;
 }
 
-<h2>@ViewData["Title"]</h2>
+<h3>@ViewData["Title"]</h3>
 
-<form method="get" asp-action="CountTaxpayersByDeclarationDay">
-    <div class="form-group">
-        <label>День подачи декларации:</label>
-        <input type="number" name="day" class="form-control" min="1" max="31" value="@ViewBag.Day" required />
+<form method="get" asp-action="CountTaxpayersByDeclarationDay" class="row g-2 mb-3">
+    <div class="col-auto">
+        <label for="submissionDate" class="col-form-label">Дата подачи декларации:</label>
+        <input type="date" name="submissionDate" id="submissionDate"
+               value="@(ViewBag.SubmissionDate != null ? ((DateTime)ViewBag.SubmissionDate).ToString("yyyy-MM-dd") : "")"
+               class="form-control" required />
     </div>
-    <button type="submit" class="btn btn-primary mt-2">Показать</button>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary">Показать</button>
+    </div>
 </form>
 
-@if (ViewBag.Result != null)
+@if (result != null)
 {
-    <hr />
-    <p>Количество налогоплательщиков, подавших декларацию <strong>@ViewBag.Day</strong> числа: <strong>@ViewBag.Result</strong></p>
+    <div class="alert alert-dark mt-2">
+        <strong>Количество налогоплательщиков, подавших декларацию @(((DateTime?)ViewBag.SubmissionDate)?.ToString("dd.MM.yyyy")):</strong>
+        @result
+    </div>
+}
+else if (ViewBag.SubmissionDate != null)
+{
+    <div class="alert alert-warning mt-2">
+        В этот день никто не подавал декларацию.
+    </div>
 }

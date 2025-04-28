@@ -52,56 +52,16 @@
 
                 @if (SignInManager.IsSignedIn(User))
                 {
-                    // Админ видит всё
-                    if (User.IsInRole("Admin"))
-                    {
-                        <li>
-                            <a asp-controller="Admin" asp-action="Index"
-                               class="@(currentController == "Admin" ? "active" : "")">
-                                <i class="bi bi-shield-lock"></i> Админ-панель
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-controller="ChiefInspector" asp-action="Index"
-                               class="@(currentController == "ChiefInspector" ? "active" : "")">
-                                <i class="bi bi-person-bounding-box"></i> Главный инспектор
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-controller="Inspectors" asp-action="Index"
-                               class="@(currentController == "Inspectors" ? "active" : "")">
-                                <i class="bi bi-person-lines-fill"></i> Все инспекторы
-                            </a>
-                        </li>
-                    }
-                    // Главный инспектор
-                    else if (User.IsInRole("ChiefInspector"))
-                    {
-                        <li>
-                            <a asp-controller="ChiefInspector" asp-action="Index"
-                               class="@(currentController == "ChiefInspector" ? "active" : "")">
-                                <i class="bi bi-person-bounding-box"></i> Главный инспектор
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-controller="Inspectors" asp-action="Index"
-                               class="@(currentController == "Inspectors" ? "active" : "")">
-                                <i class="bi bi-person-lines-fill"></i> Все инспекторы
-                            </a>
-                        </li>
-                    }
-                    // Обычный инспектор
                     if (User.IsInRole("Inspector"))
                     {
                         <li>
-                            <a asp-controller="Inspector" asp-action="Index"
-                               class="@(currentController == "Inspector" ? "active" : "")">
+                            <a asp-controller="Inspectors" asp-action="Dashboard"
+                               class="@(currentController == "Inspectors" && currentAction == "Dashboard" ? "active" : "")">
                                 <i class="bi bi-clipboard-check"></i> Инспектор
                             </a>
                         </li>
                     }
-                    // Налогоплательщик
-                    if (User.IsInRole("Taxpayer"))
+                    else if (User.IsInRole("Taxpayer"))
                     {
                         <li>
                             <a asp-controller="Taxpayer" asp-action="Index"
@@ -110,6 +70,7 @@
                             </a>
                         </li>
                     }
+                    // Админ и Главный инспектор — только "Главная"
                     <li class="user-info">
                         <span>
                             <i class="bi bi-person-fill"></i> @userEmail

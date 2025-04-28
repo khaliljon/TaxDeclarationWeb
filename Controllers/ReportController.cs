@@ -7,13 +7,21 @@ using TaxDeclarationWeb.Models;
 namespace TaxDeclarationWeb.Controllers;
 
 [Authorize(Roles = "ChiefInspector,Admin")]
-public class ReportsController : Controller
+public class ReportController : Controller
 {
     private readonly ApplicationDbContext _context;
 
-    public ReportsController(ApplicationDbContext context)
+    public ReportController(ApplicationDbContext context)
     {
         _context = context;
+    }
+
+    // === ГЛАВНАЯ СТРАНИЦА ОТЧЁТОВ ===
+    [HttpGet]
+    public IActionResult Index()
+    {
+        // Здесь можно подготовить какие-то общие данные для Index.cshtml если нужно
+        return View();
     }
 
     // 1. Список нерезидентов по инспекции с обязательной подачей декларации

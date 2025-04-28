@@ -1,43 +1,56 @@
-﻿@model IEnumerable<TaxDeclarationWeb.Models.Taxpayer>
-
-@{
-    ViewData["Title"] = "Мужчины старше заданного возраста";
+﻿@{
+    ViewData["Title"] = "Мужчины-налогоплательщики старше заданного возраста";
+    var taxpayers = ViewBag.MaleTaxpayersOlderThan as IEnumerable<dynamic>;
 }
 
-<h2>@ViewData["Title"]</h2>
+<h3>@ViewData["Title"]</h3>
 
-<form method="get" asp-action="MaleTaxpayersOlderThan">
-    <div class="form-group">
-        <label>Возраст:</label>
-        <input type="number" name="age" class="form-control" min="1" value="@ViewBag.Age" required />
+<form method="get" asp-action="MaleTaxpayersOlderThan" class="row g-2 mb-3">
+    <div class="col-auto">
+        <label for="age" class="col-form-label">Возраст:</label>
+        <input type="number" name="age" id="age" min="1"
+               value="@(ViewBag.Age ?? "")" class="form-control" required />
     </div>
-    <button type="submit" class="btn btn-primary mt-2">Найти</button>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary">Показать</button>
+    </div>
 </form>
 
-@if (Model.Any())
+@if (taxpayers != null && taxpayers.Any())
 {
-    <hr />
-    <table class="table">
-        <thead>
-        <tr>
-            <th>ИИН</th>
-            <th>ФИО</th>
-            <th>Инспекция</th>
-            <th>Дата рождения</th>
-            <th>Телефон</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var t in Model)
-        {
+    <div class="table-responsive">
+        <table class="table table-dark table-bordered table-hover mt-2">
+            <thead>
             <tr>
-                <td>@t.IIN</td>
-                <td>@t.FullName</td>
-                <td>@t.Inspection?.Name</td>
-                <td>@t.BirthDate.ToShortDateString()</td>
-                <td>@t.Phone</td>
+                <th>ИИН</th>
+                <th>ФИО</th>
+                <th>Адрес</th>
+                <th>Телефон</th>
+                <th>Дата рождения</th>
+                <th>Пол</th>
+                <th>Место работы</th>
             </tr>
-        }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            @foreach (var row in taxpayers)
+            {
+                <tr>
+                    <td>@row.IIN</td>
+                    <td>@row.FullName</td>
+                    <td>@row.Address</td>
+                    <td>@row.Phone</td>
+                    <td>@row.BirthDate?.ToString("dd.MM.yyyy")</td>
+                    <td>@row.Gender</td>
+                    <td>@row.Workplace</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+else if (ViewBag.Age != null)
+{
+    <div class="alert alert-warning mt-2">
+        Мужчин-налогоплательщиков старше @ViewBag.Age лет не найдено.
+    </div>
 }

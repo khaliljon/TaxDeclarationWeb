@@ -54,7 +54,7 @@ public class ChiefInspectorController : Controller
 
     public IActionResult Inspectors()
     {
-        return RedirectToAction("Index", "Inspector");
+        return RedirectToAction("Index", "InspectorRole");
     }
 
     public IActionResult Inspections()
@@ -77,7 +77,7 @@ public class ChiefInspectorController : Controller
         return RedirectToAction("Index", "Nationality");
     }
 
-    public IActionResult Reports()
+    public IActionResult Report()
     {
         return RedirectToAction("Index", "Report");
     }

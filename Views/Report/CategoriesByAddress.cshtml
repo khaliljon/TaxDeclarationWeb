@@ -1,36 +1,48 @@
-﻿@model IEnumerable<TaxDeclarationWeb.Models.Category>
-@{
+﻿@{
     ViewData["Title"] = "Категории по адресу";
+    var categories = ViewBag.CategoriesByAddress as IEnumerable<dynamic>;
 }
 
-<h2>@ViewData["Title"]</h2>
+<h3>@ViewData["Title"]</h3>
 
-<form method="get" asp-action="CategoriesByAddress">
-    <div class="form-group">
-        <label>Адрес:</label>
-        <input type="text" name="address" value="@ViewBag.Address" class="form-control" placeholder="Например: г. Астана" />
+<form method="get" asp-action="CategoriesByAddress" class="row g-2 mb-3">
+    <div class="col-auto">
+        <label for="address" class="col-form-label">Адрес:</label>
     </div>
-    <button type="submit" class="btn btn-primary mt-2">Найти</button>
+    <div class="col-auto">
+        <input type="text" name="address" id="address" class="form-control"
+               value="@ViewBag.Address" placeholder="Например: г. Караганда, ул. Лермонтова, д. 15" required />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary">Показать</button>
+    </div>
 </form>
 
-@if (Model.Any())
+@if (categories != null && categories.Any())
 {
-    <hr />
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Код</th>
-            <th>Наименование</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var cat in Model)
-        {
+    <div class="table-responsive">
+        <table class="table table-dark table-bordered mt-2">
+            <thead>
             <tr>
-                <td>@cat.Code</td>
-                <td>@cat.Name</td>
+                <th>Адрес</th>
+                <th>Категории</th>
             </tr>
-        }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            @foreach (var row in categories)
+            {
+                <tr>
+                    <td>@row.Address</td>
+                    <td>@row.Categories</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+else if (!string.IsNullOrWhiteSpace(ViewBag.Address))
+{
+    <div class="alert alert-warning mt-2">
+        Нет налогоплательщиков по этому адресу.
+    </div>
 }

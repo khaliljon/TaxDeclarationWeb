@@ -24,7 +24,7 @@ public class HomeController : Controller
             if (User.IsInRole("ChiefInspector"))
                 return RedirectToAction("Index", "ChiefInspector");
             if (User.IsInRole("Inspector"))
-                return RedirectToAction("Index", "Inspector");
+                return RedirectToAction("Index", "InspectorRole");
             if (User.IsInRole("Taxpayer"))
                 return RedirectToAction("Index", "Taxpayer");
         }
