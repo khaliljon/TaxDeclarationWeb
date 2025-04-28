@@ -143,11 +143,19 @@ public class ReportController : Controller
     public async Task<IActionResult> TaxableExpenses()
     {
         var total = await _context.Declarations
-            .Select(d => d.Expenses - d.NonTaxableExpenses)
-            .SumAsync();
+            .Join(_context.Taxpayers,
+                d => d.TaxpayerIIN,
+                t => t.IIN,
+                (d, t) => new { Declaration = d, Taxpayer = t })
+            .Where(x => x.Taxpayer.IsDeclarationRequired == true)
+            .SumAsync(x => (decimal?)x.Declaration.Expenses);
 
-        ViewBag.Total = total;
-        return View();
+        var finalTotal = total ?? 0;
+
+        Console.WriteLine($"[DEBUG] Сумма расходов для налогообложения: {finalTotal} ₸");
+
+        // Здесь возвращаем прямо decimal модель
+        return View(model: finalTotal);
     }
 
     // 6. Список плательщиков, относящихся к категории с несколькими местами дохода

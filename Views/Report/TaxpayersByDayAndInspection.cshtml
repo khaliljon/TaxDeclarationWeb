@@ -3,7 +3,12 @@
     var taxpayers = ViewBag.TaxpayersByDayAndInspection as IEnumerable<dynamic>;
 }
 
-<h3>@ViewData["Title"]</h3>
+<div class="container mt-4 mb-5">
+
+<h2 class="text-center mb-5 display-5 fw-bold text-gradient"
+    style="background: linear-gradient(90deg,#900c3f,#6f42c1);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
+    @ViewData["Title"]
+</h2>
 
 <form method="get" asp-action="TaxpayersByDayAndInspection" class="row g-2 mb-3">
     <div class="col-auto">
@@ -55,3 +60,4 @@ else if (ViewBag.Day != null && ViewBag.InspectionId != null)
         Нет налогоплательщиков, подавших декларацию в этот день в данной инспекции.
     </div>
 }
+</div>

@@ -1,24 +1,21 @@
-﻿@{
+﻿@model decimal
+
+@{
     ViewData["Title"] = "Сумма расходов, подлежащих налогообложению";
-    var sum = ViewBag.TaxableExpenses;
 }
 
-<h3>@ViewData["Title"]</h3>
+<div class="container mt-5 mb-5">
 
-<form method="get" asp-action="TaxableExpenses" class="mb-3">
-    <button type="submit" class="btn btn-outline-primary">Рассчитать сумму</button>
-</form>
+    <h1 class="text-center mb-5 display-4 fw-bold text-gradient"
+        style="background: linear-gradient(90deg,#900c3f,#6f42c1);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
+        @ViewData["Title"]
+    </h1>
+    <a asp-controller="Report" asp-action="TaxableExpenses">Показать расходы</a>
+    @if (Model > 0)
+    {
+        <div class="alert alert-success p-5 text-center" style="font-size: 2rem;">
+            Сумма расходов: <strong>@Model.ToString("N2")</strong> ₸
+        </div>
+    }
 
-@if (sum != null)
-{
-    <div class="alert alert-dark mt-2">
-        <strong>Сумма расходов, которые должны облагаться налогом:</strong>
-        @string.Format("{0:N2}", sum) тг
-    </div>
-}
-else
-{
-    <div class="alert alert-info mt-2">
-        Данные отсутствуют.
-    </div>
-}
+</div>
