@@ -1,63 +1,103 @@
 ﻿@{
-    ViewData["Title"] = "Налогоплательщики по категории и дате подачи декларации";
-    var taxpayers = ViewBag.TaxpayersByCategoryAndDate as IEnumerable<dynamic>;
+    ViewData["Title"] = "Налогоплательщики по дате подачи декларации и инспекции";
+    var taxpayers = ViewBag.TaxpayersByDayAndInspection as IEnumerable<dynamic>;
 }
 
-<h3>@ViewData["Title"]</h3>
+<div class="container mt-4 mb-5">
 
-<form method="get" asp-action="TaxpayersByCategoryAndDate" class="row g-2 mb-3">
-    <div class="col-auto">
-        <label for="categoryCode" class="col-form-label">Код категории:</label>
-        <input type="number" name="categoryCode" id="categoryCode"
-               value="@(ViewBag.CategoryCode ?? "")" class="form-control" required />
-    </div>
-    <div class="col-auto">
-        <label for="day" class="col-form-label">День подачи декларации:</label>
-        <input type="number" name="day" id="day" min="1" max="31"
-               value="@(ViewBag.Day ?? "")" class="form-control" required />
-    </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-outline-primary">Показать</button>
-    </div>
-</form>
+    <h2 class="text-center mb-5 display-5 fw-bold text-gradient"
+        style="background: linear-gradient(90deg,#900c3f,#6f42c1);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
+        @ViewData["Title"]
+    </h2>
 
-@if (taxpayers != null && taxpayers.Any())
-{
-    <div class="table-responsive">
-        <table class="table table-dark table-bordered table-hover mt-2">
-            <thead>
-                <tr>
-                    <th>ИИН</th>
-                    <th>ФИО</th>
-                    <th>Адрес</th>
-                    <th>Телефон</th>
-                    <th>Дата рождения</th>
-                    <th>Пол</th>
-                    <th>Место работы</th>
-                    <th>Код категории</th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var row in taxpayers)
-            {
-                <tr>
-                    <td>@row.IIN</td>
-                    <td>@row.FullName</td>
-                    <td>@row.Address</td>
-                    <td>@row.Phone</td>
-                    <td>@row.BirthDate?.ToString("dd.MM.yyyy")</td>
-                    <td>@row.Gender</td>
-                    <td>@row.Workplace</td>
-                    <td>@row.CategoryCode</td>
-                </tr>
+    <form method="get" asp-action="TaxpayersByDayAndInspection" class="row g-3 justify-content-center mb-4" onsubmit="return validateFields()">
+        <div class="col-auto">
+            <label for="inspectionId" class="col-form-label">Код инспекции:</label>
+        </div>
+        <div class="col-auto">
+            <input type="number" name="inspectionId" id="inspectionId" class="form-control"
+                   value="@(ViewBag.InspectionId ?? "")" min="1" />
+        </div>
+
+        <div class="col-auto">
+            <label for="day" class="col-form-label">День подачи декларации:</label>
+        </div>
+        <div class="col-auto">
+            <input type="number" name="day" id="day" class="form-control" min="1" max="31"
+                   value="@(ViewBag.Day ?? "")" />
+        </div>
+
+        <div class="col-auto">
+            <button class="btn btn-primary" type="submit">Показать</button>
+        </div>
+    </form>
+
+    <script>
+        function validateFields() {
+            const inspectionId = document.getElementById('inspectionId').value.trim();
+            const day = document.getElementById('day').value.trim();
+
+            if (inspectionId === "" && day === "") {
+                alert("Пожалуйста, заполните хотя бы одно поле: код инспекции или день подачи декларации.");
+                return false;
             }
-            </tbody>
-        </table>
-    </div>
-}
-else if (ViewBag.CategoryCode != null && ViewBag.Day != null)
-{
-    <div class="alert alert-warning mt-2">
-        Нет налогоплательщиков выбранной категории, подавших декларацию @ViewBag.Day числа.
-    </div>
-}
+
+            if (day !== "" && (parseInt(day) <= 0 || parseInt(day) > 31)) {
+                alert("День подачи декларации должен быть от 1 до 31.");
+                return false;
+            }
+
+            if (inspectionId !== "" && parseInt(inspectionId) <= 0) {
+                alert("Код инспекции должен быть положительным числом.");
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+
+    @if (taxpayers != null && taxpayers.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-dark table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>ИИН</th>
+                        <th>ФИО</th>
+                        <th>Адрес</th>
+                        <th>Телефон</th>
+                        <th>Инспекция</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in taxpayers)
+                    {
+                        <tr>
+                            <td>@t.IIN</td>
+                            <td>@t.FullName</td>
+                            <td>@t.Address</td>
+                            <td>@t.Phone</td>
+                            <td>@t.InspectionName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else if (ViewBag.Day != null || ViewBag.InspectionId != null)
+    {
+        <div class="alert alert-warning text-center mt-4">
+            Нет налогоплательщиков для выбранных условий.
+        </div>
+    }
+
+    @if (ViewContext.RouteData.Values["Action"]?.ToString() != "Index")
+    {
+        <div class="mt-5 text-center">
+            <a asp-controller="Report" asp-action="Index" class="btn btn-outline-light">
+                ← Вернуться к списку отчётов
+            </a>
+        </div>
+    }
+
+</div>

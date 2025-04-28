@@ -10,7 +10,7 @@
         @ViewData["Title"]
     </h2>
 
-    <form method="get" asp-action="NerezidentsByInspection" class="row g-3 justify-content-center mb-4">
+    <form method="get" asp-action="NerezidentsByInspection" class="row g-3 justify-content-center mb-4" onsubmit="return validateNerezidentSearch()">
         <div class="col-auto">
             <label for="inspectionId" class="col-form-label">Код инспекции:</label>
         </div>
@@ -31,6 +31,20 @@
             <button class="btn btn-primary" type="submit">Показать</button>
         </div>
     </form>
+
+    <script>
+        function validateNerezidentSearch() {
+            const inspectionId = document.getElementById('inspectionId').value.trim();
+            const inspectionName = document.getElementById('inspectionName').value.trim();
+
+            if (inspectionId === "" && inspectionName === "") {
+                alert("Пожалуйста, заполните хотя бы одно поле: код инспекции или название инспекции.");
+                return false; // Отменить отправку формы
+            }
+
+            return true; // Всё в порядке, отправлять форму
+        }
+    </script>
 
     @if (nerezidents != null && nerezidents.Any())
     {

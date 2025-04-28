@@ -69,21 +69,32 @@ public class ReportController : Controller
     [HttpGet]
     public async Task<IActionResult> CategoriesByAddress(string? address)
     {
-        if (string.IsNullOrWhiteSpace(address))
-            return View(new List<Category>());
-
-        var categoryCodes = await _context.Taxpayers
-            .Where(t => EF.Functions.Like(t.Address, $"%{address}%"))
-            .Select(t => t.CategoryCode)
-            .Distinct()
-            .ToListAsync();
-
-        var result = await _context.Categories
-            .Where(c => categoryCodes.Contains(c.Code))
-            .ToListAsync();
-
         ViewBag.Address = address;
-        return View(result);
+
+        List<dynamic> result = new();
+
+        if (!string.IsNullOrWhiteSpace(address))
+        {
+            var rawData = await _context.Taxpayers
+                .Where(t => EF.Functions.Like(t.Address, $"%{address}%"))
+                .Join(_context.Categories,
+                    taxpayer => taxpayer.CategoryCode,
+                    category => category.Code,
+                    (taxpayer, category) => new { taxpayer.Address, CategoryName = category.Name })
+                .ToListAsync();
+
+            result = rawData
+                .GroupBy(tc => tc.Address)
+                .Select(g => new
+                {
+                    Address = g.Key,
+                    Categories = string.Join(", ", g.Select(tc => tc.CategoryName).Distinct())
+                })
+                .ToList<dynamic>();
+        }
+
+        ViewBag.CategoriesByAddress = result;
+        return View();
     }
 
     // 3. Общее количество деклараций, поданных в каждую из инспекций в текущем году
@@ -92,21 +103,20 @@ public class ReportController : Controller
     {
         var currentYear = DateTime.Now.Year;
 
-        var allDeclarations = await _context.Declarations
+        var grouped = await _context.Declarations
             .Include(d => d.Inspection)
             .Where(d => d.Year == currentYear)
-            .ToListAsync();
-
-        var grouped = allDeclarations
-            .GroupBy(d => d.Inspection?.Name ?? "Без названия")
+            .GroupBy(d => d.Inspection.Name)
             .Select(g => new
             {
-                InspectionName = g.Key,
-                Count = g.Count()
+                InspectionName = g.Key ?? "Неизвестная инспекция",
+                DeclarationCount = g.Count()
             })
-            .ToList();
+            .ToListAsync<dynamic>();
 
-        return View(grouped);
+        ViewBag.DeclarationsCount = grouped;
+
+        return View();
     }
 
     // 4. Список, подавших декларацию i-го числа в j-ой инспекции
@@ -205,22 +215,55 @@ public class ReportController : Controller
 
     // 10. Налогоплательщики i-й категории, подавшие декларацию j-го числа
     [HttpGet]
-    public async Task<IActionResult> TaxpayersByCategoryAndDate(int? categoryCode, int? day)
+    public async Task<IActionResult> TaxpayersByDayAndInspection(int? day, int? inspectionId)
     {
-        ViewBag.Categories = await _context.Categories.ToListAsync();
-
-        if (categoryCode == null || day == null)
-            return View(new List<Taxpayer>());
-
-        var list = await _context.Taxpayers
-            .Include(t => t.Inspection)
-            .Where(t => t.CategoryCode == categoryCode.Value &&
-                        _context.Declarations.Any(d => d.TaxpayerIIN == t.IIN && d.SubmittedAt.Day == day.Value))
-            .ToListAsync();
-
-        ViewBag.CategoryCode = categoryCode;
+        ViewBag.Inspections = await _context.Inspections.OrderBy(i => i.Name).ToListAsync();
         ViewBag.Day = day;
-        return View(list);
+        ViewBag.InspectionId = inspectionId;
+
+        List<dynamic> result = new();
+
+        // Сброс некорректных значений
+        if (day.HasValue && (day <= 0 || day > 31))
+            day = null;
+
+        if (inspectionId.HasValue && inspectionId <= 0)
+            inspectionId = null;
+
+        if (day.HasValue || inspectionId.HasValue)
+        {
+            var query = _context.Declarations
+                .Include(d => d.Taxpayer)
+                .Include(d => d.Inspection)
+                .Include(d => d.Inspector)
+                .AsQueryable();
+
+            if (day.HasValue)
+            {
+                query = query.Where(d => d.SubmittedAt.Day == day.Value);
+            }
+
+            if (inspectionId.HasValue)
+            {
+                query = query.Where(d => d.InspectionId == inspectionId.Value);
+            }
+
+            result = await query
+                .Select(d => new
+                {
+                    d.Taxpayer.IIN,
+                    d.Taxpayer.FullName,
+                    d.Taxpayer.Address,
+                    d.Taxpayer.Phone,
+                    InspectionName = d.Inspection.Name
+                })
+                .Distinct()
+                .ToListAsync<dynamic>();
+        }
+
+        ViewBag.TaxpayersByDayAndInspection = result;
+
+        return View();
     }
 
     // 11. Вставка 3 новых строк в таблицу стран

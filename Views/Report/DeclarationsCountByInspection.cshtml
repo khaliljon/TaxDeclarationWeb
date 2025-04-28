@@ -1,35 +1,51 @@
 ﻿@{
     ViewData["Title"] = "Количество деклараций по инспекциям за текущий год";
-    var declarations = ViewBag.DeclarationsCountByInspection as IEnumerable<dynamic>;
+    var declarations = ViewBag.DeclarationsCount as IEnumerable<dynamic>;
 }
 
-<h3>@ViewData["Title"]</h3>
+<div class="container mt-4 mb-5">
 
-@if (declarations != null && declarations.Any())
-{
-    <div class="table-responsive">
-        <table class="table table-dark table-bordered table-striped mt-3">
-            <thead>
-            <tr>
-                <th>Наименование инспекции</th>
-                <th>Количество деклараций</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach (var row in declarations)
-            {
+    <h2 class="text-center mb-5 display-5 fw-bold text-gradient"
+        style="background: linear-gradient(90deg,#900c3f,#6f42c1);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
+        @ViewData["Title"]
+    </h2>
+
+    @if (declarations != null && declarations.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-dark table-bordered table-hover">
+                <thead>
                 <tr>
-                    <td>@row.InspectionName</td>
-                    <td>@row.DeclarationCount</td>
+                    <th>Инспекция</th>
+                    <th>Количество деклараций</th>
                 </tr>
-            }
-            </tbody>
-        </table>
-    </div>
-}
-else
-{
-    <div class="alert alert-info mt-2">
-        Нет данных по декларациям за текущий год.
-    </div>
-}
+                </thead>
+                <tbody>
+                @foreach (var row in declarations)
+                {
+                    <tr>
+                        <td>@row.InspectionName</td>
+                        <td>@row.DeclarationCount</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning text-center mt-4">
+            В текущем году пока не подано деклараций.
+        </div>
+    }
+
+    @if (ViewContext.RouteData.Values["Action"]?.ToString() != "Index")
+    {
+        <div class="mt-5 text-center">
+            <a asp-controller="Report" asp-action="Index" class="btn btn-outline-light">
+                ← Вернуться к списку отчётов
+            </a>
+        </div>
+    }
+
+</div>

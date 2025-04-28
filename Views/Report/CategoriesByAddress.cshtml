@@ -1,48 +1,64 @@
 ﻿@{
-    ViewData["Title"] = "Категории по адресу";
+    ViewData["Title"] = "Категории налогоплательщиков по адресу";
     var categories = ViewBag.CategoriesByAddress as IEnumerable<dynamic>;
 }
 
-<h3>@ViewData["Title"]</h3>
+<div class="container mt-4 mb-5">
 
-<form method="get" asp-action="CategoriesByAddress" class="row g-2 mb-3">
-    <div class="col-auto">
-        <label for="address" class="col-form-label">Адрес:</label>
-    </div>
-    <div class="col-auto">
-        <input type="text" name="address" id="address" class="form-control"
-               value="@ViewBag.Address" placeholder="Например: г. Караганда, ул. Лермонтова, д. 15" required />
-    </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-outline-primary">Показать</button>
-    </div>
-</form>
+    <h2 class="text-center mb-5 display-5 fw-bold text-gradient"
+        style="background: linear-gradient(90deg,#900c3f,#6f42c1);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
+        @ViewData["Title"]
+    </h2>
 
-@if (categories != null && categories.Any())
-{
-    <div class="table-responsive">
-        <table class="table table-dark table-bordered mt-2">
-            <thead>
-            <tr>
-                <th>Адрес</th>
-                <th>Категории</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach (var row in categories)
-            {
-                <tr>
-                    <td>@row.Address</td>
-                    <td>@row.Categories</td>
-                </tr>
-            }
-            </tbody>
-        </table>
-    </div>
-}
-else if (!string.IsNullOrWhiteSpace(ViewBag.Address))
-{
-    <div class="alert alert-warning mt-2">
-        Нет налогоплательщиков по этому адресу.
-    </div>
-}
+    <form method="get" asp-action="CategoriesByAddress" class="row g-3 justify-content-center mb-4">
+        <div class="col-auto">
+            <label for="address" class="col-form-label">Адрес:</label>
+        </div>
+        <div class="col-auto">
+            <input type="text" name="address" id="address" class="form-control"
+                   value="@(ViewBag.Address ?? "")" placeholder="Например: г. Караганда, ул. Лермонтова, д. 15" required />
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" type="submit">Найти</button>
+        </div>
+    </form>
+
+    @if (categories != null && categories.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-dark table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Адрес</th>
+                        <th>Категории</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in categories)
+                    {
+                        <tr>
+                            <td>@row.Address</td>
+                            <td>@row.Categories</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else if (!string.IsNullOrWhiteSpace(ViewBag.Address))
+    {
+        <div class="alert alert-warning text-center mt-4">
+            По указанному адресу налогоплательщики не найдены.
+        </div>
+    }
+
+    @if (ViewContext.RouteData.Values["Action"]?.ToString() != "Index")
+    {
+        <div class="mt-5 text-center">
+            <a asp-controller="Report" asp-action="Index" class="btn btn-outline-light">
+                ← Вернуться к списку отчётов
+            </a>
+        </div>
+    }
+
+</div>
