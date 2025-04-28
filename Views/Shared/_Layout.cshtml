@@ -34,97 +34,117 @@
 <head>
     <meta charset="utf-8" />
     <title>@ViewData["Title"] - TaxDeclaration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="~/css/site.css" />
-    <style>
-        nav ul {
-            list-style: none;
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-        nav a {
-            text-decoration: none;
-        }
-        .active {
-            font-weight: bold;
-            color: darkred;
-        }
-        .user-info {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-    </style>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
-<header>
-    <nav>
-        <ul>
-            <li>
-                <a asp-controller="Home" asp-action="Index"
-                   class="@(currentController == "Home" ? "active" : "")">Главная</a>
-            </li>
-
-            @if (SignInManager.IsSignedIn(User))
-            {
-                if (User.IsInRole("Admin"))
-                {
-                    <li>
-                        <a asp-controller="Admin" asp-action="Index"
-                           class="@(currentController == "Admin" ? "active" : "")">Админ-панель</a>
-                    </li>
-                }
-                if (User.IsInRole("ChiefInspector"))
-                {
-                    <li>
-                        <a asp-controller="ChiefInspector" asp-action="Index"
-                           class="@(currentController == "ChiefInspector" ? "active" : "")">Главный инспектор</a>
-                    </li>
-                }
-                if (User.IsInRole("Inspector"))
-                {
-                    <li>
-                        <a asp-controller="Inspectors" asp-action="Index"
-                           class="@(currentController == "Inspectors" ? "active" : "")">Инспектор</a>
-                    </li>
-                }
-                if (User.IsInRole("Taxpayer"))
-                {
-                    <li>
-                        <a asp-controller="Taxpayer" asp-action="Index"
-                           class="@(currentController == "Taxpayer" ? "active" : "")">Налогоплательщик</a>
-                    </li>
-                }
-                <div class="user-info">
-                    <span>👤 @userEmail</span>
-                    @if (!string.IsNullOrEmpty(userRole))
-                    {
-                        <small style="color: gray">(@userRole)</small>
-                    }
-                    <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-link" style="padding: 0; margin-left: 10px;">Выйти</button>
-                    </form>
-                </div>
-            }
-            else
-            {
+    <header>
+        <nav>
+            <ul>
                 <li>
-                    <a asp-controller="Account" asp-action="Login"
-                       class="@(currentController == "Account" && currentAction == "Login" ? "active" : "")">Вход</a>
+                    <a asp-controller="Home" asp-action="Index"
+                       class="@(currentController == "Home" ? "active" : "")">
+                        <i class="bi bi-house-door-fill"></i> Главная
+                    </a>
                 </li>
-            }
-        </ul>
-    </nav>
-</header>
 
-<main role="main" class="container">
-    @RenderBody()
-</main>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    // Админ видит всё
+                    if (User.IsInRole("Admin"))
+                    {
+                        <li>
+                            <a asp-controller="Admin" asp-action="Index"
+                               class="@(currentController == "Admin" ? "active" : "")">
+                                <i class="bi bi-shield-lock"></i> Админ-панель
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="ChiefInspector" asp-action="Index"
+                               class="@(currentController == "ChiefInspector" ? "active" : "")">
+                                <i class="bi bi-person-bounding-box"></i> Главный инспектор
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="Inspectors" asp-action="Index"
+                               class="@(currentController == "Inspectors" ? "active" : "")">
+                                <i class="bi bi-person-lines-fill"></i> Все инспекторы
+                            </a>
+                        </li>
+                    }
+                    // Главный инспектор
+                    else if (User.IsInRole("ChiefInspector"))
+                    {
+                        <li>
+                            <a asp-controller="ChiefInspector" asp-action="Index"
+                               class="@(currentController == "ChiefInspector" ? "active" : "")">
+                                <i class="bi bi-person-bounding-box"></i> Главный инспектор
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="Inspectors" asp-action="Index"
+                               class="@(currentController == "Inspectors" ? "active" : "")">
+                                <i class="bi bi-person-lines-fill"></i> Все инспекторы
+                            </a>
+                        </li>
+                    }
+                    // Обычный инспектор
+                    if (User.IsInRole("Inspector"))
+                    {
+                        <li>
+                            <a asp-controller="Inspector" asp-action="Index"
+                               class="@(currentController == "Inspector" ? "active" : "")">
+                                <i class="bi bi-clipboard-check"></i> Инспектор
+                            </a>
+                        </li>
+                    }
+                    // Налогоплательщик
+                    if (User.IsInRole("Taxpayer"))
+                    {
+                        <li>
+                            <a asp-controller="Taxpayer" asp-action="Index"
+                               class="@(currentController == "Taxpayer" ? "active" : "")">
+                                <i class="bi bi-person-circle"></i> Налогоплательщик
+                            </a>
+                        </li>
+                    }
+                    <li class="user-info">
+                        <span>
+                            <i class="bi bi-person-fill"></i> @userEmail
+                            @if (!string.IsNullOrEmpty(userRole))
+                            {
+                                <small style="color: #d2b8ff; font-weight: 500;">(@userRole)</small>
+                            }
+                        </span>
+                        <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-link" style="padding: 0 10px;">
+                                <i class="bi bi-box-arrow-right"></i> Выйти
+                            </button>
+                        </form>
+                    </li>
+                }
+                else
+                {
+                    <li>
+                        <a asp-controller="Account" asp-action="Login"
+                           class="@(currentController == "Account" && currentAction == "Login" ? "active" : "")">
+                            <i class="bi bi-box-arrow-in-right"></i> Вход
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </header>
 
-<footer>
-    <p>&copy; @DateTime.Now.Year — TaxDeclaration</p>
-</footer>
-@RenderSection("Scripts", required: false)
+    <main role="main" class="container">
+        @RenderBody()
+    </main>
+
+    <footer>
+        <p>&copy; @DateTime.Now.Year — TaxDeclaration</p>
+    </footer>
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

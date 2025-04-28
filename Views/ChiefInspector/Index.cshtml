@@ -4,28 +4,30 @@
 
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-10 col-lg-8">
             <div class="card shadow">
-                <div class="card-header bg-success text-white">
+                <div class="card-header" style="background:linear-gradient(90deg,#900c3f,#6f42c1);color:#fff;">
                     <h3 class="mb-0">Панель главного инспектора</h3>
                 </div>
                 <div class="card-body">
-                    <p>Добро пожаловать, Главный инспектор!</p>
+                    <p>Добро пожаловать, <b>Главный инспектор</b>!</p>
                     <ul>
-                        <li>Просмотр и управление всеми налоговыми инспекциями</li>
-                        <li>Доступ к расширенным отчётам и аналитике</li>
-                        <li>Управление национальностями, странами, категориями</li>
-                        <li>Контроль инспекторов и их активности</li>
+                        <li>Полный контроль над налоговыми инспекциями</li>
+                        <li>Доступ ко всем справочникам и инспекторам</li>
+                        <li>Аналитика и отчёты по базе</li>
                     </ul>
                     <hr />
-                    <div class="d-flex gap-2">
-                        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">На главную</a>
-                        <a asp-controller="Reports" asp-action="DeclarationsCountByInspection" class="btn btn-outline-success">Отчёты</a>
-                        <a asp-controller="Inspections" asp-action="Index" class="btn btn-outline-success">Инспекции</a>
-                        <a asp-controller="Nationalities" asp-action="Index" class="btn btn-outline-success">Национальности</a>
-                        <a asp-controller="Countries" asp-action="Index" class="btn btn-outline-success">Страны</a>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a asp-controller="Inspection" asp-action="Index" class="btn btn-primary">Инспекции</a>
+                        <a asp-controller="Inspectors" asp-action="Index" class="btn btn-primary">Инспекторы</a>
+                        <a asp-controller="Country" asp-action="Index" class="btn btn-secondary">Страны</a>
+                        <a asp-controller="Nationality" asp-action="Index" class="btn btn-secondary">Национальности</a>
+                        <a asp-controller="Category" asp-action="Index" class="btn btn-secondary">Категории</a>
+                        <a asp-controller="Taxpayer" asp-action="Index" class="btn btn-outline-light">Налогоплательщики</a>
+                        <a asp-controller="Declaration" asp-action="Index" class="btn btn-outline-light">Декларации</a>
+                        <a asp-controller="Report" asp-action="Index" class="btn btn-outline-info">Отчёты</a>
                     </div>
-                    <p class="mt-3 text-muted"><small>У вас есть доступ к расширенным функциям управления и аналитики по всей базе.</small></p>
+                    <p class="mt-3 text-muted"><small>Вы обладаете всеми необходимыми правами для управления налоговой системой.</small></p>
                 </div>
             </div>
         </div>

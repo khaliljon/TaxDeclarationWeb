@@ -1,31 +1,171 @@
 html {
   font-size: 14px;
 }
-
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+  html { font-size: 16px; }
 }
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
 html {
   position: relative;
   min-height: 100%;
 }
-
 body {
   margin-bottom: 60px;
+  background: #151016; /* глубокий чёрный с оттенком фиолетового */
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: #f6f6f6;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+.card {
+  border-radius: 18px;
+  box-shadow: 0 4px 32px rgba(50, 0, 50, 0.12);
+  background: #1e1420;
+  padding: 24px;
+  margin-bottom: 24px;
+  color: #f6f6f6;
+  border: 1.5px solid #31102b33;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+nav {
+  background: linear-gradient(90deg, #2e112d 0%, #6f42c1 100%);
+  color: #fff;
+  padding: 15px 0;
+  box-shadow: 0 2px 18px 0 #1a081f88;
+}
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  margin: 0;
+  padding: 0 32px;
+}
+nav a {
+  color: #e8e8f0;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 10px 18px;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+nav a:hover,
+nav .active {
+  background: linear-gradient(90deg, #900c3f 0%, #6f42c1 100%);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 12px #900c3f33;
+}
+
+.user-info {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  color: #d2b8ff;
+}
+
+label {
+  font-weight: 500;
+  color: #9d4edd;
+  margin-bottom: 4px;
+}
+
+.form-control, .form-select {
+  border-radius: 10px;
+  min-height: 42px;
+  background: #24122a;
+  border: 1.5px solid #900c3f77;
+  box-shadow: none;
+  color: #fff;
+  transition: border .2s, background .2s;
+}
+.form-control:focus {
+  border-color: #9d4edd;
+  box-shadow: 0 0 0 0.15rem #9d4edd99;
+  background: #1e1420;
+  color: #fff;
+}
+::placeholder {
+  color: #d1c5d8;
+  opacity: 1;
+}
+
+.table {
+  background: #1e1420;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 18px #2e112d33;
+  margin-bottom: 24px;
+  color: #f6f6f6;
+}
+.table thead {
+  background: linear-gradient(90deg, #900c3f 0%, #6f42c1 100%);
+  color: #fff;
+  font-weight: 600;
+}
+.table th, .table td {
+  padding: 10px 16px;
+  vertical-align: middle;
+  border-color: #6f42c1;
+}
+
+/* Кнопки */
+.btn, .btn-primary, .btn-danger, .btn-success {
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 8px 22px;
+  border: none;
+  background: linear-gradient(90deg, #900c3f 0%, #6f42c1 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px #31102b33;
+  transition: background 0.2s;
+}
+.btn:hover, .btn:focus {
+  background: linear-gradient(90deg, #6f42c1 0%, #900c3f 100%);
+  color: #fff;
+  outline: none;
+}
+
+.btn-link {
+  color: #d2b8ff;
+  font-weight: 500;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+/* Scrollbar для темной темы */
+::-webkit-scrollbar {
+  width: 10px;
+  background: #24122a;
+}
+::-webkit-scrollbar-thumb {
+  background: #900c3f77;
+  border-radius: 8px;
+}
+
+footer {
+  background: linear-gradient(90deg, #900c3f 0%, #2e112d 100%);
+  color: #fff;
+  text-align: center;
+  padding: 16px 0;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  box-shadow: 0 -2px 16px #31102b99;
+}
+
+main.container {
+  margin-top: 36px;
+  margin-bottom: 80px;
+  max-width: 980px;
+}
+
+/* Дата */
+input[type="date"] {
+  min-width: 140px;
 }
