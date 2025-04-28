@@ -13,8 +13,10 @@
     </div>
     <div class="col-auto">
         <label for="inspectionId" class="col-form-label">Код инспекции:</label>
-        <input type="number" name="inspectionId" id="inspectionId"
-               value="@(ViewBag.InspectionId ?? "")" class="form-control" required />
+    </div>
+    <div class="col-auto">
+        <input type="number" name="inspectionId" id="inspectionId" class="form-control"
+               value="@(ViewBag.InspectionId ?? "")" min="1" />
     </div>
     <div class="col-auto">
         <button type="submit" class="btn btn-outline-primary">Показать</button>
