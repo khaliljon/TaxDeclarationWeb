@@ -149,77 +149,132 @@ namespace TaxDeclarationWeb.Controllers
             return View(logs);
         }
 
-        // Создание резервной копии
-        [HttpPost]
-        public IActionResult CreateBackup()
+       // Создание резервной копии
+[HttpPost]
+public IActionResult CreateBackup()
+{
+    string backupDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Backups");
+    if (!Directory.Exists(backupDirectory))
+        Directory.CreateDirectory(backupDirectory);
+
+    string backupFile = $"TaxDeclaration_Backup_{DateTime.Now:yyyyMMdd_HHmmss}.bak";
+    string fullPath = Path.Combine(backupDirectory, backupFile);
+
+    string sql = $@"BACKUP DATABASE [TaxDeclaration] TO DISK = N'{fullPath}' WITH INIT, FORMAT";
+
+    // Всегда только из .env
+    string connString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+    Console.WriteLine($"[BACKUP] connString: {connString}");
+
+    try
+    {
+        using (var connection = new SqlConnection(connString))
         {
-            string backupDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Backups");
-            if (!Directory.Exists(backupDirectory))
-                Directory.CreateDirectory(backupDirectory);
-
-            string backupFile = $"TaxDeclaration_Backup_{DateTime.Now:yyyyMMdd_HHmmss}.bak";
-            string fullPath = Path.Combine(backupDirectory, backupFile);
-
-            string sql = $@"BACKUP DATABASE [TaxDeclaration] TO DISK = N'{fullPath}' WITH INIT, FORMAT";
-
-            // Всегда только из .env
-            string connString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-            Console.WriteLine($"[BACKUP] connString: {connString}");
-
-            try
+            connection.Open();
+            using (var command = new SqlCommand(sql, connection))
             {
-                using (var connection = new SqlConnection(connString))
-                {
-                    connection.Open();
-                    using (var command = new SqlCommand(sql, connection))
-                    {
-                        command.ExecuteNonQuery();
-                    }
-                }
-                TempData["Message"] = "Резервная копия успешно создана.";
+                command.ExecuteNonQuery();
             }
-            catch (Exception ex)
-            {
-                TempData["Message"] = $"Ошибка при создании резервной копии: {ex.Message}";
-            }
-
-            return RedirectToAction("Backups");
         }
+        TempData["Message"] = "Резервная копия успешно создана.";
+    }
+    catch (Exception ex)
+    {
+        TempData["Message"] = $"Ошибка при создании резервной копии: {ex.Message}";
+    }
 
-        // Просмотр списка резервных копий
-        public IActionResult Backups()
+    return RedirectToAction("Backups");
+}
+
+// Просмотр списка резервных копий
+public IActionResult Backups()
+{
+    string backupDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Backups");
+    var files = Directory.Exists(backupDirectory)
+        ? Directory.GetFiles(backupDirectory)
+            .Select(f => new FileInfo(f))
+            .OrderByDescending(f => f.CreationTime)
+            .ToList()
+        : new List<FileInfo>();
+
+    ViewBag.Message = TempData["Message"];
+    return View(files); // files — List<FileInfo>
+}
+
+// Удаление резервной копии
+[HttpPost]
+public IActionResult DeleteBackup(string fileName)
+{
+    string backupDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Backups");
+    var path = Path.Combine(backupDirectory, fileName);
+
+    if (System.IO.File.Exists(path))
+    {
+        System.IO.File.Delete(path);
+        TempData["Message"] = "Резервная копия успешно удалена.";
+    }
+    else
+    {
+        TempData["Message"] = "Ошибка: файл не найден.";
+    }
+
+    return RedirectToAction("Backups");
+}
+
+// Восстановление базы данных
+[HttpPost]
+[ValidateAntiForgeryToken]
+public IActionResult RestoreDatabase(string fileName)
+{
+    string backupDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Backups");
+    string fullPath = Path.Combine(backupDirectory, fileName);
+
+    if (!System.IO.File.Exists(fullPath))
+    {
+        TempData["Message"] = "Ошибка: файл резервной копии не найден.";
+        return RedirectToAction("Restore");
+    }
+
+    string sql = $@"RESTORE DATABASE [TaxDeclaration] FROM DISK = N'{fullPath}' WITH REPLACE";
+
+    // Получаем строку подключения из .env
+    string connString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+    Console.WriteLine($"[RESTORE] connString: {connString}");
+
+    try
+    {
+        using (var connection = new SqlConnection(connString))
         {
-            string backupDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Backups");
-            var files = Directory.Exists(backupDirectory)
-                ? Directory.GetFiles(backupDirectory)
-                    .Select(f => new FileInfo(f))
-                    .OrderByDescending(f => f.CreationTime)
-                    .ToList()
-                : new List<FileInfo>();
-
-            ViewBag.Message = TempData["Message"];
-            return View(files); // files — List<FileInfo>
-        }
-
-        // Удаление резервной копии
-        [HttpPost]
-        public IActionResult DeleteBackup(string fileName)
-        {
-            string backupDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Backups");
-            var path = Path.Combine(backupDirectory, fileName);
-
-            if (System.IO.File.Exists(path))
+            connection.Open();
+            using (var command = new SqlCommand(sql, connection))
             {
-                System.IO.File.Delete(path);
-                TempData["Message"] = "Резервная копия успешно удалена.";
+                command.ExecuteNonQuery();
             }
-            else
-            {
-                TempData["Message"] = "Ошибка: файл не найден.";
-            }
-
-            return RedirectToAction("Backups");
         }
+        TempData["Message"] = "База данных успешно восстановлена из резервной копии.";
+    }
+    catch (Exception ex)
+    {
+        TempData["Message"] = $"Ошибка при восстановлении базы данных: {ex.Message}";
+    }
+
+    return RedirectToAction("Restore");
+}
+
+// Просмотр списка резервных копий для восстановления
+[HttpGet]
+public IActionResult Restore()
+{
+    string backupDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Backups");
+    var files = Directory.Exists(backupDirectory)
+        ? Directory.GetFiles(backupDirectory)
+            .Select(f => new FileInfo(f))
+            .OrderByDescending(f => f.CreationTime)
+            .ToList()
+        : new List<FileInfo>();
+
+    return View(files); // Передаём список файлов в представление
+}
 
         // --- Логирование аудита ---
         private async Task LogAudit(string action, string details)

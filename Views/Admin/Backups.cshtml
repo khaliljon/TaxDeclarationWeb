@@ -44,7 +44,6 @@ else
                         <input type="hidden" name="fileName" value="@file.Name" />
                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Удалить копию?')">Удалить</button>
                     </form>
-                    <a href="@($"/Backups/{file.Name}")" download class="btn btn-secondary btn-sm ms-2">Скачать</a>
                 </td>
             </tr>
         }

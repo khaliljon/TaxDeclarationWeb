@@ -4,7 +4,6 @@ using TaxDeclarationWeb.Data;
 using TaxDeclarationWeb.Models;
 using DotNetEnv;
 using System.Text.Json.Serialization;
-using Microsoft.Extensions.FileProviders; // Для статических файлов
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +12,11 @@ Env.Load();
 var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 Console.WriteLine("== CONNECTION_STRING ==");
 Console.WriteLine(connectionString);
+
+if (string.IsNullOrEmpty(connectionString))
+{
+    Console.WriteLine("ERROR: CONNECTION_STRING is not defined in the environment variables!");
+}
 
 // --- Подключение к базе ---
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -52,19 +56,6 @@ builder.Services.AddControllersWithViews()
 
 var app = builder.Build();
 
-// --- Делаем папку Backups статической (для скачивания .bak) ---
-var backupDir = Path.Combine(Directory.GetCurrentDirectory(), "Backups");
-if (!Directory.Exists(backupDir))
-    Directory.CreateDirectory(backupDir);
-
-app.UseStaticFiles(); // wwwroot (по умолчанию)
-
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(backupDir),
-    RequestPath = "/Backups"
-});
-
 // --- Создание ролей и тестовых пользователей ---
 using (var scope = app.Services.CreateScope())
 {
@@ -77,7 +68,17 @@ using (var scope = app.Services.CreateScope())
     foreach (var role in roles)
     {
         if (!await roleManager.RoleExistsAsync(role))
-            await roleManager.CreateAsync(new IdentityRole(role));
+        {
+            var result = await roleManager.CreateAsync(new IdentityRole(role));
+            if (result.Succeeded)
+                Console.WriteLine($"Role '{role}' created successfully.");
+            else
+                Console.WriteLine($"ERROR: Failed to create role '{role}'. Errors: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
+        else
+        {
+            Console.WriteLine($"Role '{role}' already exists.");
+        }
     }
 
     // Создание администратора
@@ -92,7 +93,18 @@ using (var scope = app.Services.CreateScope())
         };
         var result = await userManager.CreateAsync(user, "Admin123!");
         if (result.Succeeded)
+        {
             await userManager.AddToRoleAsync(user, "Admin");
+            Console.WriteLine($"Admin user '{adminEmail}' created successfully.");
+        }
+        else
+        {
+            Console.WriteLine($"ERROR: Failed to create admin user '{adminEmail}'. Errors: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
+    }
+    else
+    {
+        Console.WriteLine($"Admin user '{adminEmail}' already exists.");
     }
 
     // Тестовые пользователи
@@ -114,7 +126,18 @@ using (var scope = app.Services.CreateScope())
             };
             var result = await userManager.CreateAsync(user, password);
             if (result.Succeeded)
+            {
                 await userManager.AddToRoleAsync(user, role);
+                Console.WriteLine($"Test user '{email}' with role '{role}' created successfully.");
+            }
+            else
+            {
+                Console.WriteLine($"ERROR: Failed to create test user '{email}'. Errors: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            }
+        }
+        else
+        {
+            Console.WriteLine($"Test user '{email}' already exists.");
         }
     }
 }
@@ -122,11 +145,17 @@ using (var scope = app.Services.CreateScope())
 // --- Middleware ---
 if (!app.Environment.IsDevelopment())
 {
+    Console.WriteLine("Environment: Production");
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+else
+{
+    Console.WriteLine("Environment: Development");
+}
 
 app.UseHttpsRedirection();
+app.UseStaticFiles(); // wwwroot (по умолчанию)
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -135,4 +164,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}");
 
+Console.WriteLine("Application is starting...");
 app.Run();
