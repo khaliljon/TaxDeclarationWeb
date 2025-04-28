@@ -3,50 +3,77 @@
     var nerezidents = ViewBag.NerezidentsByInspection as IEnumerable<dynamic>;
 }
 
-<h3>@ViewData["Title"]</h3>
+<div class="container mt-4 mb-5">
 
-<form method="get" asp-action="NerezidentsByInspection" class="row g-2 mb-3">
-    <div class="col-auto">
-        <label for="inspectionId" class="col-form-label">Код инспекции:</label>
-    </div>
-    <div class="col-auto">
-        <input type="number" name="inspectionId" id="inspectionId"
-               class="form-control" required min="1" value="@(ViewBag.InspectionId ?? "")" />
-    </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-outline-primary">Показать</button>
-    </div>
-</form>
+    <h2 class="text-center mb-5 display-5 fw-bold text-gradient"
+        style="background: linear-gradient(90deg,#900c3f,#6f42c1);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
+        @ViewData["Title"]
+    </h2>
 
-@if (nerezidents != null && nerezidents.Any())
-{
-    <div class="table-responsive">
-        <table class="table table-dark table-bordered table-hover mt-2">
-            <thead>
-            <tr>
-                <th>ИИН</th>
-                <th>ФИО</th>
-                <th>Адрес</th>
-                <th>Телефон</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach (var taxpayer in nerezidents)
-            {
-                <tr>
-                    <td>@taxpayer.IIN</td>
-                    <td>@taxpayer.FullName</td>
-                    <td>@taxpayer.Address</td>
-                    <td>@taxpayer.Phone</td>
-                </tr>
-            }
-            </tbody>
-        </table>
-    </div>
-}
-else if (ViewBag.InspectionId != null)
-{
-    <div class="alert alert-warning mt-2">
-        Нет налогоплательщиков-нерезидентов с обязательной декларацией для выбранной инспекции.
-    </div>
-}
+    <form method="get" asp-action="NerezidentsByInspection" class="row g-3 justify-content-center mb-4">
+        <div class="col-auto">
+            <label for="inspectionId" class="col-form-label">Код инспекции:</label>
+        </div>
+        <div class="col-auto">
+            <input type="number" name="inspectionId" id="inspectionId" class="form-control"
+                   value="@(ViewBag.InspectionId ?? "")" min="1" />
+        </div>
+
+        <div class="col-auto">
+            <label for="inspectionName" class="col-form-label">Или название инспекции:</label>
+        </div>
+        <div class="col-auto">
+            <input type="text" name="inspectionName" id="inspectionName" class="form-control"
+                   value="@(ViewBag.InspectionName ?? "")" placeholder="Например: Тараз" />
+        </div>
+
+        <div class="col-auto">
+            <button class="btn btn-primary" type="submit">Показать</button>
+        </div>
+    </form>
+
+    @if (nerezidents != null && nerezidents.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-dark table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>ИИН</th>
+                        <th>ФИО</th>
+                        <th>Адрес</th>
+                        <th>Телефон</th>
+                        <th>Инспекция</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var taxpayer in nerezidents)
+                    {
+                        <tr>
+                            <td>@taxpayer.IIN</td>
+                            <td>@taxpayer.FullName</td>
+                            <td>@taxpayer.Address</td>
+                            <td>@taxpayer.Phone</td>
+                            <td>@taxpayer.InspectionName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else if (ViewBag.InspectionId != null || !string.IsNullOrWhiteSpace(ViewBag.InspectionName))
+    {
+        <div class="alert alert-warning text-center mt-4">
+            Нет налогоплательщиков-нерезидентов для выбранной инспекции.
+        </div>
+    }
+
+    @if (ViewContext.RouteData.Values["Action"]?.ToString() != "Index")
+    {
+        <div class="mt-5 text-center">
+            <a asp-controller="Report" asp-action="Index" class="btn btn-outline-light">
+                ← Вернуться к списку отчётов
+            </a>
+        </div>
+    }
+
+</div>

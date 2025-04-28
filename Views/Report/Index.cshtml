@@ -2,97 +2,68 @@
     ViewData["Title"] = "Отчёты и аналитика";
 }
 
-<h2 class="mb-4">@ViewData["Title"]</h2>
+<div class="container mt-5 mb-5">
 
-<div class="accordion" id="reportAccordion">
+    <h1 class="text-center mb-5 display-4 fw-bold text-gradient"
+        style="background: linear-gradient(90deg,#900c3f,#6f42c1);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
+        @ViewData["Title"]
+    </h1>
 
     <!-- Секция: Запросы -->
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="headingQueries">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseQueries" aria-expanded="true" aria-controls="collapseQueries">
-                Запросы
-            </button>
-        </h2>
-        <div id="collapseQueries" class="accordion-collapse collapse show" aria-labelledby="headingQueries" data-bs-parent="#reportAccordion">
-            <div class="accordion-body">
+    <h2 class="text-center text-uppercase mt-5 mb-4" style="letter-spacing: 2px;">Запросы</h2>
 
-                <!-- 1. Нерезиденты по инспекции -->
-                <section class="mb-4">
-                    @await Html.PartialAsync("NerezidentsByInspection")
-                </section>
-                <!-- 2. Категории по адресу -->
-                <section class="mb-4">
-                    @await Html.PartialAsync("CategoriesByAddress")
-                </section>
-                <!-- 3. Кол-во деклараций по инспекциям -->
-                <section class="mb-4">
-                    @await Html.PartialAsync("DeclarationsCountByInspection")
-                </section>
-                <!-- 4. Налогоплательщики по дате и инспекции -->
-                <section class="mb-4">
-                    @await Html.PartialAsync("TaxpayersByDayAndInspection")
-                </section>
-                <!-- 5. Сумма расходов, подлежащих налогообложению -->
-                <section class="mb-4">
-                    @await Html.PartialAsync("TaxableExpenses")
-                </section>
-            </div>
-        </div>
-    </div>
+    <section class="mb-5">
+        @await Html.PartialAsync("NerezidentsByInspection")
+    </section>
 
-    <!-- Секция: Отчёты -->
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="headingReports">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReports" aria-expanded="false" aria-controls="collapseReports">
-                Сводные отчёты
-            </button>
-        </h2>
-        <div id="collapseReports" class="accordion-collapse collapse" aria-labelledby="headingReports" data-bs-parent="#reportAccordion">
-            <div class="accordion-body">
-                <!-- 6. Несколько мест дохода -->
-                <section class="mb-4">
-                    @await Html.PartialAsync("MultipleIncomeCategory")
-                </section>
-                <!-- 7. Декларации за текущий месяц -->
-                <section class="mb-4">
-                    @await Html.PartialAsync("DeclarationsSubmittedThisMonth")
-                </section>
-                <!-- 8. Мужчины-налогоплательщики старше ... лет -->
-                <section class="mb-4">
-                    @await Html.PartialAsync("MaleTaxpayersOlderThan")
-                </section>
-            </div>
-        </div>
-    </div>
+    <section class="mb-5">
+        @await Html.PartialAsync("CategoriesByAddress")
+    </section>
+
+    <section class="mb-5">
+        @await Html.PartialAsync("DeclarationsCountByInspection")
+    </section>
+
+    <section class="mb-5">
+        @await Html.PartialAsync("TaxpayersByDayAndInspection")
+    </section>
+
+    <section class="mb-5">
+        @await Html.PartialAsync("TaxableExpenses")
+    </section>
+
+    <!-- Секция: Сводные отчёты -->
+    <h2 class="text-center text-uppercase mt-5 mb-4" style="letter-spacing: 2px;">Сводные отчёты</h2>
+
+    <section class="mb-5">
+        @await Html.PartialAsync("MultipleIncomeCategory")
+    </section>
+
+    <section class="mb-5">
+        @await Html.PartialAsync("DeclarationsSubmittedThisMonth")
+    </section>
+
+    <section class="mb-5">
+        @await Html.PartialAsync("MaleTaxpayersOlderThan")
+    </section>
 
     <!-- Секция: Хранимые процедуры -->
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="headingProcedures">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseProcedures" aria-expanded="false" aria-controls="collapseProcedures">
-                Хранимые процедуры
-            </button>
-        </h2>
-        <div id="collapseProcedures" class="accordion-collapse collapse" aria-labelledby="headingProcedures" data-bs-parent="#reportAccordion">
-            <div class="accordion-body">
-                <!-- 9. Налогоплательщики года рождения -->
-                <section class="mb-4">
-                    @await Html.PartialAsync("TaxpayersBornInYear")
-                </section>
-                <!-- 10. По категории и дате -->
-                <section class="mb-4">
-                    @await Html.PartialAsync("TaxpayersByCategoryAndDate")
-                </section>
-                <!-- 11. Вставка стран -->
-                <section class="mb-4">
-                    @await Html.PartialAsync("InsertCountries")
-                </section>
-                <!-- 12. Кол-во по дате подачи -->
-                <section class="mb-4">
-                    @await Html.PartialAsync("CountTaxpayersByDeclarationDay")
-                </section>
-            </div>
-        </div>
-    </div>
-</div>
+    <h2 class="text-center text-uppercase mt-5 mb-4" style="letter-spacing: 2px;">Хранимые процедуры</h2>
 
-<!-- Bootstrap JS и инициализация Accordion должны быть подключены в layout! -->
+    <section class="mb-5">
+        @await Html.PartialAsync("TaxpayersBornInYear")
+    </section>
+
+    <section class="mb-5">
+        @await Html.PartialAsync("TaxpayersByCategoryAndDate")
+    </section>
+
+    <section class="mb-5">
+        @await Html.PartialAsync("InsertCountries")
+    </section>
+
+    <section class="mb-5">
+        @await Html.PartialAsync("CountTaxpayersByDeclarationDay")
+    </section>
+
+</div>

@@ -26,22 +26,45 @@ public class ReportController : Controller
 
     // 1. Список нерезидентов по инспекции с обязательной подачей декларации
     [HttpGet]
-    public async Task<IActionResult> NerezidentsByInspection(int? inspectionCode)
+    public async Task<IActionResult> NerezidentsByInspection(int? inspectionId, string? inspectionName)
     {
-        ViewBag.Inspections = await _context.Inspections.OrderBy(i => i.Name).ToListAsync();
-        if (inspectionCode == null)
-            return View(new List<Taxpayer>());
+        ViewBag.InspectionId = inspectionId;
+        ViewBag.InspectionName = inspectionName;
 
-        var list = await _context.Taxpayers
-            .Include(t => t.Inspection)
-            .Where(t => t.InspectionCode == inspectionCode.Value &&
-                        !t.IsResident &&
-                        t.IsDeclarationRequired)
-            .ToListAsync();
+        List<dynamic> result = new();
 
-        return View(list);
+        if (inspectionId.HasValue || !string.IsNullOrWhiteSpace(inspectionName))
+        {
+            var query = _context.Taxpayers
+                .Include(t => t.Inspection)
+                .Where(t => !t.IsResident && t.IsDeclarationRequired);
+
+            if (inspectionId.HasValue)
+            {
+                query = query.Where(t => t.InspectionCode == inspectionId.Value);
+            }
+            else if (!string.IsNullOrWhiteSpace(inspectionName))
+            {
+                query = query.Where(t => t.Inspection.Name.Contains(inspectionName));
+            }
+
+            result = await query
+                .Select(t => new
+                {
+                    t.IIN,
+                    t.FullName,
+                    t.Address,
+                    t.Phone,
+                    InspectionName = t.Inspection.Name
+                })
+                .ToListAsync<dynamic>();
+        }
+
+        ViewBag.NerezidentsByInspection = result;
+
+        return View();
     }
-
+    
     // 2. Категории налогоплательщиков по адресу
     [HttpGet]
     public async Task<IActionResult> CategoriesByAddress(string? address)
