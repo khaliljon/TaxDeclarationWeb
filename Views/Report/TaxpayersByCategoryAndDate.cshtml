@@ -1,60 +1,36 @@
 ﻿@{
-    ViewData["Title"] = "Налогоплательщики по дате подачи декларации и инспекции";
-    var taxpayers = ViewBag.TaxpayersByDayAndInspection as IEnumerable<dynamic>;
+    ViewData["Title"] = "Налогоплательщики по категории и дате подачи декларации";
+    var taxpayers = ViewBag.TaxpayersByCategoryAndDate as IEnumerable<dynamic>;
 }
 
-<div class="container mt-4 mb-5">
+<div class="container mt-5 mb-5">
 
-    <h2 class="text-center mb-5 display-5 fw-bold text-gradient"
-        style="background: linear-gradient(90deg,#900c3f,#6f42c1);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
+    <h1 class="text-center mb-5 display-4 fw-bold text-gradient"
+        style="background: linear-gradient(90deg,#900c3f,#6f42c1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
         @ViewData["Title"]
-    </h2>
+    </h1>
 
-    <form method="get" asp-action="TaxpayersByDayAndInspection" class="row g-3 justify-content-center mb-4" onsubmit="return validateFields()">
+    <form method="get" asp-action="TaxpayersByCategoryAndDate" class="row g-3 justify-content-center mb-4">
         <div class="col-auto">
-            <label for="inspectionId" class="col-form-label">Код инспекции:</label>
+            <label for="categoryCode" class="col-form-label">Код категории:</label>
         </div>
         <div class="col-auto">
-            <input type="number" name="inspectionId" id="inspectionId" class="form-control"
-                   value="@(ViewBag.InspectionId ?? "")" min="1" />
+            <input type="number" name="categoryCode" id="categoryCode" class="form-control"
+                   value="@(ViewBag.CategoryCode ?? "")" min="1" required />
         </div>
 
         <div class="col-auto">
-            <label for="day" class="col-form-label">День подачи декларации:</label>
+            <label for="day" class="col-form-label">День подачи:</label>
         </div>
         <div class="col-auto">
-            <input type="number" name="day" id="day" class="form-control" min="1" max="31"
-                   value="@(ViewBag.Day ?? "")" />
+            <input type="number" name="day" id="day" class="form-control"
+                   value="@(ViewBag.Day ?? "")" min="1" max="31" required />
         </div>
 
         <div class="col-auto">
             <button class="btn btn-primary" type="submit">Показать</button>
         </div>
     </form>
-
-    <script>
-        function validateFields() {
-            const inspectionId = document.getElementById('inspectionId').value.trim();
-            const day = document.getElementById('day').value.trim();
-
-            if (inspectionId === "" && day === "") {
-                alert("Пожалуйста, заполните хотя бы одно поле: код инспекции или день подачи декларации.");
-                return false;
-            }
-
-            if (day !== "" && (parseInt(day) <= 0 || parseInt(day) > 31)) {
-                alert("День подачи декларации должен быть от 1 до 31.");
-                return false;
-            }
-
-            if (inspectionId !== "" && parseInt(inspectionId) <= 0) {
-                alert("Код инспекции должен быть положительным числом.");
-                return false;
-            }
-
-            return true;
-        }
-    </script>
 
     @if (taxpayers != null && taxpayers.Any())
     {
@@ -66,7 +42,7 @@
                         <th>ФИО</th>
                         <th>Адрес</th>
                         <th>Телефон</th>
-                        <th>Инспекция</th>
+                        <th>Категория</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -77,14 +53,14 @@
                             <td>@t.FullName</td>
                             <td>@t.Address</td>
                             <td>@t.Phone</td>
-                            <td>@t.InspectionName</td>
+                            <td>@t.CategoryName</td>
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
     }
-    else if (ViewBag.Day != null || ViewBag.InspectionId != null)
+    else if (ViewBag.CategoryCode != null || ViewBag.Day != null)
     {
         <div class="alert alert-warning text-center mt-4">
             Нет налогоплательщиков для выбранных условий.
@@ -93,7 +69,7 @@
 
     @if (ViewContext.RouteData.Values["Action"]?.ToString() != "Index")
     {
-        <div class="mt-5 text-center">
+        <div class="text-center" style="margin-top: 40px;">
             <a asp-controller="Report" asp-action="Index" class="btn btn-outline-light">
                 ← Вернуться к списку отчётов
             </a>

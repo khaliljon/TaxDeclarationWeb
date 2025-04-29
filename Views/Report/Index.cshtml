@@ -101,8 +101,14 @@
     </section>
 
     <section class="mb-5">
-        @await Html.PartialAsync("TaxpayersByCategoryAndDate")
+        <h3 class="text-center mb-3">Налогоплательщики по категории и дате</h3>
+        <div class="text-center mb-3">
+            <a asp-controller="Report" asp-action="TaxpayersByCategoryAndDate" class="btn btn-primary">
+                Показать налогоплательщиков
+            </a>
+        </div>
     </section>
+
 
     <section class="mb-5">
         @await Html.PartialAsync("InsertCountries")

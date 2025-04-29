@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaxDeclarationWeb.Data;
 using TaxDeclarationWeb.Models;
+using Microsoft.Data.SqlClient;
+
 
 namespace TaxDeclarationWeb.Controllers;
 
@@ -121,21 +123,29 @@ public class ReportController : Controller
 
     // 4. Список, подавших декларацию i-го числа в j-ой инспекции
     [HttpGet]
-    public async Task<IActionResult> DeclarationsByDateAndInspection(int? inspectionCode, int? day)
+    public async Task<IActionResult> TaxpayersByDayAndInspection(int? inspectionId, int? day)
     {
-        ViewBag.Inspections = await _context.Inspections.ToListAsync();
+        ViewBag.InspectionId = inspectionId;
+        ViewBag.Day = day;
 
-        if (inspectionCode == null || day == null)
-            return View(new List<Declaration>());
+        if (inspectionId == null || day == null)
+            return View(new List<dynamic>());
 
         var list = await _context.Declarations
             .Include(d => d.Taxpayer)
-            .Include(d => d.Inspection)
-            .Include(d => d.Inspector)
-            .Where(d => d.InspectionId == inspectionCode.Value && d.SubmittedAt.Day == day.Value)
+            .Where(d => d.InspectionId == inspectionId.Value && d.SubmittedAt.Day == day.Value)
+            .Select(d => new
+            {
+                d.Taxpayer.IIN,
+                d.Taxpayer.FullName,
+                d.Taxpayer.Address,
+                d.Taxpayer.Phone
+            })
+            .Cast<dynamic>()
             .ToListAsync();
 
-        return View(list);
+        ViewBag.TaxpayersByDayAndInspection = list;
+        return View();
     }
 
     // 5. Сумма расходов налогоплательщиков, которые должны облагаться налогом
@@ -256,54 +266,35 @@ public class ReportController : Controller
 
     // 10. Налогоплательщики i-й категории, подавшие декларацию j-го числа
     [HttpGet]
-    public async Task<IActionResult> TaxpayersByDayAndInspection(int? day, int? inspectionId)
+    public async Task<IActionResult> TaxpayersByCategoryAndDate(int? categoryCode, int? day)
     {
-        ViewBag.Inspections = await _context.Inspections.OrderBy(i => i.Name).ToListAsync();
+        ViewBag.CategoryCode = categoryCode;
         ViewBag.Day = day;
-        ViewBag.InspectionId = inspectionId;
 
         List<dynamic> result = new();
 
-        // Сброс некорректных значений
-        if (day.HasValue && (day <= 0 || day > 31))
-            day = null;
-
-        if (inspectionId.HasValue && inspectionId <= 0)
-            inspectionId = null;
-
-        if (day.HasValue || inspectionId.HasValue)
+        if (categoryCode.HasValue && day.HasValue)
         {
-            var query = _context.Declarations
+            result = await _context.Declarations
                 .Include(d => d.Taxpayer)
-                .Include(d => d.Inspection)
-                .Include(d => d.Inspector)
-                .AsQueryable();
-
-            if (day.HasValue)
-            {
-                query = query.Where(d => d.SubmittedAt.Day == day.Value);
-            }
-
-            if (inspectionId.HasValue)
-            {
-                query = query.Where(d => d.InspectionId == inspectionId.Value);
-            }
-
-            result = await query
+                .ThenInclude(t => t.Category)
+                .Where(d =>
+                    d.SubmittedAt.Day == day.Value &&
+                    d.Taxpayer.CategoryCode == categoryCode.Value
+                )
                 .Select(d => new
                 {
                     d.Taxpayer.IIN,
                     d.Taxpayer.FullName,
                     d.Taxpayer.Address,
                     d.Taxpayer.Phone,
-                    InspectionName = d.Inspection.Name
+                    CategoryName = d.Taxpayer.Category.Name
                 })
-                .Distinct()
-                .ToListAsync<dynamic>();
+                .Cast<dynamic>() // ✅ ключевой момент
+                .ToListAsync();
         }
 
-        ViewBag.TaxpayersByDayAndInspection = result;
-
+        ViewBag.TaxpayersByCategoryAndDate = result;
         return View();
     }
 
