@@ -1,16 +1,16 @@
 ﻿@model TaxDeclarationWeb.Models.Category
 
 @{
-    ViewData["Title"] = "Добавить категорию";
+    ViewData["Title"] = "Редактировать категорию";
 }
 
 <div class="container mt-5 mb-5">
     <h1 class="text-center mb-4 display-4 fw-bold text-gradient"
-        style="background: linear-gradient(90deg,#007bff,#6610f2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        style="background: linear-gradient(90deg,#ff8800,#6f42c1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
         @ViewData["Title"]
     </h1>
 
-    <form asp-action="Create" method="post" class="mx-auto" style="max-width: 600px;">
+    <form asp-action="Edit" method="post" class="mx-auto" style="max-width: 600px;">
         <input type="hidden" asp-for="Code" />
 
         <div class="mb-3">
@@ -21,7 +21,7 @@
 
         <div class="text-center" style="margin-top: 40px;">
             <button type="submit" class="btn btn-primary me-2">
-                <i class="bi bi-check-circle"></i> Сохранить
+                <i class="bi bi-check-circle"></i> Сохранить изменения
             </button>
             <a asp-action="Index" class="btn btn-outline-light">
                 ← Назад к списку

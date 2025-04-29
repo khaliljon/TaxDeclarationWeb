@@ -104,7 +104,7 @@ label {
   font-weight: 600;
 }
 .table th, .table td {
-  padding: 10px 16px;
+  padding: 20px 20px;
   vertical-align: middle;
   border-color: #6f42c1;
 }
