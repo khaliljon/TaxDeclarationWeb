@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Dynamic;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaxDeclarationWeb.Data;
@@ -334,5 +335,4 @@ public class ReportController : Controller
             PageSize = Size.A4
         };
     }
-
 }

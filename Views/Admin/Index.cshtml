@@ -4,42 +4,55 @@
 
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-10 col-lg-8">
             <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Панель администратора</h3>
+                <div class="card-header" style="background:linear-gradient(90deg,#007bff,#6610f2);color:#fff;">
+                    <h1 class="mb-0">Панель администратора</h1>
                 </div>
                 <div class="card-body">
-                    <p>Добро пожаловать, Администратор!</p>
-                    <ul>
-                        <li>
-                            <a asp-action="ManageUsers" class="link-primary fw-bold">Управление пользователями</a>
-                        </li>
-                        <li>
-                            <a asp-action="Backups" class="link-primary fw-bold">Резервное копирование</a>
-                        </li>
-                        <li>
-                            <a asp-action="Restore" class="link-primary fw-bold">Восстановление базы</a>
-                        </li>
-                        <li>
-                            <a asp-action="Audit" class="link-primary fw-bold">Аудит</a>
-                        </li>
-                        <li>
-                            <a asp-action="TransactionLog" class="link-primary fw-bold">Журнал транзакций</a>
-                        </li>
+                    <p class="fw-semibold">Добро пожаловать, <b>Администратор</b>!</p>
+
+                    <ul class="mb-4">
+                        <li>Управление ролями и пользователями</li>
+                        <li>Резервное копирование и восстановление БД</li>
+                        <li>Просмотр журнала действий и аудита</li>
                     </ul>
+
                     <hr />
-                    <div class="d-flex gap-2 mb-2">
-                        <form asp-action="Logout" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-danger">Выйти</button>
-                        </form>
+
+                    <div class="d-flex flex-wrap gap-2 mb-4 justify-content-center">
+                        <a asp-action="ManageUsers" class="btn btn-primary btn-compact">
+                            👥 Пользователи
+                        </a>
+                        <a asp-action="Backups" class="btn btn-secondary btn-compact">
+                            💾 Резервное копирование
+                        </a>
+                        <a asp-action="Restore" class="btn btn-warning btn-compact">
+                            ♻ Восстановление
+                        </a>
+                        <a asp-action="Audit" class="btn btn-outline-info btn-compact">
+                            📋 Аудит
+                        </a>
+                        <a asp-action="TransactionLog" class="btn btn-outline-light btn-compact">
+                            📑 Журнал транзакций
+                        </a>
                     </div>
-                    <p class="mt-3 text-muted"><small>
-                            Все операции с базой и пользователями выполняются через эту панель администратора.<br/>
-                            Для управления бизнес-данными используйте панель главного инспектора.
-                        </small></p>
+
+                    <p class="mt-4 text-muted text-center">
+                        <small>Все операции с базой и пользователями выполняются через эту панель.<br />
+                        Для управления справочниками и декларациями используйте панель <b>главного инспектора</b>.</small>
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .btn-compact {
+        padding: 10px 20px;
+        font-size: 15px;
+        border-radius: 5px;
+        white-space: nowrap;
+    }
+</style>

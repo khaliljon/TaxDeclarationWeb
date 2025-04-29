@@ -28,6 +28,16 @@
             Налогоплательщиков, подавших декларацию @ViewBag.Day числа: <strong>@count</strong>
         </div>
     }
+    
+    @using Newtonsoft.Json
+    @{
+        var json = JsonConvert.SerializeObject(Model);
+    }
+    <form method="post" asp-controller="Report" asp-action="ExportToPdf">
+        <input type="hidden" name="viewName" value="CountTaxpayersByDeclarationDay" />
+        <input type="hidden" name="jsonModel" value="@json" />
+        <button type="submit" class="btn btn-outline-dark">📥 Скачать PDF</button>
+    </form>
 
     @if (ViewContext.RouteData.Values["Action"]?.ToString() != "Index")
     {

@@ -68,6 +68,16 @@
             Нет плательщиков с несколькими местами получения дохода.
         </div>
     }
+    
+    @using Newtonsoft.Json
+    @{
+        var json = JsonConvert.SerializeObject(Model);
+    }
+    <form method="post" asp-controller="Report" asp-action="ExportToPdf">
+        <input type="hidden" name="viewName" value="MultipleIncomeCategory" />
+        <input type="hidden" name="jsonModel" value="@json" />
+        <button type="submit" class="btn btn-outline-dark">📥 Скачать PDF</button>
+    </form>
 
     <div class="text-center" style="margin-top: 40px;">
         <a asp-controller="Report" asp-action="Index" class="btn btn-outline-light">
