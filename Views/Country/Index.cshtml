@@ -1,31 +1,68 @@
 ﻿@model IEnumerable<TaxDeclarationWeb.Models.Country>
 
-<h2>Список стран</h2>
+@{
+    ViewData["Title"] = "Список стран";
+}
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Добавить страну</a>
-</p>
+<div class="container mt-5 mb-5">
+    <h1 class="text-center mb-4 display-4 fw-bold text-gradient"
+        style="background: linear-gradient(90deg,#900c3f,#6f42c1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+        @ViewData["Title"]
+    </h1>
 
-<table class="table">
-    <thead>
-    <tr>
-        <th>Код</th>
-        <th>Наименование</th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model)
+    @if (TempData["ErrorMessage"] != null)
     {
-        <tr>
-            <td>@item.Code</td>
-            <td>@item.Name</td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Code">Редактировать</a> |
-                <a asp-action="Details" asp-route-id="@item.Code">Детали</a> |
-                <a asp-action="Delete" asp-route-id="@item.Code">Удалить</a>
-            </td>
-        </tr>
+        <div class="alert alert-danger text-center">
+            @TempData["ErrorMessage"]
+        </div>
     }
-    </tbody>
-</table>
+
+    <div class="text-end mb-4" style="margin-top: 20px; margin-bottom: 40px;">
+        <a asp-action="Create" class="btn btn-primary"
+           style="padding: 10px 20px; font-size: 16px; border-radius: 5px;">
+            <i class="bi bi-plus-circle"></i> Добавить страну
+        </a>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-dark table-bordered table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Код</th>
+                        <th>Наименование</th>
+                        <th class="text-center" style="width: 200px;">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Code</td>
+                            <td>@item.Name</td>
+                            <td class="text-center">
+                                <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-light me-1">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-sm btn-outline-info me-1">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Удалить страну @item.Name?');">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            Нет данных о странах.
+        </div>
+    }
+</div>

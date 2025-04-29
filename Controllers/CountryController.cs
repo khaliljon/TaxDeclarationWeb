@@ -1,13 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Threading.Tasks;
 using TaxDeclarationWeb.Data;
 using TaxDeclarationWeb.Models;
+using System;
 
 namespace TaxDeclarationWeb.Controllers
 {
-    [Authorize(Policy = "RequireChiefInspector")]
+    [Authorize(Roles = "ChiefInspector,Admin")]
     public class CountryController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -17,68 +19,44 @@ namespace TaxDeclarationWeb.Controllers
             _context = context;
         }
 
-        // GET: Countries
         public async Task<IActionResult> Index()
         {
             return View(await _context.Countries.ToListAsync());
         }
 
-        // GET: Countries/Details/5
-        public async Task<IActionResult> Details(int id)
-        {
-            var country = await _context.Countries
-                .FirstOrDefaultAsync(c => c.Code == id);
-            if (country == null)
-                return NotFound();
-
-            return View(country);
-        }
-
-        // GET: Countries/Create
         public IActionResult Create()
         {
-            return View();
+            int nextCode = _context.Countries.Any()
+                ? _context.Countries.Max(c => c.Code) + 1
+                : 1;
+
+            return View(new Country { Code = nextCode });
         }
 
-        // POST: Countries/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name")] Country country)
+        public async Task<IActionResult> Create(Country country)
         {
             if (!ModelState.IsValid)
                 return View(country);
 
-            _context.Add(country);
+            _context.Countries.Add(country);
             await _context.SaveChangesAsync();
-
-            await LogTransaction(
-                "Insert",
-                "Country",
-                country.Code.ToString(),
-                $"Добавлена страна: {country.Name} (код: {country.Code})"
-            );
 
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Countries/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var country = await _context.Countries.FindAsync(id);
-            if (country == null)
-                return NotFound();
-
+            if (country == null) return NotFound();
             return View(country);
         }
 
-        // POST: Countries/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Name")] Country country)
+        public async Task<IActionResult> Edit(Country country)
         {
-            if (id != country.Code)
-                return NotFound();
-
             if (!ModelState.IsValid)
                 return View(country);
 
@@ -86,73 +64,49 @@ namespace TaxDeclarationWeb.Controllers
             {
                 _context.Update(country);
                 await _context.SaveChangesAsync();
-
-                await LogTransaction(
-                    "Update",
-                    "Country",
-                    country.Code.ToString(),
-                    $"Изменена страна: {country.Name} (код: {country.Code})"
-                );
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.Countries.Any(e => e.Code == id))
+                if (!await _context.Countries.AnyAsync(c => c.Code == country.Code))
                     return NotFound();
-                else
-                    throw;
+                throw;
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Countries/Delete/5
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var country = await _context.Countries
-                .FirstOrDefaultAsync(c => c.Code == id);
-            if (country == null)
-                return NotFound();
-
+            var country = await _context.Countries.FirstOrDefaultAsync(c => c.Code == id);
+            if (country == null) return NotFound();
             return View(country);
         }
 
-        // POST: Countries/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var country = await _context.Countries.FindAsync(id);
-            if (country != null)
+            var country = await _context.Countries.FirstOrDefaultAsync(c => c.Code == id);
+            if (country == null) return NotFound();
+            return View(country);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(Country model)
+        {
+            try
             {
+                var country = await _context.Countries.FindAsync(model.Code);
+                if (country == null) return NotFound();
+
                 _context.Countries.Remove(country);
                 await _context.SaveChangesAsync();
-
-                await LogTransaction(
-                    "Delete",
-                    "Country",
-                    country.Code.ToString(),
-                    $"Удалена страна: {country.Name} (код: {country.Code})"
-                );
+            }
+            catch (DbUpdateException)
+            {
+                TempData["ErrorMessage"] = "Невозможно удалить страну — она связана с другими записями.";
             }
 
             return RedirectToAction(nameof(Index));
-        }
-
-        // --- Приватный метод для логирования транзакций ---
-        private async Task LogTransaction(string operation, string entity, string entityId, string details)
-        {
-            var log = new TransactionLog
-            {
-                UserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
-                UserEmail = User.Identity?.Name,
-                Operation = operation,
-                Entity = entity,
-                EntityId = entityId,
-                Details = details,
-                Timestamp = DateTime.UtcNow
-            };
-            _context.TransactionLogs.Add(log);
-            await _context.SaveChangesAsync();
         }
     }
 }
