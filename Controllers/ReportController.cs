@@ -196,26 +196,42 @@ public class ReportController : Controller
             .Include(d => d.Inspection)
             .Include(d => d.Inspector)
             .Where(d => d.SubmittedAt.Month == now.Month && d.SubmittedAt.Year == now.Year)
-            .ToListAsync();
+            .Select(d => new
+            {
+                DeclarationId = d.Id,
+                InspectionName = d.Inspection.Name,
+                InspectorName = d.Inspector.FullName,
+                SubmittedAt = d.SubmittedAt,
+                Year = d.Year,
+                TaxpayerName = d.Taxpayer.FullName,
+                Income = d.Income,
+                Expenses = d.Expenses,
+                NonTaxableExpenses = d.NonTaxableExpenses,
+                PaidTaxes = d.PaidTaxes,
+                Profit = d.Income - d.Expenses
+            })
+            .ToListAsync<dynamic>(); // Даже пустой список — это не null
 
         return View(declarations);
     }
+
 
     // 8. Список мужчин-налогоплательщиков старше ... лет
     [HttpGet]
     public async Task<IActionResult> MaleTaxpayersOlderThan(int? age)
     {
+        ViewBag.Age = age;
+
         if (age is null || age < 0)
             return View(new List<Taxpayer>());
 
-        var threshold = DateTime.Today.AddYears(-age.Value);
-
         var list = await _context.Taxpayers
             .Include(t => t.Inspection)
-            .Where(t => t.Gender == "М" && t.BirthDate < threshold)
+            .Where(t =>
+                t.Gender == "М" &&
+                EF.Functions.DateDiffYear(t.BirthDate, DateTime.Today) > age.Value)
             .ToListAsync();
 
-        ViewBag.Age = age;
         return View(list);
     }
 
@@ -223,16 +239,19 @@ public class ReportController : Controller
     [HttpGet]
     public async Task<IActionResult> TaxpayersBornInYear(int? year)
     {
-        if (year is null || year < 1900)
-            return View(new List<Taxpayer>());
-
-        var list = await _context.Taxpayers
-            .Include(t => t.Inspection)
-            .Where(t => t.BirthDate.Year == year)
-            .ToListAsync();
-
         ViewBag.Year = year;
-        return View(list);
+
+        List<Taxpayer> result = new();
+
+        if (year.HasValue && year.Value >= 1900 && year.Value <= DateTime.Now.Year)
+        {
+            result = await _context.Taxpayers
+                .Include(t => t.Inspection)
+                .Where(t => t.BirthDate.Year == year.Value)
+                .ToListAsync();
+        }
+
+        return View(result);
     }
 
     // 10. Налогоплательщики i-й категории, подавшие декларацию j-го числа

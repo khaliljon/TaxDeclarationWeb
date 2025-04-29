@@ -60,4 +60,14 @@ else if (ViewBag.Day != null && ViewBag.InspectionId != null)
         Нет налогоплательщиков, подавших декларацию в этот день в данной инспекции.
     </div>
 }
+
+@if (ViewContext.RouteData.Values["Action"]?.ToString() != "Index")
+{
+    <div class="text-center" style="margin-top: 40px;">
+        <a asp-controller="Report" asp-action="Index" class="btn btn-outline-light">
+            ← Вернуться к списку отчётов
+        </a>
+    </div>
+}
+
 </div>

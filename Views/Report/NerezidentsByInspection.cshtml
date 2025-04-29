@@ -3,7 +3,7 @@
     var nerezidents = ViewBag.NerezidentsByInspection as IEnumerable<dynamic>;
 }
 
-<div class="container mt-4 mb-5">
+<div class="container mt-4 mb-5 d-flex flex-column min-vh-100">
 
     <h2 class="text-center mb-5 display-5 fw-bold text-gradient"
         style="background: linear-gradient(90deg,#900c3f,#6f42c1);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
@@ -30,7 +30,7 @@
         <div class="col-auto">
             <button class="btn btn-primary" type="submit">Показать</button>
         </div>
-    </form>
+    </form> 
 
     <script>
         function validateNerezidentSearch() {
@@ -81,7 +81,7 @@
 
     @if (ViewContext.RouteData.Values["Action"]?.ToString() != "Index")
     {
-        <div class="mt-5 text-center">
+        <div class="text-center" style="margin-top: 40px;">
             <a asp-controller="Report" asp-action="Index" class="btn btn-outline-light">
                 ← Вернуться к списку отчётов
             </a>

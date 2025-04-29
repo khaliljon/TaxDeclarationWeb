@@ -18,8 +18,8 @@
             <input type="text" name="address" id="address" class="form-control"
                    value="@(ViewBag.Address ?? "")" placeholder="Например: г. Караганда, ул. Лермонтова, д. 15" required />
         </div>
-        <div class="col-auto">
-            <button class="btn btn-primary" type="submit">Найти</button>
+        <div class="col-12 text-center">
+            <button class="btn btn-primary mt-3" type="submit">Найти</button>
         </div>
     </form>
 
@@ -54,7 +54,7 @@
 
     @if (ViewContext.RouteData.Values["Action"]?.ToString() != "Index")
     {
-        <div class="mt-5 text-center">
+        <div class="text-center" style="margin-top: 40px;">
             <a asp-controller="Report" asp-action="Index" class="btn btn-outline-light">
                 ← Вернуться к списку отчётов
             </a>

@@ -1,56 +1,73 @@
-﻿@{
-    ViewData["Title"] = "Мужчины-налогоплательщики старше заданного возраста";
-    var taxpayers = ViewBag.MaleTaxpayersOlderThan as IEnumerable<dynamic>;
+﻿@model IEnumerable<TaxDeclarationWeb.Models.Taxpayer>
+
+@{
+    ViewData["Title"] = "Мужчины-налогоплательщики старше указанного возраста";
+    var taxpayers = Model;
 }
 
-<h3>@ViewData["Title"]</h3>
+<div class="container mt-5 mb-5">
 
-<form method="get" asp-action="MaleTaxpayersOlderThan" class="row g-2 mb-3">
-    <div class="col-auto">
-        <label for="age" class="col-form-label">Возраст:</label>
-        <input type="number" name="age" id="age" min="1"
-               value="@(ViewBag.Age ?? "")" class="form-control" required />
-    </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-outline-primary">Показать</button>
-    </div>
-</form>
+    <h1 class="text-center mb-5 display-4 fw-bold text-gradient"
+        style="background: linear-gradient(90deg,#900c3f,#6f42c1);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
+        @ViewData["Title"]
+    </h1>
 
-@if (taxpayers != null && taxpayers.Any())
-{
-    <div class="table-responsive">
-        <table class="table table-dark table-bordered table-hover mt-2">
-            <thead>
-            <tr>
-                <th>ИИН</th>
-                <th>ФИО</th>
-                <th>Адрес</th>
-                <th>Телефон</th>
-                <th>Дата рождения</th>
-                <th>Пол</th>
-                <th>Место работы</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach (var row in taxpayers)
-            {
-                <tr>
-                    <td>@row.IIN</td>
-                    <td>@row.FullName</td>
-                    <td>@row.Address</td>
-                    <td>@row.Phone</td>
-                    <td>@row.BirthDate?.ToString("dd.MM.yyyy")</td>
-                    <td>@row.Gender</td>
-                    <td>@row.Workplace</td>
-                </tr>
-            }
-            </tbody>
-        </table>
-    </div>
-}
-else if (ViewBag.Age != null)
-{
-    <div class="alert alert-warning mt-2">
-        Мужчин-налогоплательщиков старше @ViewBag.Age лет не найдено.
-    </div>
-}
+    <form method="get" asp-action="MaleTaxpayersOlderThan" class="row g-3 justify-content-center mb-4">
+        <div class="col-auto">
+            <label for="age" class="col-form-label">Возраст:</label>
+        </div>
+        <div class="col-auto">
+            <input type="number" name="age" id="age" min="0" class="form-control"
+                   value="@(ViewBag.Age ?? "")" required />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Показать</button>
+        </div>
+    </form>
+
+    @if (taxpayers != null && taxpayers.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-dark table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>ИИН</th>
+                        <th>ФИО</th>
+                        <th>Адрес</th>
+                        <th>Телефон</th>
+                        <th>Дата рождения</th>
+                        <th>Инспекция</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in taxpayers)
+                    {
+                        <tr>
+                            <td>@t.IIN</td>
+                            <td>@t.FullName</td>
+                            <td>@t.Address</td>
+                            <td>@t.Phone</td>
+                            <td>@t.BirthDate.ToString("dd.MM.yyyy")</td>
+                            <td>@t.Inspection?.Name</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else if (ViewBag.Age != null)
+    {
+        <div class="alert alert-warning text-center mt-4">
+            Нет мужчин-налогоплательщиков старше указанного возраста.
+        </div>
+    }
+
+    @if (ViewContext.RouteData.Values["Action"]?.ToString() != "Index")
+    {
+        <div class="text-center" style="margin-top: 40px;">
+            <a asp-controller="Report" asp-action="Index" class="btn btn-outline-light">
+                ← Вернуться к списку отчётов
+            </a>
+        </div>
+    }
+</div>

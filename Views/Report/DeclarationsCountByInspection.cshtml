@@ -41,7 +41,7 @@
 
     @if (ViewContext.RouteData.Values["Action"]?.ToString() != "Index")
     {
-        <div class="mt-5 text-center">
+        <div class="text-center" style="margin-top: 40px;">
             <a asp-controller="Report" asp-action="Index" class="btn btn-outline-light">
                 ← Вернуться к списку отчётов
             </a>

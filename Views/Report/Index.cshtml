@@ -61,25 +61,43 @@
     <!-- Секция: Сводные отчёты -->
     <h2 class="text-center text-uppercase mt-5 mb-4" style="letter-spacing: 2px;">Сводные отчёты</h2>
 
-    <section class="mb-5 text-center">
-        <a asp-controller="Report" asp-action="MultipleIncomeCategory" class="btn btn-primary">
-            Показать налогоплательщиков с несколькими местами дохода
-        </a>
+    <section class="mb-5">
+        <h3 class="text-center mb-3">Налогоплательщики с несколькими местами дохода</h3>
+        <div class="text-center">
+            <a asp-controller="Report" asp-action="MultipleIncomeCategory" class="btn btn-primary">
+                Показать налогоплательщиков
+            </a>
+        </div>
     </section>
 
     <section class="mb-5">
-        @await Html.PartialAsync("DeclarationsSubmittedThisMonth")
+        <h3 class="text-center mb-3">Декларации, поданные в текущем месяце</h3>
+        <div class="text-center">
+            <a asp-controller="Report" asp-action="DeclarationsSubmittedThisMonth" class="btn btn-primary">
+                Показать декларации
+            </a>
+        </div>
     </section>
 
     <section class="mb-5">
-        @await Html.PartialAsync("MaleTaxpayersOlderThan")
+        <h3 class="text-center mb-3">Мужчины-налогоплательщики старше заданного возраста</h3>
+        <div class="text-center">
+            <a asp-controller="Report" asp-action="MaleTaxpayersOlderThan" class="btn btn-primary">
+                Показать мужчин-налогоплательщиков
+            </a>
+        </div>
     </section>
 
     <!-- Секция: Хранимые процедуры -->
     <h2 class="text-center text-uppercase mt-5 mb-4" style="letter-spacing: 2px;">Хранимые процедуры</h2>
 
     <section class="mb-5">
-        @await Html.PartialAsync("TaxpayersBornInYear")
+        <h3 class="text-center mb-3">Налогоплательщики по году рождения</h3>
+        <div class="text-center mb-3">
+            <a asp-controller="Report" asp-action="TaxpayersBornInYear" class="btn btn-primary">
+                Показать налогоплательщиков
+            </a>
+        </div>
     </section>
 
     <section class="mb-5">
