@@ -25,9 +25,14 @@
             <span asp-validation-for="Address" class="text-danger small"></span>
         </div>
 
-        <div class="text-center d-flex justify-content-center gap-3 mt-4">
-            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-            <a asp-action="Index" class="btn btn-outline-light">← Назад к списку</a>
+        <div class="text-center" style="margin-top: 40px;">
+            <button type="submit" class="btn btn-primary me-2">
+                <i class="bi bi-check-circle"></i> Сохранить изменения
+            </button>
+
+            <a asp-action="Index" class="btn btn-outline-light">
+                ← Назад к списку инспекций
+            </a>
         </div>
     </form>
 </div>

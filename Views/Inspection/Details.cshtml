@@ -1,13 +1,31 @@
 ﻿@model TaxDeclarationWeb.Models.Inspection
+
 @{
-    ViewData["Title"] = "Детали инспекции";
+    ViewData["Title"] = "Информация об инспекции";
 }
-<h2>@ViewData["Title"]</h2>
 
-<div>
-    <h4>@Model.Name</h4>
-    <p><strong>Код:</strong> @Model.Code</p>
-    <p><strong>Адрес:</strong> @Model.Address</p>
+<div class="container mt-5 mb-5">
+    <h1 class="text-center mb-4 display-4 fw-bold text-gradient"
+        style="background: linear-gradient(90deg,#0dcaf0,#6610f2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        @ViewData["Title"]
+    </h1>
+
+    <div class="card mx-auto shadow" style="max-width: 600px;">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Код инспекции</h5>
+            <p class="card-text">@Model.Code</p>
+
+            <h5 class="card-title mb-3">Наименование</h5>
+            <p class="card-text">@Model.Name</p>
+
+            <h5 class="card-title mb-3">Адрес</h5>
+            <p class="card-text">@Model.Address</p>
+        </div>
+    </div>
+
+    <div class="text-center" style="margin-top: 40px;">
+        <a asp-action="Index" class="btn btn-outline-light">
+            ← Назад к списку инспекций
+        </a>
+    </div>
 </div>
-
-<a asp-action="Index" class="btn btn-secondary">Назад</a>

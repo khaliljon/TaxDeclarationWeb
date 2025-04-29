@@ -1,17 +1,24 @@
 ﻿@model TaxDeclarationWeb.Models.Inspection
+
 @{
-    ViewData["Title"] = "Удалить инспекцию";
+    ViewData["Title"] = "Удаление инспекции";
 }
-<h2>@ViewData["Title"]</h2>
 
-<h3>Вы уверены, что хотите удалить эту запись?</h3>
-<div>
-    <h4>@Model.Name</h4>
-    <p>@Model.Address</p>
+<div class="container mt-5 mb-5">
+    <h1 class="text-center mb-4 display-4 fw-bold text-gradient"
+        style="background: linear-gradient(90deg,#dc3545,#6f42c1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        @ViewData["Title"]
+    </h1>
+
+    <form asp-action="DeleteConfirmed" method="post" class="text-center">
+        <input type="hidden" asp-for="Code" />
+
+        <button type="submit" class="btn btn-danger me-2">
+            <i class="bi bi-trash"></i> Удалить
+        </button>
+
+        <a asp-action="Index" class="btn btn-outline-light">
+            ← Отмена
+        </a>
+    </form>
 </div>
-
-<form asp-action="Delete">
-    <input type="hidden" asp-for="Code" />
-    <input type="submit" value="Удалить" class="btn btn-danger" /> |
-    <a asp-action="Index" class="btn btn-secondary">Отмена</a>
-</form>
