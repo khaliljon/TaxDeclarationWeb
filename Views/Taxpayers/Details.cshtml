@@ -1,0 +1,66 @@
+﻿@model TaxDeclarationWeb.Models.Taxpayer
+
+@{
+    ViewData["Title"] = "Информация о налогоплательщике";
+}
+
+<div class="container mt-5 mb-5">
+    <h1 class="text-center mb-4 display-4 fw-bold text-gradient"
+        style="background: linear-gradient(90deg,#6f42c1,#007bff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        @ViewData["Title"]
+    </h1>
+
+    <div class="card bg-dark text-white shadow mx-auto" style="max-width: 800px;">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-5">ИИН</dt>
+                <dd class="col-sm-7">@Model.IIN</dd>
+
+                <dt class="col-sm-5">ФИО</dt>
+                <dd class="col-sm-7">@Model.FullName</dd>
+
+                <dt class="col-sm-5">Адрес проживания</dt>
+                <dd class="col-sm-7">@Model.Address</dd>
+
+                <dt class="col-sm-5">Телефон</dt>
+                <dd class="col-sm-7">@Model.Phone</dd>
+
+                <dt class="col-sm-5">Дата рождения</dt>
+                <dd class="col-sm-7">@Model.BirthDate.ToShortDateString()</dd>
+
+                <dt class="col-sm-5">Пол</dt>
+                <dd class="col-sm-7">@Model.Gender</dd>
+
+                <dt class="col-sm-5">Место работы</dt>
+                <dd class="col-sm-7">@Model.Workplace</dd>
+
+                <dt class="col-sm-5">Инспекция</dt>
+                <dd class="col-sm-7">@Model.Inspection?.Name</dd>
+
+                <dt class="col-sm-5">Категория</dt>
+                <dd class="col-sm-7">@Model.Category?.Name</dd>
+
+                <dt class="col-sm-5">Национальность</dt>
+                <dd class="col-sm-7">@Model.Nationality?.Name</dd>
+
+                <dt class="col-sm-5">Страна</dt>
+                <dd class="col-sm-7">@Model.Country?.Name</dd>
+
+                <dt class="col-sm-5">Резидент</dt>
+                <dd class="col-sm-7">@(Model.IsResident ? "Да" : "Нет")</dd>
+
+                <dt class="col-sm-5">Обязательная декларация</dt>
+                <dd class="col-sm-7">@(Model.IsDeclarationRequired ? "Да" : "Нет")</dd>
+            </dl>
+
+            <div class="text-center mt-4">
+                <a asp-action="Edit" asp-route-id="@Model.IIN" class="btn btn-outline-info me-2 px-4">
+                    <i class="bi bi-pencil-square"></i> Редактировать
+                </a>
+                <a asp-action="Index" class="btn btn-outline-light px-4">
+                    ← Назад к списку
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

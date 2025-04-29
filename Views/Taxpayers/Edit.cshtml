@@ -1,0 +1,114 @@
+﻿@model TaxDeclarationWeb.Models.Taxpayer
+
+@{
+    ViewData["Title"] = "Редактировать налогоплательщика";
+}
+
+<div class="container mt-5 mb-5">
+    <h1 class="text-center mb-4 display-4 fw-bold text-gradient"
+        style="background: linear-gradient(90deg,#ff8800,#6f42c1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        @ViewData["Title"]
+    </h1>
+
+    @if (!ViewData.ModelState.IsValid && ViewData.ModelState.Values.SelectMany(v => v.Errors).Any())
+    {
+        <div class="alert alert-danger">
+            <strong>Ошибки при заполнении формы:</strong>
+            <ul>
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <form asp-controller="Taxpayers" asp-action="Edit" method="post" class="mx-auto" style="max-width: 800px;">
+        <input type="hidden" asp-for="IIN" />
+
+        <div class="mb-3">
+            <label asp-for="FullName" class="form-label"></label>
+            <input asp-for="FullName" class="form-control" />
+            <span asp-validation-for="FullName" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Address" class="form-label"></label>
+            <input asp-for="Address" class="form-control" />
+            <span asp-validation-for="Address" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Phone" class="form-label"></label>
+            <input asp-for="Phone" class="form-control" />
+            <span asp-validation-for="Phone" class="text-danger small"></span>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col">
+                <label asp-for="BirthDate" class="form-label"></label>
+                <input asp-for="BirthDate" type="date" class="form-control" />
+                <span asp-validation-for="BirthDate" class="text-danger small"></span>
+            </div>
+            <div class="col">
+                <label asp-for="Gender" class="form-label"></label>
+                <input asp-for="Gender" class="form-control" />
+                <span asp-validation-for="Gender" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Workplace" class="form-label"></label>
+            <input asp-for="Workplace" class="form-control" />
+            <span asp-validation-for="Workplace" class="text-danger small"></span>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col">
+                <label asp-for="IsResident" class="form-label"></label><br />
+                <input asp-for="IsResident" type="checkbox" class="form-check-input" />
+            </div>
+            <div class="col">
+                <label asp-for="IsDeclarationRequired" class="form-label"></label><br />
+                <input asp-for="IsDeclarationRequired" type="checkbox" class="form-check-input" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="InspectionCode" class="form-label"></label>
+            <select asp-for="InspectionCode" class="form-select" asp-items="ViewBag.InspectionCode"></select>
+            <span asp-validation-for="InspectionCode" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CategoryCode" class="form-label"></label>
+            <select asp-for="CategoryCode" class="form-select" asp-items="ViewBag.CategoryCode"></select>
+            <span asp-validation-for="CategoryCode" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="NationalityCode" class="form-label"></label>
+            <select asp-for="NationalityCode" class="form-select" asp-items="ViewBag.NationalityCode"></select>
+            <span asp-validation-for="NationalityCode" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CountryCode" class="form-label"></label>
+            <select asp-for="CountryCode" class="form-select" asp-items="ViewBag.CountryCode"></select>
+            <span asp-validation-for="CountryCode" class="text-danger small"></span>
+        </div>
+
+        <div class="text-center" style="margin-top: 40px;">
+            <button type="submit" class="btn btn-primary me-2">
+                <i class="bi bi-check-circle"></i> Сохранить изменения
+            </button>
+            <a asp-action="Index" class="btn btn-outline-light">
+                ← Назад к списку
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -38,7 +38,7 @@
                         <th>Плательщик</th>
                         <th>Доход</th>
                         <th>Налоги</th>
-                        <th>Действия</th>
+                        <th class="text-center" style="width: 200px;">Действия</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -55,14 +55,14 @@
                             <td>@item.PaidTaxes.ToString("N2")</td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-light" title="Редактировать">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-light" title="Редактировать" style="transform: scale(0.7); display: inline-block;">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Подробнее">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Подробнее" style="transform: scale(0.7); display: inline-block;">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"
-                                       title="Удалить"
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger" style="transform: scale(0.7); display: inline-block;"
+                                       title="Удалить" 
                                        onclick="return confirm('Удалить декларацию №@item.Id?');">
                                         <i class="bi bi-trash"></i>
                                     </a>
