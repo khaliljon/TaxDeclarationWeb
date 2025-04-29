@@ -2,13 +2,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Threading.Tasks;
 using TaxDeclarationWeb.Data;
 using TaxDeclarationWeb.Models;
+using System;
 
 namespace TaxDeclarationWeb.Controllers
 {
-    [Authorize(Roles = "ChiefInspector")]
+    [Authorize(Roles = "ChiefInspector,Admin")]
     public class InspectorsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -18,16 +20,15 @@ namespace TaxDeclarationWeb.Controllers
             _context = context;
         }
 
-        // GET: Inspectors
         public async Task<IActionResult> Index()
         {
             var inspectors = await _context.Inspectors
                 .Include(i => i.Inspection)
                 .ToListAsync();
+
             return View(inspectors);
         }
 
-        // GET: Inspectors/Details/5
         public async Task<IActionResult> Details(int id)
         {
             var inspector = await _context.Inspectors
@@ -35,87 +36,101 @@ namespace TaxDeclarationWeb.Controllers
                 .FirstOrDefaultAsync(i => i.Code == id);
 
             if (inspector == null) return NotFound();
-
             return View(inspector);
         }
 
-        // GET: Inspectors/Create
         public IActionResult Create()
         {
-            ViewBag.InspectionCode = new SelectList(_context.Inspections, "Code", "Name");
-            return View();
+            var nextCode = _context.Inspectors.Any()
+                ? _context.Inspectors.Max(i => i.Code) + 1
+                : 1;
+
+            ViewData["InspectionCode"] = new SelectList(_context.Inspections, "Code", "Name");
+            return View(new Inspector { Code = nextCode });
         }
 
-        // POST: Inspectors/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FullName,InspectionCode,Phone")] Inspector inspector)
+        public async Task<IActionResult> Create(Inspector inspector)
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.InspectionCode = new SelectList(_context.Inspections, "Code", "Name", inspector.InspectionCode);
+                ViewData["InspectionCode"] = new SelectList(_context.Inspections, "Code", "Name", inspector.InspectionCode);
                 return View(inspector);
             }
-            _context.Add(inspector);
+
+            inspector.UserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(inspector.UserId))
+            {
+                ModelState.AddModelError("", "Ошибка: невозможно определить текущего пользователя.");
+                ViewData["InspectionCode"] = new SelectList(_context.Inspections, "Code", "Name", inspector.InspectionCode);
+                return View(inspector);
+            }
+
+            if (await _context.Inspectors.AnyAsync(i => i.Code == inspector.Code))
+            {
+                ModelState.AddModelError("Code", "Инспектор с таким кодом уже существует.");
+                ViewData["InspectionCode"] = new SelectList(_context.Inspections, "Code", "Name", inspector.InspectionCode);
+                return View(inspector);
+            }
+
+            _context.Inspectors.Add(inspector);
             await _context.SaveChangesAsync();
 
-            await LogTransaction(
-                "Insert",
-                "Inspector",
-                inspector.Code.ToString(),
-                $"Создан инспектор: {inspector.FullName} (код: {inspector.Code})"
-            );
+            await LogTransaction("Insert", "Inspector", inspector.Code.ToString(),
+                $"Добавлен инспектор: {inspector.FullName} (код: {inspector.Code})");
 
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Inspectors/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var inspector = await _context.Inspectors.FindAsync(id);
             if (inspector == null) return NotFound();
 
-            ViewBag.InspectionCode = new SelectList(_context.Inspections, "Code", "Name", inspector.InspectionCode);
+            ViewData["InspectionCode"] = new SelectList(_context.Inspections, "Code", "Name", inspector.InspectionCode);
             return View(inspector);
         }
 
-        // POST: Inspectors/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,FullName,InspectionCode,Phone")] Inspector inspector)
+        public async Task<IActionResult> Edit(Inspector inspector)
         {
-            if (id != inspector.Code) return NotFound();
-
             if (!ModelState.IsValid)
             {
-                ViewBag.InspectionCode = new SelectList(_context.Inspections, "Code", "Name", inspector.InspectionCode);
+                ViewData["InspectionCode"] = new SelectList(_context.Inspections, "Code", "Name", inspector.InspectionCode);
                 return View(inspector);
             }
 
             try
             {
+                // ВАЖНО: подгружаем оригинальный UserId
+                var existing = await _context.Inspectors
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(i => i.Code == inspector.Code);
+
+                if (existing == null)
+                    return NotFound();
+
+                inspector.UserId = existing.UserId;
+
                 _context.Update(inspector);
                 await _context.SaveChangesAsync();
 
-                await LogTransaction(
-                    "Update",
-                    "Inspector",
-                    inspector.Code.ToString(),
-                    $"Изменён инспектор: {inspector.FullName} (код: {inspector.Code})"
-                );
+                await LogTransaction("Update", "Inspector", inspector.Code.ToString(),
+                    $"Изменён инспектор: {inspector.FullName} (код: {inspector.Code})");
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.Inspectors.Any(e => e.Code == id))
+                if (!await _context.Inspectors.AnyAsync(i => i.Code == inspector.Code))
                     return NotFound();
-                else
-                    throw;
+                throw;
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Inspectors/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
             var inspector = await _context.Inspectors
@@ -123,32 +138,32 @@ namespace TaxDeclarationWeb.Controllers
                 .FirstOrDefaultAsync(i => i.Code == id);
 
             if (inspector == null) return NotFound();
-
             return View(inspector);
         }
 
-        // POST: Inspectors/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(Inspector model)
         {
-            var inspector = await _context.Inspectors.FindAsync(id);
-            if (inspector != null)
+            try
             {
+                var inspector = await _context.Inspectors.FindAsync(model.Code);
+                if (inspector == null) return NotFound();
+
                 _context.Inspectors.Remove(inspector);
                 await _context.SaveChangesAsync();
 
-                await LogTransaction(
-                    "Delete",
-                    "Inspector",
-                    inspector.Code.ToString(),
-                    $"Удалён инспектор: {inspector.FullName} (код: {inspector.Code})"
-                );
+                await LogTransaction("Delete", "Inspector", inspector.Code.ToString(),
+                    $"Удалён инспектор: {inspector.FullName} (код: {inspector.Code})");
             }
+            catch (DbUpdateException)
+            {
+                TempData["ErrorMessage"] = "Невозможно удалить инспектора — он связан с другими данными.";
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
-        // --- Приватный метод для логирования транзакций ---
         private async Task LogTransaction(string operation, string entity, string entityId, string details)
         {
             var log = new TransactionLog
@@ -161,6 +176,7 @@ namespace TaxDeclarationWeb.Controllers
                 Details = details,
                 Timestamp = DateTime.UtcNow
             };
+
             _context.TransactionLogs.Add(log);
             await _context.SaveChangesAsync();
         }

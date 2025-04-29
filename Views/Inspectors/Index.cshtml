@@ -1,33 +1,71 @@
 ﻿@model IEnumerable<TaxDeclarationWeb.Models.Inspector>
 @{
-    ViewData["Title"] = "Инспекторы";
+    ViewData["Title"] = "Список инспекторов";
 }
 
-<h2>@ViewData["Title"]</h2>
-<a asp-action="Create" class="btn btn-success mb-3">Добавить инспектора</a>
+<div class="container mt-5 mb-5">
+    <h1 class="text-center mb-4 display-4 fw-bold text-gradient"
+        style="background: linear-gradient(90deg,#900c3f,#6f42c1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+        @ViewData["Title"]
+    </h1>
 
-<table class="table table-striped table-bordered">
-    <thead>
-    <tr>
-        <th>ФИО</th>
-        <th>Инспекция</th>
-        <th>Телефон</th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var inspector in Model)
+    @if (TempData["ErrorMessage"] != null)
     {
-        <tr>
-            <td>@inspector.FullName</td>
-            <td>@inspector.Inspection?.Name</td>
-            <td>@inspector.Phone</td>
-            <td>
-                <a asp-action="Details" asp-route-id="@inspector.Code" class="btn btn-sm btn-info">Детали</a>
-                <a asp-action="Edit" asp-route-id="@inspector.Code" class="btn btn-sm btn-primary">Редактировать</a>
-                <a asp-action="Delete" asp-route-id="@inspector.Code" class="btn btn-sm btn-danger">Удалить</a>
-            </td>
-        </tr>
+        <div class="alert alert-danger text-center">
+            @TempData["ErrorMessage"]
+        </div>
     }
-    </tbody>
-</table>
+
+    <div class="text-end mb-4" style="margin-top: 20px; margin-bottom: 40px;">
+        <a asp-action="Create" class="btn btn-primary"
+           style="padding: 10px 20px; font-size: 16px; border-radius: 5px;">
+            <i class="bi bi-plus-circle"></i> Добавить инспектора
+        </a>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-dark table-bordered table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Код</th>
+                        <th>ФИО</th>
+                        <th>Телефон</th>
+                        <th>Инспекция</th>
+                        <th class="text-center" style="width: 200px;">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Code</td>
+                            <td>@item.FullName</td>
+                            <td>@item.Phone</td>
+                            <td>@item.Inspection?.Name</td>
+                            <td class="text-center">
+                                <a asp-action="Edit" asp-route-id="@item.Code" class="btn btn-sm btn-outline-light me-1" title="Редактировать">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.Code" class="btn btn-sm btn-outline-info me-1" title="Подробнее">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Code" class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Удалить инспектора @item.FullName?');">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            Нет данных об инспекторах.
+        </div>
+    }
+</div>

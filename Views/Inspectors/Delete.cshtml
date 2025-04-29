@@ -1,22 +1,25 @@
 ﻿@model TaxDeclarationWeb.Models.Inspector
+
 @{
     ViewData["Title"] = "Удаление инспектора";
 }
 
-<h2>@ViewData["Title"]</h2>
-<div class="alert alert-danger">
-    <h4>Вы уверены, что хотите удалить этого инспектора?</h4>
-    <dl class="row">
-        <dt class="col-sm-4">ФИО</dt>
-        <dd class="col-sm-8">@Model.FullName</dd>
-        <dt class="col-sm-4">Инспекция</dt>
-        <dd class="col-sm-8">@Model.Inspection?.Name</dd>
-        <dt class="col-sm-4">Телефон</dt>
-        <dd class="col-sm-8">@Model.Phone</dd>
-    </dl>
-    <form asp-action="DeleteConfirmed" method="post">
+<div class="container mt-5 mb-5">
+    <h1 class="text-center mb-4 display-4 fw-bold text-gradient"
+        style="background: linear-gradient(90deg,#dc3545,#6f42c1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        @ViewData["Title"]
+    </h1>
+
+    <form asp-action="DeleteConfirmed" method="post" class="text-center">
         <input type="hidden" asp-for="Code" />
-        <button type="submit" class="btn btn-danger">Удалить</button>
-        <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+
+        <div class="text-center" style="margin-top: 40px;">
+            <button type="submit" class="btn btn-danger me-2">
+                <i class="bi bi-trash"></i> Удалить
+            </button>
+            <a asp-action="Index" class="btn btn-outline-light">
+                ← Назад к списку
+            </a>
+        </div>
     </form>
 </div>

@@ -1,22 +1,39 @@
 ﻿@model TaxDeclarationWeb.Models.Inspector
+
 @{
     ViewData["Title"] = "Информация об инспекторе";
 }
 
-<h2>@ViewData["Title"]</h2>
-<div class="card">
-    <div class="card-body">
-        <dl class="row">
-            <dt class="col-sm-4">Код инспектора</dt>
-            <dd class="col-sm-8">@Model.Code</dd>
-            <dt class="col-sm-4">ФИО</dt>
-            <dd class="col-sm-8">@Model.FullName</dd>
-            <dt class="col-sm-4">Инспекция</dt>
-            <dd class="col-sm-8">@Model.Inspection?.Name</dd>
-            <dt class="col-sm-4">Телефон</dt>
-            <dd class="col-sm-8">@Model.Phone</dd>
-        </dl>
-        <a asp-action="Edit" asp-route-id="@Model.Code" class="btn btn-primary">Редактировать</a>
-        <a asp-action="Index" class="btn btn-secondary">Назад к списку</a>
+<div class="container mt-5 mb-5">
+    <h1 class="text-center mb-4 display-4 fw-bold text-gradient"
+        style="background: linear-gradient(90deg,#6f42c1,#007bff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        @ViewData["Title"]
+    </h1>
+
+    <div class="card bg-dark text-white shadow mx-auto" style="max-width: 600px;">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-5">Код инспектора</dt>
+                <dd class="col-sm-7">@Model.Code</dd>
+
+                <dt class="col-sm-5">ФИО</dt>
+                <dd class="col-sm-7">@Model.FullName</dd>
+
+                <dt class="col-sm-5">Инспекция</dt>
+                <dd class="col-sm-7">@Model.Inspection?.Name</dd>
+
+                <dt class="col-sm-5">Телефон</dt>
+                <dd class="col-sm-7">@Model.Phone</dd>
+            </dl>
+
+            <div class="text-center mt-4">
+                <a asp-action="Edit" asp-route-id="@Model.Code" class="btn btn-outline-info me-2 px-4">
+                    <i class="bi bi-pencil-square"></i> Редактировать
+                </a>
+                <a asp-action="Index" class="btn btn-outline-light px-4">
+                    ← Назад к списку
+                </a>
+            </div>
+        </div>
     </div>
 </div>
