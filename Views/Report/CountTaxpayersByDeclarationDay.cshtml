@@ -1,32 +1,40 @@
 ﻿@{
-    ViewData["Title"] = "Количество налогоплательщиков по дате подачи декларации";
-    var result = ViewBag.CountTaxpayersResult as int?;
+    ViewData["Title"] = "Количество налогоплательщиков по дате подачи";
+    var count = ViewBag.Result as int?;
 }
 
-<h3>@ViewData["Title"]</h3>
+<div class="container mt-5 mb-5">
+    <h1 class="text-center mb-5 display-4 fw-bold text-gradient"
+        style="background: linear-gradient(90deg,#900c3f,#6f42c1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        @ViewData["Title"]
+    </h1>
 
-<form method="get" asp-action="CountTaxpayersByDeclarationDay" class="row g-2 mb-3">
-    <div class="col-auto">
-        <label for="submissionDate" class="col-form-label">Дата подачи декларации:</label>
-        <input type="date" name="submissionDate" id="submissionDate"
-               value="@(ViewBag.SubmissionDate != null ? ((DateTime)ViewBag.SubmissionDate).ToString("yyyy-MM-dd") : "")"
-               class="form-control" required />
-    </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-outline-primary">Показать</button>
-    </div>
-</form>
+    <form method="get" asp-action="CountTaxpayersByDeclarationDay" class="row g-3 justify-content-center mb-4">
+        <div class="col-auto">
+            <label for="day" class="col-form-label">День:</label>
+        </div>
+        <div class="col-auto">
+            <input type="number" name="day" id="day" class="form-control"
+                   min="1" max="31" value="@(ViewBag.Day ?? "")" required />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Показать</button>
+        </div>
+    </form>
 
-@if (result != null)
-{
-    <div class="alert alert-dark mt-2">
-        <strong>Количество налогоплательщиков, подавших декларацию @(((DateTime?)ViewBag.SubmissionDate)?.ToString("dd.MM.yyyy")):</strong>
-        @result
-    </div>
-}
-else if (ViewBag.SubmissionDate != null)
-{
-    <div class="alert alert-warning mt-2">
-        В этот день никто не подавал декларацию.
-    </div>
-}
+    @if (count.HasValue)
+    {
+        <div class="alert alert-success p-4 text-center" style="font-size: 1.5rem;">
+            Налогоплательщиков, подавших декларацию @ViewBag.Day числа: <strong>@count</strong>
+        </div>
+    }
+
+    @if (ViewContext.RouteData.Values["Action"]?.ToString() != "Index")
+    {
+        <div class="text-center" style="margin-top: 40px;">
+            <a asp-controller="Report" asp-action="Index" class="btn btn-outline-light">
+                ← Вернуться к списку отчётов
+            </a>
+        </div>
+    }
+</div>

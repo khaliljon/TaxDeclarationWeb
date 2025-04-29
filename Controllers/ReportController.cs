@@ -298,36 +298,7 @@ public class ReportController : Controller
         return View();
     }
 
-    // 11. Вставка 3 новых строк в таблицу стран
-    [HttpGet]
-    public IActionResult InsertCountries()
-    {
-        return View(new List<Country> { new(), new(), new() });
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> InsertCountries(List<Country> countries)
-    {
-        var validCountries = countries
-            .Where(c => c.Code > 0 && !string.IsNullOrWhiteSpace(c.Name))
-            .ToList();
-
-        if (validCountries.Any())
-        {
-            _context.Countries.AddRange(validCountries);
-            await _context.SaveChangesAsync();
-            ViewBag.Message = "Добавлено строк: " + validCountries.Count;
-        }
-        else
-        {
-            ViewBag.Message = "Ни одной корректной строки не введено.";
-        }
-
-        return View(new List<Country> { new(), new(), new() });
-    }
-
-    // 12. Количество налогоплательщиков, подавших декларацию в указанный день месяца
+    // 11. Количество налогоплательщиков, подавших декларацию в указанный день месяца
     [HttpGet]
     public async Task<IActionResult> CountTaxpayersByDeclarationDay(int? day)
     {
