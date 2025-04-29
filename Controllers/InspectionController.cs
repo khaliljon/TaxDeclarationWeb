@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using TaxDeclarationWeb.Data;
 using TaxDeclarationWeb.Models;
+using System.Linq;
+using System;
 
 namespace TaxDeclarationWeb.Controllers
 {
@@ -31,12 +33,12 @@ namespace TaxDeclarationWeb.Controllers
 
         public IActionResult Create()
         {
-            return View();
+            return View(new Inspection());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name,Address")] Inspection inspection)
+        public async Task<IActionResult> Create(Inspection inspection)
         {
             if (!ModelState.IsValid)
                 return View(inspection);
@@ -44,12 +46,8 @@ namespace TaxDeclarationWeb.Controllers
             _context.Add(inspection);
             await _context.SaveChangesAsync();
 
-            await LogTransaction(
-                "Insert",
-                "Inspection",
-                inspection.Code.ToString(),
-                $"Добавлена налоговая инспекция: {inspection.Name} (код: {inspection.Code})"
-            );
+            await LogTransaction("Insert", "Inspection", inspection.Code.ToString(),
+                $"Добавлена инспекция: {inspection.Name} (код: {inspection.Code})");
 
             return RedirectToAction(nameof(Index));
         }
@@ -63,43 +61,38 @@ namespace TaxDeclarationWeb.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Address")] Inspection inspection)
+        public async Task<IActionResult> Edit(Inspection inspection)
         {
-            if (id != inspection.Code) return NotFound();
-
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(inspection);
-                    await _context.SaveChangesAsync();
+                // Отладка ошибок модели — можно временно включить
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                Console.WriteLine("Ошибки модели: " + string.Join(", ", errors));
+                return View(inspection);
+            }
 
-                    await LogTransaction(
-                        "Update",
-                        "Inspection",
-                        inspection.Code.ToString(),
-                        $"Изменена налоговая инспекция: {inspection.Name} (код: {inspection.Code})"
-                    );
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Inspections.Any(e => e.Code == id))
-                        return NotFound();
-                    else
-                        throw;
-                }
+            try
+            {
+                _context.Update(inspection);
+                await _context.SaveChangesAsync();
+
+                await LogTransaction("Update", "Inspection", inspection.Code.ToString(),
+                    $"Изменена инспекция: {inspection.Name} (код: {inspection.Code})");
 
                 return RedirectToAction(nameof(Index));
             }
-
-            return View(inspection);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await _context.Inspections.AnyAsync(i => i.Code == inspection.Code))
+                    return NotFound();
+                throw;
+            }
         }
 
         public async Task<IActionResult> Delete(int id)
         {
             var inspection = await _context.Inspections.FirstOrDefaultAsync(i => i.Code == id);
             if (inspection == null) return NotFound();
-
             return View(inspection);
         }
 
@@ -113,17 +106,12 @@ namespace TaxDeclarationWeb.Controllers
                 _context.Inspections.Remove(inspection);
                 await _context.SaveChangesAsync();
 
-                await LogTransaction(
-                    "Delete",
-                    "Inspection",
-                    inspection.Code.ToString(),
-                    $"Удалена налоговая инспекция: {inspection.Name} (код: {inspection.Code})"
-                );
+                await LogTransaction("Delete", "Inspection", inspection.Code.ToString(),
+                    $"Удалена инспекция: {inspection.Name} (код: {inspection.Code})");
             }
             return RedirectToAction(nameof(Index));
         }
 
-        // --- Приватный метод для логирования транзакций ---
         private async Task LogTransaction(string operation, string entity, string entityId, string details)
         {
             var log = new TransactionLog
