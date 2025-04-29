@@ -164,11 +164,25 @@ public class ReportController : Controller
     {
         var taxpayers = await _context.Taxpayers
             .Include(t => t.Category)
-            .Include(t => t.Inspection)
-            .Where(t => t.Category.Name == "несколько мест получения дохода")
-            .ToListAsync();
+            .Include(t => t.Nationality)
+            .Include(t => t.Country)
+            .Where(t => t.Category != null && t.Category.Name == "Имеет несколько мест получения дохода")
+            .Select(t => new
+            {
+                t.IIN,
+                t.FullName,
+                t.Address,
+                t.Phone,
+                BirthDate = t.BirthDate.ToString("yyyy-MM-dd"),
+                t.Gender,
+                NationalityName = t.Nationality != null ? t.Nationality.Name : "—",
+                Workplace = t.Workplace ?? "—",
+                CountryName = t.Country != null ? t.Country.Name : "—",
+                CategoryName = t.Category.Name
+            })
+            .ToListAsync<dynamic>();
 
-        return View(taxpayers);
+        return View(model: taxpayers);
     }
 
     // 7. Декларации, поданные в текущем месяце

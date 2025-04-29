@@ -1,51 +1,78 @@
-﻿@{
-    ViewData["Title"] = "Плательщики с несколькими местами дохода";
-    var taxpayers = ViewBag.MultipleIncomeCategory as IEnumerable<dynamic>;
+﻿@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Плательщики с несколькими местами получения дохода";
+    var taxpayers = Model;
 }
 
-<h3>@ViewData["Title"]</h3>
+<div class="container mt-4 mb-5">
 
-@if (taxpayers != null && taxpayers.Any())
-{
-    <div class="table-responsive">
-        <table class="table table-dark table-bordered table-hover mt-2">
-            <thead>
-            <tr>
-                <th>ИИН</th>
-                <th>ФИО</th>
-                <th>Адрес</th>
-                <th>Телефон</th>
-                <th>Дата рождения</th>
-                <th>Пол</th>
-                <th>Национальность</th>
-                <th>Место работы</th>
-                <th>Страна</th>
-                <th>Категория</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach (var row in taxpayers)
-            {
-                <tr>
-                    <td>@row.IIN</td>
-                    <td>@row.FullName</td>
-                    <td>@row.Address</td>
-                    <td>@row.Phone</td>
-                    <td>@row.BirthDate?.ToString("dd.MM.yyyy")</td>
-                    <td>@row.Gender</td>
-                    <td>@row.NationalityName</td>
-                    <td>@row.Workplace</td>
-                    <td>@row.CountryName</td>
-                    <td>@row.CategoryName</td>
-                </tr>
-            }
-            </tbody>
-        </table>
+    <h2 class="text-center mb-5 display-5 fw-bold text-gradient"
+        style="background: linear-gradient(90deg, #900c3f, #6f42c1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        @ViewData["Title"]
+    </h2>
+
+    @if (taxpayers != null && taxpayers.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-dark table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>ИИН</th>
+                        <th>ФИО</th>
+                        <th>Адрес проживания</th>
+                        <th>Телефон</th>
+                        <th>Дата рождения</th>
+                        <th>Пол</th>
+                        <th>Национальность</th>
+                        <th>Место работы</th>
+                        <th>Страна</th>
+                        <th>Категория</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in taxpayers)
+                    {
+                        <tr>
+                            <td>@t.IIN</td>
+                            <td>@t.FullName</td>
+                            <td>@t.Address</td>
+                            <td>@t.Phone</td>
+                            <td>
+                                @{
+                                    DateTime parsed;
+                                    if (DateTime.TryParse(Convert.ToString(t.BirthDate), out parsed))
+                                    {
+                                        @parsed.ToString("dd.MM.yyyy")
+                                    }
+                                    else
+                                    {
+                                        @("-")
+                                    }
+                                }
+                            </td>
+                            <td>@t.Gender</td>
+                            <td>@t.NationalityName</td>
+                            <td>@t.Workplace</td>
+                            <td>@t.CountryName</td>
+                            <td>@t.CategoryName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning text-center mt-4">
+            Нет плательщиков с несколькими местами получения дохода.
+        </div>
+    }
+
+    <div class="mt-5 text-center">
+        <a asp-controller="Report" asp-action="Index" class="btn btn-outline-light">
+            ← Вернуться к списку отчётов
+        </a>
     </div>
-}
-else
-{
-    <div class="alert alert-warning mt-2">
-        Нет налогоплательщиков с несколькими местами получения дохода.
-    </div>
-}
+
+</div>

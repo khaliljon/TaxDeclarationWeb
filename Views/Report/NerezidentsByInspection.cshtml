@@ -36,13 +36,11 @@
         function validateNerezidentSearch() {
             const inspectionId = document.getElementById('inspectionId').value.trim();
             const inspectionName = document.getElementById('inspectionName').value.trim();
-
             if (inspectionId === "" && inspectionName === "") {
                 alert("Пожалуйста, заполните хотя бы одно поле: код инспекции или название инспекции.");
-                return false; // Отменить отправку формы
+                return false;
             }
-
-            return true; // Всё в порядке, отправлять форму
+            return true;
         }
     </script>
 
