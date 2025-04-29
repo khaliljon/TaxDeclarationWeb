@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using TaxDeclarationWeb.Data;
 using TaxDeclarationWeb.Models;
 using Microsoft.Data.SqlClient;
+using Newtonsoft.Json;
+using Rotativa.AspNetCore;
+using Rotativa.AspNetCore.Options;
 
 
 namespace TaxDeclarationWeb.Controllers;
@@ -318,4 +321,18 @@ public class ReportController : Controller
         ViewBag.Result = count;
         return View();
     }
+    [HttpPost]
+    public IActionResult ExportToPdf(string viewName, string jsonModel)
+    {
+        if (string.IsNullOrWhiteSpace(jsonModel))
+            return NotFound("Нет модели");
+
+        var model = JsonConvert.DeserializeObject<List<object>>(jsonModel);
+        return new ViewAsPdf(viewName, model)
+        {
+            FileName = $"{viewName}_{DateTime.Now:yyyyMMddHHmmss}.pdf",
+            PageSize = Size.A4
+        };
+    }
+
 }
