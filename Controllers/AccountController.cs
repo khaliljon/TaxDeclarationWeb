@@ -59,7 +59,7 @@ namespace TaxDeclarationWeb.Controllers
                 if (roles.Contains("ChiefInspector"))
                     return RedirectToAction("Index", "ChiefInspector");
                 if (roles.Contains("Inspector"))
-                    return RedirectToAction("Index", "InspectorRole");
+                    return RedirectToAction("Index", "Inspector");
                 if (roles.Contains("Taxpayer"))
                     return RedirectToAction("Index", "Taxpayer");
 
@@ -111,7 +111,7 @@ namespace TaxDeclarationWeb.Controllers
             if (roles.Contains("ChiefInspector"))
                 return RedirectToAction("Index", "ChiefInspector");
             if (roles.Contains("Inspector"))
-                return RedirectToAction("Index", "InspectorRole");
+                return RedirectToAction("Index", "Inspector");
             if (roles.Contains("Taxpayer"))
                 return RedirectToAction("Index", "Taxpayer");
 

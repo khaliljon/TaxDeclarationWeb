@@ -1,7 +1,7 @@
 ﻿@model TaxDeclarationWeb.Models.Taxpayer
-
 @{
     ViewData["Title"] = "Информация о налогоплательщике";
+    bool isChief = User.IsInRole("ChiefInspector") || User.IsInRole("Admin");
 }
 
 <div class="container mt-5 mb-5">
@@ -54,9 +54,12 @@
             </dl>
 
             <div class="text-center mt-4">
-                <a asp-action="Edit" asp-route-id="@Model.IIN" class="btn btn-outline-info me-2 px-4">
-                    <i class="bi bi-pencil-square"></i> Редактировать
-                </a>
+                @if (isChief)
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.IIN" class="btn btn-outline-info me-2 px-4">
+                        <i class="bi bi-pencil-square"></i> Редактировать
+                    </a>
+                }
                 <a asp-action="Index" class="btn btn-outline-light px-4">
                     ← Назад к списку
                 </a>

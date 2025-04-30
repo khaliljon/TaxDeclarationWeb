@@ -63,6 +63,7 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+    var context = services.GetRequiredService<ApplicationDbContext>();
 
     string[] roles = { "Taxpayer", "Inspector", "ChiefInspector", "Admin" };
     foreach (var role in roles)
@@ -77,27 +78,37 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    var testUsers = new List<(string Email, string Password, string Role)>
+    var inspectors = new List<(int code, string email, string password)>
     {
-        ("inspector@tax.local", "Inspector123!", "Inspector"),
-        ("chief@tax.local", "Chief123!", "ChiefInspector"),
-        ("payer@tax.local", "Payer123!", "Taxpayer")
+        (1, "alekseev@tax.local", "Alekseev123!"),
+        (2, "kuznetsova@tax.local", "Kuznetsova123!"),
+        (3, "ivanov@tax.local", "Ivanov123!"),
+        (4, "sidorova@tax.local", "Sidorova123!"),
+        (5, "petrova@tax.local", "Petrova123!")
     };
 
-    foreach (var (email, pass, role) in testUsers)
+    foreach (var (code, email, password) in inspectors)
     {
         if (await userManager.FindByEmailAsync(email) == null)
         {
             var user = new ApplicationUser { UserName = email, Email = email };
-            var result = await userManager.CreateAsync(user, pass);
+            var result = await userManager.CreateAsync(user, password);
             if (result.Succeeded)
             {
-                await userManager.AddToRoleAsync(user, role);
-                Console.WriteLine($"User '{email}' with role '{role}' created.");
+                await userManager.AddToRoleAsync(user, "Inspector");
+
+                var inspector = await context.Inspectors.FirstOrDefaultAsync(i => i.Code == code);
+                if (inspector != null)
+                {
+                    inspector.UserId = user.Id;
+                    context.Inspectors.Update(inspector);
+                    await context.SaveChangesAsync();
+                    Console.WriteLine($"✅ Инспектор '{inspector.FullName}' привязан к '{email}'");
+                }
             }
             else
             {
-                Console.WriteLine($"ERROR creating user '{email}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                Console.WriteLine($"❌ Ошибка при создании '{email}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
             }
         }
     }

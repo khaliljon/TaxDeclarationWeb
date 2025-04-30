@@ -1,7 +1,11 @@
 ﻿@model TaxDeclarationWeb.Models.Taxpayer
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = "Редактировать налогоплательщика";
+    bool isChief = User.IsInRole("ChiefInspector") || User.IsInRole("Admin");
+    bool isInspector = User.IsInRole("Inspector");
 }
 
 <div class="container mt-5 mb-5">
@@ -23,7 +27,7 @@
         </div>
     }
 
-    <form asp-controller="Taxpayers" asp-action="Edit" method="post" class="mx-auto" style="max-width: 800px;">
+    <form asp-action="Edit" method="post" class="mx-auto" style="max-width: 800px;">
         <input type="hidden" asp-for="IIN" />
 
         <div class="mb-3">
@@ -76,7 +80,15 @@
 
         <div class="mb-3">
             <label asp-for="InspectionCode" class="form-label"></label>
-            <select asp-for="InspectionCode" class="form-select" asp-items="ViewBag.InspectionCode"></select>
+            @if (isChief)
+            {
+                <select asp-for="InspectionCode" class="form-select" asp-items="ViewBag.InspectionCode"></select>
+            }
+            else if (isInspector)
+            {
+                <input type="hidden" asp-for="InspectionCode" value="@Model.InspectionCode" />
+                <input class="form-control" disabled value="@ViewBag.InspectionName" />
+            }
             <span asp-validation-for="InspectionCode" class="text-danger small"></span>
         </div>
 

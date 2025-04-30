@@ -5,20 +5,25 @@
 }
 
 <div class="container mt-5 mb-5">
-    <h1 class="text-center mb-4 display-4 fw-bold text-gradient"
-        style="background: linear-gradient(90deg,#dc3545,#6f42c1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-        @ViewData["Title"]
-    </h1>
-
-    <form asp-action="DeleteConfirmed" method="post" class="text-center">
-        <input type="hidden" asp-for="IIN" />
-        <div class="text-center" style="margin-top: 40px;">
-            <button type="submit" class="btn btn-danger me-2">
-                <i class="bi bi-trash"></i> Удалить
-            </button>
-            <a asp-action="Index" class="btn btn-outline-light">
-                ← Назад к списку
-            </a>
+    <div class="card bg-dark text-white mx-auto" style="max-width: 700px;">
+        <div class="card-header">
+            <h4 class="mb-0">Удаление налогоплательщика</h4>
         </div>
-    </form>
+        <div class="card-body">
+            <p><strong>ИИН:</strong> @Model.IIN</p>
+            <p><strong>ФИО:</strong> @Model.FullName</p>
+            <p><strong>Инспекция:</strong> @Model.Inspection?.Name</p>
+            <p><strong>Категория:</strong> @Model.Category?.Name</p>
+
+            <form asp-action="DeleteConfirmed" method="post">
+                <input type="hidden" asp-for="IIN" />
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-danger me-3">
+                        <i class="bi bi-trash"></i> Удалить
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-light">← Назад</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
