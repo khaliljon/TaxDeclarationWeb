@@ -52,14 +52,14 @@ builder.Services.AddControllersWithViews()
         opt.JsonSerializerOptions.WriteIndented = true;
     });
 
-// --- Локализация: ru-RU для чисел с запятыми ---
+// --- Локализация ---
 var culture = new CultureInfo("ru-RU");
 CultureInfo.DefaultThreadCurrentCulture = culture;
 CultureInfo.DefaultThreadCurrentUICulture = culture;
 
 var app = builder.Build();
 
-// --- Инициализация ролей и инспекторов ---
+// --- Инициализация ролей и пользователей ---
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -73,14 +73,13 @@ using (var scope = app.Services.CreateScope())
         if (!await roleManager.RoleExistsAsync(role))
         {
             var result = await roleManager.CreateAsync(new IdentityRole(role));
-            if (result.Succeeded)
-                Console.WriteLine($"✅ Роль '{role}' создана.");
-            else
-                Console.WriteLine($"❌ Ошибка создания роли '{role}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            Console.WriteLine(result.Succeeded
+                ? $"✅ Роль '{role}' создана."
+                : $"❌ Ошибка при создании роли '{role}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
         }
     }
 
-    // --- Инспектора (email + пароль) ---
+    // --- Инспектора ---
     var inspectors = new List<(int code, string email, string password)>
     {
         (1, "alekseev@tax.local", "Alekseev123!"),
@@ -92,35 +91,65 @@ using (var scope = app.Services.CreateScope())
 
     foreach (var (code, email, password) in inspectors)
     {
-        if (await userManager.FindByEmailAsync(email) == null)
+        var user = await userManager.FindByEmailAsync(email);
+        if (user == null)
         {
-            var user = new ApplicationUser { UserName = email, Email = email };
+            user = new ApplicationUser { UserName = email, Email = email };
             var result = await userManager.CreateAsync(user, password);
             if (result.Succeeded)
             {
                 await userManager.AddToRoleAsync(user, "Inspector");
-
                 var inspector = await context.Inspectors.FirstOrDefaultAsync(i => i.Code == code);
                 if (inspector != null)
                 {
                     inspector.UserId = user.Id;
                     context.Inspectors.Update(inspector);
                     await context.SaveChangesAsync();
-                    Console.WriteLine($"🔗 Инспектор '{inspector.FullName}' привязан к аккаунту '{email}'");
+                    Console.WriteLine($"🔗 Инспектор '{inspector.FullName}' привязан к '{email}'");
                 }
                 else
                 {
-                    Console.WriteLine($"⚠️ Инспектор с кодом {code} не найден.");
+                    Console.WriteLine($"⚠️ Инспектор с кодом {code} не найден в базе.");
                 }
             }
             else
             {
-                Console.WriteLine($"❌ Ошибка создания пользователя '{email}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                Console.WriteLine($"❌ Ошибка при создании инспектора '{email}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
             }
         }
         else
         {
-            Console.WriteLine($"⏩ Пользователь '{email}' уже существует.");
+            Console.WriteLine($"⏩ Инспектор '{email}' уже существует.");
+        }
+    }
+
+    // --- Налогоплательщики ---
+    var taxpayers = new List<(string iin, string email, string password)>
+    {
+        ("101010101010", "sultanova@tax.local", "Sultanova123!"),
+        ("123123123123", "ilyasov@tax.local", "Ilyasov123!")
+    };
+
+    foreach (var (iin, email, password) in taxpayers)
+    {
+        var user = await userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+            user = new ApplicationUser { UserName = email, Email = email, IIN = iin };
+            var result = await userManager.CreateAsync(user, password);
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, "Taxpayer");
+                Console.WriteLine($"✅ Налогоплательщик '{email}' создан с ИИН '{iin}'");
+            }
+            else
+            {
+                Console.WriteLine($"❌ Ошибка создания налогоплательщика '{email}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            }
+        }
+        else
+        {
+            Console.WriteLine($"⏩ Налогоплательщик '{email}' уже существует.");
         }
     }
 }
@@ -136,7 +165,7 @@ if (!app.Environment.IsDevelopment())
 }
 else
 {
-    Console.WriteLine("Environment: Development");
+    Console.WriteLine("🌱 Environment: Development");
 }
 
 app.UseHttpsRedirection();

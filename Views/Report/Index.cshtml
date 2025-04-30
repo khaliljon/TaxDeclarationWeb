@@ -1,5 +1,11 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
     ViewData["Title"] = "Отчёты и аналитика";
+    var isChief = User.IsInRole("ChiefInspector") || User.IsInRole("Admin");
+    var isInspector = User.IsInRole("Inspector");
 }
 
 <div class="container mt-5 mb-5">
@@ -9,7 +15,6 @@
         @ViewData["Title"]
     </h1>
 
-    <!-- Секция: Запросы -->
     <h2 class="text-center text-uppercase mt-5 mb-4" style="letter-spacing: 2px;">Запросы</h2>
 
     <section class="mb-5">
@@ -57,8 +62,6 @@
         </div>
     </section>
 
-
-    <!-- Секция: Сводные отчёты -->
     <h2 class="text-center text-uppercase mt-5 mb-4" style="letter-spacing: 2px;">Сводные отчёты</h2>
 
     <section class="mb-5">
@@ -88,7 +91,6 @@
         </div>
     </section>
 
-    <!-- Секция: Хранимые процедуры -->
     <h2 class="text-center text-uppercase mt-5 mb-4" style="letter-spacing: 2px;">Хранимые процедуры</h2>
 
     <section class="mb-5">
@@ -117,5 +119,4 @@
             </a>
         </div>
     </section>
-
 </div>
