@@ -1,7 +1,11 @@
 ﻿@model TaxDeclarationWeb.Models.Declaration
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = "Информация о декларации";
+    bool isChief = User.IsInRole("ChiefInspector") || User.IsInRole("Admin");
+    bool isInspector = User.IsInRole("Inspector");
 }
 
 <div class="container mt-5 mb-5">
@@ -13,7 +17,7 @@
     <div class="card bg-dark text-white shadow mx-auto" style="max-width: 800px;">
         <div class="card-body">
             <dl class="row">
-                <dt class="col-sm-5">Код декларации</dt>
+                <dt class="col-sm-5">ID</dt>
                 <dd class="col-sm-7">@Model.Id</dd>
 
                 <dt class="col-sm-5">Год</dt>
@@ -29,28 +33,28 @@
                 <dd class="col-sm-7">@Model.Inspector?.FullName</dd>
 
                 <dt class="col-sm-5">Налогоплательщик</dt>
-                <dd class="col-sm-7">@Model.Taxpayer?.FullName (@Model.TaxpayerIIN)</dd>
+                <dd class="col-sm-7">@Model.Taxpayer?.FullName</dd>
 
                 <dt class="col-sm-5">Доход</dt>
-                <dd class="col-sm-7">@Model.Income.ToString("N2")</dd>
+                <dd class="col-sm-7">@Model.Income.ToString("N2") ₸</dd>
 
                 <dt class="col-sm-5">Расходы</dt>
-                <dd class="col-sm-7">@Model.Expenses.ToString("N2")</dd>
+                <dd class="col-sm-7">@Model.Expenses.ToString("N2") ₸</dd>
 
                 <dt class="col-sm-5">Необлагаемые расходы</dt>
-                <dd class="col-sm-7">@Model.NonTaxableExpenses.ToString("N2")</dd>
+                <dd class="col-sm-7">@Model.NonTaxableExpenses.ToString("N2") ₸</dd>
 
                 <dt class="col-sm-5">Уплаченные налоги</dt>
-                <dd class="col-sm-7">@Model.PaidTaxes.ToString("N2")</dd>
-
-                <dt class="col-sm-5">Прибыль</dt>
-                <dd class="col-sm-7">@Model.Profit.ToString("N2")</dd>
+                <dd class="col-sm-7">@Model.PaidTaxes.ToString("N2") ₸</dd>
             </dl>
 
             <div class="text-center mt-4">
-                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-info me-2 px-4">
-                    <i class="bi bi-pencil-square"></i> Редактировать
-                </a>
+                @if (isChief || isInspector)
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-info me-2 px-4">
+                        <i class="bi bi-pencil-square"></i> Редактировать
+                    </a>
+                }
                 <a asp-action="Index" class="btn btn-outline-light px-4">
                     ← Назад к списку
                 </a>

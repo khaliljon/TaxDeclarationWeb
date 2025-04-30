@@ -1,7 +1,12 @@
 ﻿@model TaxDeclarationWeb.Models.Declaration
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = "Добавить декларацию";
+    bool isChief = User.IsInRole("ChiefInspector") || User.IsInRole("Admin");
+    bool isInspector = User.IsInRole("Inspector");
 }
 
 <div class="container mt-5 mb-5">
@@ -11,29 +16,44 @@
     </h1>
 
     <form asp-action="Create" method="post" class="mx-auto" style="max-width: 800px;">
-
         <div class="row mb-3">
-            <div class="col">
-                <label asp-for="Year" class="form-label"></label>
-                <input asp-for="Year" class="form-control" />
-                <span asp-validation-for="Year" class="text-danger small"></span>
-            </div>
             <div class="col">
                 <label asp-for="SubmittedAt" class="form-label"></label>
                 <input asp-for="SubmittedAt" type="date" class="form-control" />
                 <span asp-validation-for="SubmittedAt" class="text-danger small"></span>
             </div>
+            <div class="col">
+                <label asp-for="Year" class="form-label"></label>
+                <input asp-for="Year" type="number" class="form-control" />
+                <span asp-validation-for="Year" class="text-danger small"></span>
+            </div>
         </div>
 
         <div class="mb-3">
             <label asp-for="InspectionId" class="form-label"></label>
-            <select asp-for="InspectionId" class="form-select" asp-items="ViewBag.InspectionId"></select>
+            @if (isChief)
+            {
+                <select asp-for="InspectionId" class="form-select" asp-items="ViewBag.InspectionId"></select>
+            }
+            else if (isInspector)
+            {
+                <input type="hidden" asp-for="InspectionId" value="@ViewBag.InspectionId" />
+                <input class="form-control" disabled value="@ViewBag.InspectionName" />
+            }
             <span asp-validation-for="InspectionId" class="text-danger small"></span>
         </div>
 
         <div class="mb-3">
             <label asp-for="InspectorId" class="form-label"></label>
-            <select asp-for="InspectorId" class="form-select" asp-items="ViewBag.InspectorId"></select>
+            @if (isChief)
+            {
+                <select asp-for="InspectorId" class="form-select" asp-items="ViewBag.InspectorId"></select>
+            }
+            else if (isInspector)
+            {
+                <input type="hidden" asp-for="InspectorId" value="@ViewBag.InspectorId" />
+                <input class="form-control" disabled value="@User.Identity.Name" />
+            }
             <span asp-validation-for="InspectorId" class="text-danger small"></span>
         </div>
 
@@ -43,35 +63,33 @@
             <span asp-validation-for="TaxpayerIIN" class="text-danger small"></span>
         </div>
 
-        <div class="row mb-3">
-            <div class="col">
-                <label asp-for="Income" class="form-label"></label>
-                <input asp-for="Income" class="form-control" type="text" />
-                <span asp-validation-for="Income" class="text-danger small"></span>
-            </div>
-            <div class="col">
-                <label asp-for="Expenses" class="form-label"></label>
-                <input asp-for="Expenses" class="form-control" type="text" />
-                <span asp-validation-for="Expenses" class="text-danger small"></span>
-            </div>
+        <div class="mb-3">
+            <label asp-for="Income" class="form-label"></label>
+            <input asp-for="Income" type="number" step="0.01" class="form-control" />
+            <span asp-validation-for="Income" class="text-danger small"></span>
         </div>
 
-        <div class="row mb-3">
-            <div class="col">
-                <label asp-for="NonTaxableExpenses" class="form-label"></label>
-                <input asp-for="NonTaxableExpenses" class="form-control" type="text" />
-                <span asp-validation-for="NonTaxableExpenses" class="text-danger small"></span>
-            </div>
-            <div class="col">
-                <label asp-for="PaidTaxes" class="form-label"></label>
-                <input asp-for="PaidTaxes" class="form-control" type="text" />
-                <span asp-validation-for="PaidTaxes" class="text-danger small"></span>
-            </div>
+        <div class="mb-3">
+            <label asp-for="Expenses" class="form-label"></label>
+            <input asp-for="Expenses" type="number" step="0.01" class="form-control" />
+            <span asp-validation-for="Expenses" class="text-danger small"></span>
         </div>
 
-        <div class="text-center" style="margin-top: 40px;">
-            <button type="submit" class="btn btn-primary me-2">
-                <i class="bi bi-check-circle"></i> Сохранить
+        <div class="mb-3">
+            <label asp-for="NonTaxableExpenses" class="form-label"></label>
+            <input asp-for="NonTaxableExpenses" type="number" step="0.01" class="form-control" />
+            <span asp-validation-for="NonTaxableExpenses" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PaidTaxes" class="form-label"></label>
+            <input asp-for="PaidTaxes" type="number" step="0.01" class="form-control" />
+            <span asp-validation-for="PaidTaxes" class="text-danger small"></span>
+        </div>
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-success me-2">
+                <i class="bi bi-plus-circle"></i> Добавить
             </button>
             <a asp-action="Index" class="btn btn-outline-light">
                 ← Назад к списку
@@ -82,11 +100,4 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        // Разрешить запятую как десятичный разделитель
-        $.validator.methods.number = function (value, element) {
-            return this.optional(element) || /^-?\d+(,\d+)?$/.test(value);
-        };
-    </script>
 }
-

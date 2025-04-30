@@ -1,7 +1,12 @@
 ﻿@model IEnumerable<TaxDeclarationWeb.Models.Declaration>
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = "Список деклараций";
+    bool isChief = User.IsInRole("ChiefInspector") || User.IsInRole("Admin");
+    bool isInspector = User.IsInRole("Inspector");
 }
 
 <div class="container mt-5 mb-5">
@@ -18,10 +23,13 @@
     }
 
     <div class="text-end mb-4" style="margin-top: 20px; margin-bottom: 40px;">
-        <a asp-action="Create" class="btn btn-primary"
-           style="padding: 10px 20px; font-size: 16px; border-radius: 5px;">
-            <i class="bi bi-plus-circle"></i> Добавить декларацию
-        </a>
+        @if (isChief || isInspector)
+        {
+            <a asp-action="Create" class="btn btn-primary"
+               style="padding: 10px 20px; font-size: 16px; border-radius: 5px;">
+                <i class="bi bi-plus-circle"></i> Добавить декларацию
+            </a>
+        }
     </div>
 
     @if (Model.Any())
@@ -55,16 +63,18 @@
                             <td>@item.PaidTaxes.ToString("N2")</td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-light" title="Редактировать" style="transform: scale(0.7); display: inline-block;">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Подробнее" style="transform: scale(0.7); display: inline-block;">
+                                    @if (isChief || (isInspector && item.InspectionId == ViewBag.InspectionCode))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-light" title="Редактировать" style="transform: scale(0.7);">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Удалить" style="transform: scale(0.7);"
+                                           onclick="return confirm('Удалить декларацию №@item.Id?');">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    }
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Подробнее" style="transform: scale(0.7);">
                                         <i class="bi bi-eye"></i>
-                                    </a>
-                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger" style="transform: scale(0.7); display: inline-block;"
-                                       title="Удалить" 
-                                       onclick="return confirm('Удалить декларацию №@item.Id?');">
-                                        <i class="bi bi-trash"></i>
                                     </a>
                                 </div>
                             </td>

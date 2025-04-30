@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using System.Text.Json.Serialization;
 using DotNetEnv;
 using TaxDeclarationWeb.Data;
@@ -8,18 +9,21 @@ using Rotativa.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- Загрузка .env файла ---
+// --- Загрузка .env ---
 Env.Load();
 var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-Console.WriteLine("== CONNECTION_STRING ==");
-Console.WriteLine(connectionString);
 
 if (string.IsNullOrEmpty(connectionString))
 {
     Console.WriteLine("ERROR: CONNECTION_STRING is not defined!");
 }
+else
+{
+    Console.WriteLine("== CONNECTION_STRING ==");
+    Console.WriteLine(connectionString);
+}
 
-// --- Подключение к базе данных ---
+// --- Подключение к базе ---
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
@@ -31,23 +35,16 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// --- Авторизация по ролям ---
+// --- Авторизация ---
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("RequireTaxpayer", policy =>
-        policy.RequireRole("Taxpayer"));
-
-    options.AddPolicy("RequireInspector", policy =>
-        policy.RequireRole("Inspector", "ChiefInspector", "Admin"));
-
-    options.AddPolicy("RequireChiefInspector", policy =>
-        policy.RequireRole("ChiefInspector"));
-
-    options.AddPolicy("RequireAdmin", policy =>
-        policy.RequireRole("Admin"));
+    options.AddPolicy("RequireTaxpayer", policy => policy.RequireRole("Taxpayer"));
+    options.AddPolicy("RequireInspector", policy => policy.RequireRole("Inspector", "ChiefInspector", "Admin"));
+    options.AddPolicy("RequireChiefInspector", policy => policy.RequireRole("ChiefInspector"));
+    options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
 });
 
-// --- Json-параметры ---
+// --- Json настройки ---
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(opt =>
     {
@@ -55,9 +52,14 @@ builder.Services.AddControllersWithViews()
         opt.JsonSerializerOptions.WriteIndented = true;
     });
 
+// --- Локализация: ru-RU для чисел с запятыми ---
+var culture = new CultureInfo("ru-RU");
+CultureInfo.DefaultThreadCurrentCulture = culture;
+CultureInfo.DefaultThreadCurrentUICulture = culture;
+
 var app = builder.Build();
 
-// --- Инициализация ролей и пользователей ---
+// --- Инициализация ролей и инспекторов ---
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -72,12 +74,13 @@ using (var scope = app.Services.CreateScope())
         {
             var result = await roleManager.CreateAsync(new IdentityRole(role));
             if (result.Succeeded)
-                Console.WriteLine($"Role '{role}' created successfully.");
+                Console.WriteLine($"✅ Роль '{role}' создана.");
             else
-                Console.WriteLine($"ERROR creating role '{role}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                Console.WriteLine($"❌ Ошибка создания роли '{role}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
         }
     }
 
+    // --- Инспектора (email + пароль) ---
     var inspectors = new List<(int code, string email, string password)>
     {
         (1, "alekseev@tax.local", "Alekseev123!"),
@@ -103,18 +106,26 @@ using (var scope = app.Services.CreateScope())
                     inspector.UserId = user.Id;
                     context.Inspectors.Update(inspector);
                     await context.SaveChangesAsync();
-                    Console.WriteLine($"✅ Инспектор '{inspector.FullName}' привязан к '{email}'");
+                    Console.WriteLine($"🔗 Инспектор '{inspector.FullName}' привязан к аккаунту '{email}'");
+                }
+                else
+                {
+                    Console.WriteLine($"⚠️ Инспектор с кодом {code} не найден.");
                 }
             }
             else
             {
-                Console.WriteLine($"❌ Ошибка при создании '{email}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                Console.WriteLine($"❌ Ошибка создания пользователя '{email}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
             }
+        }
+        else
+        {
+            Console.WriteLine($"⏩ Пользователь '{email}' уже существует.");
         }
     }
 }
 
-// --- Настройка Rotativa (wkhtmltopdf) ---
+// --- Настройка Rotativa ---
 RotativaConfiguration.Setup(app.Environment.WebRootPath, "Rotativa");
 
 // --- Middleware ---
@@ -139,5 +150,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}");
 
-Console.WriteLine("Application is starting...");
+Console.WriteLine("🚀 Application is starting...");
 app.Run();

@@ -1,7 +1,12 @@
 ﻿@model TaxDeclarationWeb.Models.Declaration
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = "Редактировать декларацию";
+    bool isChief = User.IsInRole("ChiefInspector") || User.IsInRole("Admin");
+    bool isInspector = User.IsInRole("Inspector");
 }
 
 <div class="container mt-5 mb-5">
@@ -9,6 +14,19 @@
         style="background: linear-gradient(90deg,#ff8800,#6f42c1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
         @ViewData["Title"]
     </h1>
+
+    @if (!ViewData.ModelState.IsValid && ViewData.ModelState.Values.SelectMany(v => v.Errors).Any())
+    {
+        <div class="alert alert-danger">
+            <strong>Ошибки при заполнении формы:</strong>
+            <ul>
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
 
     <form asp-action="Edit" method="post" class="mx-auto" style="max-width: 800px;">
         <input type="hidden" asp-for="Id" />
@@ -47,12 +65,12 @@
         <div class="row mb-3">
             <div class="col">
                 <label asp-for="Income" class="form-label"></label>
-                <input asp-for="Income" class="form-control" type="text" />
+                <input asp-for="Income" class="form-control" />
                 <span asp-validation-for="Income" class="text-danger small"></span>
             </div>
             <div class="col">
                 <label asp-for="Expenses" class="form-label"></label>
-                <input asp-for="Expenses" class="form-control" type="text" />
+                <input asp-for="Expenses" class="form-control" />
                 <span asp-validation-for="Expenses" class="text-danger small"></span>
             </div>
         </div>
@@ -60,23 +78,21 @@
         <div class="row mb-3">
             <div class="col">
                 <label asp-for="NonTaxableExpenses" class="form-label"></label>
-                <input asp-for="NonTaxableExpenses" class="form-control" type="text" />
+                <input asp-for="NonTaxableExpenses" class="form-control" />
                 <span asp-validation-for="NonTaxableExpenses" class="text-danger small"></span>
             </div>
             <div class="col">
                 <label asp-for="PaidTaxes" class="form-label"></label>
-                <input asp-for="PaidTaxes" class="form-control" type="text" />
+                <input asp-for="PaidTaxes" class="form-control" />
                 <span asp-validation-for="PaidTaxes" class="text-danger small"></span>
             </div>
         </div>
 
-        <div class="text-center" style="margin-top: 40px;">
+        <div class="text-center mt-4">
             <button type="submit" class="btn btn-primary me-2">
                 <i class="bi bi-check-circle"></i> Сохранить изменения
             </button>
-            <a asp-action="Index" class="btn btn-outline-light">
-                ← Назад к списку
-            </a>
+            <a asp-action="Index" class="btn btn-outline-light">← Назад</a>
         </div>
     </form>
 </div>
@@ -84,11 +100,11 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // Разрешить запятую как десятичный разделитель
-        $.validator.methods.number = function (value, element) {
-            return this.optional(element) || /^-?\d+(,\d+)?$/.test(value);
-        };
+        // Разрешить ввод с запятой и заменить её на точку для decimal-полей
+        document.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
+            input.addEventListener("change", function () {
+                this.value = this.value.replace(",", ".");
+            });
+        });
     </script>
 }
-
-
