@@ -20,28 +20,22 @@ public class ChiefInspectorController : Controller
         _userManager = userManager;
     }
 
-    // Главная страница дашборда
     public async Task<IActionResult> Index()
     {
-        // Пример сбора статистики для главной страницы
         ViewBag.TaxpayerCount = await _context.Taxpayers.CountAsync();
         ViewBag.DeclarationCount = await _context.Declarations.CountAsync();
         ViewBag.InspectorCount = await _context.Inspectors.CountAsync();
         ViewBag.InspectionCount = await _context.Inspections.CountAsync();
 
-        // Здесь же можно передать ViewBag с быстрыми ссылками на CRUD, отчеты и т.д.
-
         return View();
     }
 
-    // Выход из системы
     public async Task<IActionResult> Logout([FromServices] SignInManager<ApplicationUser> signInManager)
     {
         await signInManager.SignOutAsync();
         return RedirectToAction("Login", "Account");
     }
 
-    // Можно добавить быстрые переходы к основным спискам
     public IActionResult Taxpayers()
     {
         return RedirectToAction("Index", "Taxpayer");

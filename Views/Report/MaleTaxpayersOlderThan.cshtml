@@ -64,7 +64,11 @@
     
     @using Newtonsoft.Json
     @{
-        var json = JsonConvert.SerializeObject(Model);
+        var settings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        };
+        var json = JsonConvert.SerializeObject(Model, settings);
     }
     <form method="post" asp-controller="Report" asp-action="ExportToPdf">
         <input type="hidden" name="viewName" value="MaleTaxpayersOlderThan" />

@@ -9,7 +9,6 @@ using Rotativa.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- Загрузка .env ---
 Env.Load();
 var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 
@@ -23,11 +22,9 @@ else
     Console.WriteLine(connectionString);
 }
 
-// --- Подключение к базе ---
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// --- Identity + роли ---
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.User.RequireUniqueEmail = true;
@@ -35,7 +32,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// --- Авторизация ---
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireTaxpayer", policy => policy.RequireRole("Taxpayer"));
@@ -44,7 +40,6 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
 });
 
-// --- Json настройки ---
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(opt =>
     {
@@ -52,14 +47,12 @@ builder.Services.AddControllersWithViews()
         opt.JsonSerializerOptions.WriteIndented = true;
     });
 
-// --- Локализация ---
 var culture = new CultureInfo("ru-RU");
 CultureInfo.DefaultThreadCurrentCulture = culture;
 CultureInfo.DefaultThreadCurrentUICulture = culture;
 
 var app = builder.Build();
 
-// --- Инициализация ролей и пользователей ---
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -79,7 +72,6 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    // --- Инспектора ---
     var inspectors = new List<(int code, string email, string password)>
     {
         (1, "alekseev@tax.local", "Alekseev123!"),
@@ -123,7 +115,6 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    // --- Налогоплательщики ---
     var taxpayers = new List<(string iin, string email, string password)>
     {
         ("101010101010", "sultanova@tax.local", "Sultanova123!"),
@@ -154,10 +145,8 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// --- Настройка Rotativa ---
 RotativaConfiguration.Setup(app.Environment.WebRootPath, "Rotativa");
 
-// --- Middleware ---
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -174,7 +163,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// --- Роутинг ---
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}");

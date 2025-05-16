@@ -100,7 +100,6 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // Разрешить ввод с запятой и заменить её на точку для decimal-полей
         document.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
             input.addEventListener("change", function () {
                 this.value = this.value.replace(",", ".");

@@ -5,7 +5,7 @@ namespace TaxDeclarationWeb.Models;
 
 public class ApplicationUser : IdentityUser
 {
-    public string? IIN { get; set; }   // <--- Вот это ключевое для связи с Taxpayer!
+    public string? IIN { get; set; } 
 
     public int? InspectorId { get; set; }
 

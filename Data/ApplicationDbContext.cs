@@ -9,7 +9,6 @@ namespace TaxDeclarationWeb.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {}
 
-        // ✅ Используемые таблицы (существуют в базе вручную)
         public DbSet<Taxpayer> Taxpayers { get; set; }
         public DbSet<Declaration> Declarations { get; set; }
         public DbSet<Inspector> Inspectors { get; set; }
@@ -18,7 +17,6 @@ namespace TaxDeclarationWeb.Data
         public DbSet<Country> Countries { get; set; }
         public DbSet<Nationality> Nationalities { get; set; }
 
-        // ✅ Новая таблица для аудита событий
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<TransactionLog> TransactionLogs { get; set; }
 
@@ -26,7 +24,6 @@ namespace TaxDeclarationWeb.Data
         {
             base.OnModelCreating(builder);
 
-            // ❗ Подключаем существующие таблицы — НО без включения в миграции
             builder.Entity<Taxpayer>().ToTable("Налогоплательщики", t => t.ExcludeFromMigrations());
             builder.Entity<Declaration>().ToTable("Декларации", t => t.ExcludeFromMigrations());
             builder.Entity<Inspector>().ToTable("Инспекторы", t => t.ExcludeFromMigrations());
@@ -35,13 +32,11 @@ namespace TaxDeclarationWeb.Data
             builder.Entity<Country>().ToTable("Страны", t => t.ExcludeFromMigrations());
             builder.Entity<Nationality>().ToTable("Национальности", t => t.ExcludeFromMigrations());
 
-            // ✅ Только decimal поля на всякий случай
             builder.Entity<Declaration>().Property(d => d.Income).HasPrecision(18, 2);
             builder.Entity<Declaration>().Property(d => d.Expenses).HasPrecision(18, 2);
             builder.Entity<Declaration>().Property(d => d.NonTaxableExpenses).HasPrecision(18, 2);
             builder.Entity<Declaration>().Property(d => d.PaidTaxes).HasPrecision(18, 2);
 
-            // --- Опционально: можно добавить настройки для AuditLog (например, индекс по дате)
         }
     }
 }

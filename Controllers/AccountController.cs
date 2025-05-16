@@ -46,14 +46,10 @@ namespace TaxDeclarationWeb.Controllers
             if (result.Succeeded)
             {
                 var roles = await _userManager.GetRolesAsync(user);
-
-                // Логирование входа администратора (или других ролей)
+                
                 if (roles.Contains("Admin"))
                     await LogAudit("Вход администратора", $"Вход выполнен: {user.Email}");
-                // else if (roles.Contains("ChiefInspector"))
-                //     await LogAudit("Вход главного инспектора", $"Вход выполнен: {user.Email}");
 
-                // Перенаправление по приоритету ролей
                 if (roles.Contains("Admin"))
                     return RedirectToAction("Index", "Admin");
                 if (roles.Contains("ChiefInspector"))
@@ -79,8 +75,6 @@ namespace TaxDeclarationWeb.Controllers
                 var roles = await _userManager.GetRolesAsync(user);
                 if (roles.Contains("Admin"))
                     await LogAudit("Выход администратора", $"Выход выполнен: {user.Email}");
-                // else if (roles.Contains("ChiefInspector"))
-                //     await LogAudit("Выход главного инспектора", $"Выход: {user.Email}");
             }
 
             await _signInManager.SignOutAsync();
@@ -99,8 +93,7 @@ namespace TaxDeclarationWeb.Controllers
                 return RedirectToAction("Login");
 
             var roles = await _userManager.GetRolesAsync(user);
-
-            // Логирование попытки доступа к закрытой зоне для важных ролей
+            
             if (roles.Contains("Admin"))
                 await LogAudit("AccessDenied", $"Администратор {user.Email} попытался получить доступ к закрытой зоне: {Request.Path}");
             else if (roles.Contains("ChiefInspector"))
@@ -117,8 +110,7 @@ namespace TaxDeclarationWeb.Controllers
 
             return RedirectToAction("Index", "Home");
         }
-
-        // Метод для записи в аудит
+        
         private async Task LogAudit(string action, string details)
         {
             var log = new AuditLog
@@ -132,37 +124,6 @@ namespace TaxDeclarationWeb.Controllers
             _context.AuditLogs.Add(log);
             await _context.SaveChangesAsync();
         }
-
-        // Если потребуется, добавь регистрацию только для администратора:
-        /*
-        [HttpGet]
-        [Authorize(Roles = "Admin")]
-        public IActionResult Register()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Register(RegisterViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return View(model);
-
-            var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (result.Succeeded)
-            {
-                await _userManager.AddToRoleAsync(user, model.Role);
-                return RedirectToAction("Index", "Admin");
-            }
-
-            foreach (var error in result.Errors)
-                ModelState.AddModelError("", error.Description);
-
-            return View(model);
-        }
-        */
+        
     }
 }

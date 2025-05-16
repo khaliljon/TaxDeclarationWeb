@@ -105,7 +105,6 @@ namespace TaxDeclarationWeb.Controllers
 
             try
             {
-                // ВАЖНО: подгружаем оригинальный UserId
                 var existing = await _context.Inspectors
                     .AsNoTracking()
                     .FirstOrDefaultAsync(i => i.Code == inspector.Code);

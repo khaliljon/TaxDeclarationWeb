@@ -27,7 +27,7 @@ public class Inspector
     public int InspectionCode { get; set; }
 
     [ForeignKey("InspectionCode")]
-    [ValidateNever] // 🔧 важно: навигационные свойства валидировать не нужно
+    [ValidateNever] 
     public Inspection Inspection { get; set; }
 
     [Required(ErrorMessage = "Укажите номер телефона")]

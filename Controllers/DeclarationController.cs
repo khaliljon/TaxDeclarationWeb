@@ -210,8 +210,6 @@ public class DeclarationController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // === Вспомогательные методы ===
-
     private async Task<bool> AccessDenied(Declaration declaration)
     {
         var user = await _userManager.GetUserAsync(User);

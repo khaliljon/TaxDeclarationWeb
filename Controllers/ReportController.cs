@@ -215,8 +215,8 @@ public class ReportController : Controller
 
         var result = await query.Select(d => new
         {
-            d.Id,
-            d.Inspection.Name,
+            DeclarationId = d.Id, 
+            InspectionName = d.Inspection.Name,
             InspectorName = d.Inspector.FullName,
             d.SubmittedAt,
             d.Year,
@@ -227,7 +227,6 @@ public class ReportController : Controller
             d.PaidTaxes,
             Profit = d.Income - d.Expenses
         }).ToListAsync<dynamic>();
-
         return View(result);
     }
 

@@ -30,11 +30,9 @@ namespace TaxDeclarationWeb.Controllers
             _roleManager = roleManager;
             _context = context;
         }
-
-        // Главная панель администратора
+        
         public IActionResult Index() => View();
 
-        // Выход администратора с аудитом
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout([FromServices] SignInManager<ApplicationUser> signInManager)
@@ -44,7 +42,6 @@ namespace TaxDeclarationWeb.Controllers
             return RedirectToAction("Login", "Account");
         }
 
-        // --- Управление пользователями ---
         public async Task<IActionResult> ManageUsers()
         {
             var users = _userManager.Users.ToList();
@@ -129,7 +126,6 @@ namespace TaxDeclarationWeb.Controllers
             return RedirectToAction(nameof(ManageUsers));
         }
 
-        // --- Аудит ---
         public async Task<IActionResult> Audit()
         {
             var logs = await _context.AuditLogs
@@ -139,7 +135,6 @@ namespace TaxDeclarationWeb.Controllers
             return View(logs);
         }
 
-        // --- Журнал транзакций ---
         public async Task<IActionResult> TransactionLog()
         {
             var logs = await _context.TransactionLogs
@@ -149,7 +144,6 @@ namespace TaxDeclarationWeb.Controllers
             return View(logs);
         }
 
-       // Создание резервной копии
 [HttpPost]
 public IActionResult CreateBackup()
 {
@@ -186,7 +180,6 @@ public IActionResult CreateBackup()
     return RedirectToAction("Backups");
 }
 
-// Просмотр списка резервных копий
 public IActionResult Backups()
 {
     string backupDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Backups");
@@ -201,7 +194,6 @@ public IActionResult Backups()
     return View(files); // files — List<FileInfo>
 }
 
-// Удаление резервной копии
 [HttpPost]
 public IActionResult DeleteBackup(string fileName)
 {
@@ -221,7 +213,6 @@ public IActionResult DeleteBackup(string fileName)
     return RedirectToAction("Backups");
 }
 
-// Восстановление базы данных
 [HttpPost]
 [ValidateAntiForgeryToken]
 public IActionResult RestoreDatabase(string fileName)
@@ -237,7 +228,6 @@ public IActionResult RestoreDatabase(string fileName)
 
     string sql = $@"RESTORE DATABASE [TaxDeclaration] FROM DISK = N'{fullPath}' WITH REPLACE";
 
-    // Получаем строку подключения из .env
     string connString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
     Console.WriteLine($"[RESTORE] connString: {connString}");
 
@@ -261,7 +251,6 @@ public IActionResult RestoreDatabase(string fileName)
     return RedirectToAction("Restore");
 }
 
-// Просмотр списка резервных копий для восстановления
 [HttpGet]
 public IActionResult Restore()
 {
@@ -273,10 +262,9 @@ public IActionResult Restore()
             .ToList()
         : new List<FileInfo>();
 
-    return View(files); // Передаём список файлов в представление
+    return View(files); 
 }
 
-        // --- Логирование аудита ---
         private async Task LogAudit(string action, string details)
         {
             var log = new AuditLog
@@ -291,7 +279,6 @@ public IActionResult Restore()
             await _context.SaveChangesAsync();
         }
 
-        // --- Логирование транзакций ---
         private async Task LogTransaction(string operation, string entity, string entityId, string details)
         {
             var log = new TransactionLog

@@ -27,7 +27,6 @@ public class InspectorController : Controller
         ViewBag.TotalTaxpayers = totalTaxpayers;
         ViewBag.TotalDeclarations = totalDeclarations;
 
-        // Маскируем пример данных
         var maskedUsers = await _context.Taxpayers
             .Select(t => new
             {
